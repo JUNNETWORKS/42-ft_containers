@@ -4,7 +4,7 @@ CXXFLAGS += -std=c++98 -g -fsanitize=address
 OBJ_DIR  := objs
 NAME     := my_containers
 
-SRCS     := $(wildcard *.cpp)
+SRCS     := $(wildcard srcs/*.cpp)
 OBJECTS  := $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
          := $(OBJECTS:.o=.d)

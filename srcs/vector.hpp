@@ -10,8 +10,7 @@ class vector_iterator;
 
 template <typename T, typename Allocator = std::allocator<T> >
 class vector {
-  template <typename T>
-  friend class vector_iterator;
+  friend class vector_iterator<T>;
 
  public:
   typedef T value_type;
@@ -20,68 +19,140 @@ class vector {
   typedef const value_type &const_reference;
   typedef value_type *pointer;
   typedef const value_type *const_pointer;
-  typedef vector_iterator iterator;
-  typedef const vector_iterator const_iterator;
+  typedef vector_iterator<T> iterator;
+  typedef const vector_iterator<T> const_iterator;
   typedef std::size_t size_type;
 
-  vector(const allocator_type &alloc = allocator_type());
-  vector(size_type n, const value_type &val = value_type(),
-         const allocator_type &alloc = allocator_type());
-  template <class InputIterator>
-  vector(InputIterator first, InputIterator last,
-         const allocator_type &alloc = allocator_type());
-  vector(const vector &x);
-  ~vector();
+  vector(allocator_type alloc = allocator_type()) : cap_(kDefaultCap_) {
+    start_ = alloc.allocate(cap_);
+    for (size_type i = 0; i < cap_; i++) {
+      alloc.construct(start_ + i);
+    }
+    finish_ = start_;
+    end_of_storage_ = start_ + cap_;
+  }
 
-  vector &operator=(const vector &x);
+  vector(size_type n, const value_type &val = value_type(),
+         allocator_type alloc = allocator_type())
+      : cap_(n) {
+    start_ = alloc.allocate(cap_);
+    for (size_type i = 0; i < cap_; i++) {
+      alloc.construct(start_ + i, val);
+    }
+    finish_ = start_ + n;
+    end_of_storage_ = start_ + cap_;
+  }
+
+  // template <class InputIterator>
+  // vector(InputIterator first, InputIterator last,
+  //        allocator_type alloc = allocator_type()) {
+  //   // TODO: Random Access Iterator じゃないと減算がサポートされてない
+  //   cap_ = last - first;
+  //   start_ = alloc.allocate(cap_);
+  //   for (size_type i = 0; first != last; first++, i++) {
+  //     alloc.construct(start_ + i, *first);
+  //   }
+  // }
+
+  // vector(const vector &x) : cap_(cap_) {
+  //   allocator_type alloc = allocator_type();
+  //   start_ = alloc.allocate(x.cap_);
+  //   iterator it = x.begin();
+  //   for (size_type i = 0; it < x.end(); it++, i++) {
+  //     alloc.construct(start_ + i, *it);
+  //   }
+  // }
+
+  vector &operator=(const vector &x) {
+    allocator_type alloc = allocator_type();
+    alloc.allocate(x.cap_);
+  }
+
+  ~vector() {
+    allocator_type alloc = allocator_type();
+    alloc.deallocate(start_, cap_);
+  }
 
   // Iterators
-  iterator begin();
-  const_iterator begin() const;
-  iterator end();
-  const_iterator end() const;
-  iterator rbegin();
-  const_iterator rbegin() const;
-  iterator rend();
-  const_iterator rend() const;
+  iterator begin() {
+    return vector_iterator<T>(start_);
+  }
+
+  // const_iterator begin() const;
+
+  iterator end() {
+    return vector_iterator<T>(finish_ + 1);
+  }
+
+  // const_iterator end() const;
+
+  // reverse_iterator rbegin() {}
+
+  // const_reverse_iterator rbegin() const;
+
+  // reverse_iterator rend() {}
+
+  // const_reverse_iterator rend() const;
 
   // Capacity
+
   size_type size() const;
-  size_type max_size() const;
-  size_type capacity() const;
-  bool empty() const;
-  void reserve(size_type n);
+
+  size_type max_size() const {
+    return allocator_type().max_size();
+  }
+
+  size_type capacity() const {
+    return cap_;
+  }
+
+  bool empty() const {
+    return begin() == end();
+  }
+
+  // void reserve(size_type n);
 
   // Element access
-  reference &operator[]();
-  const_reference &operator[]() const;
-  reference &at();
-  const_reference &at() const;
+  reference &operator[](int n) {
+    return start_[n];
+  }
+  // const_reference &operator[](int n) const;
+  reference &at(int n) {
+    return start_[n];
+  }
+  // const_reference &at(int n) const;
   reference &front();
-  const_reference &front() const;
+  // const_reference &front() const;
   reference &back();
-  const_reference &back() const;
+  // const_reference &back() const;
 
   // Modifiers
-  template <class InputIterator>
-  void assign(InputIterator first, InputIterator last);
-  void assign(size_type n, const value_type &val);
-  void push_back(const value_type &val);
-  void pop_back;
-  iterator insert(iterator position, const value_type &val);
-  void insert(iterator position, size_type n, const value_type &val);
-  template <class InputIterator>
-  void insert(iterator position, InputIterator first, InputIterator last);
-  iterator erase(iterator position);
-  iterator erase(iterator first, iterator last);
-  void swap(vector &x);
-  void clear();
+  // template <class InputIterator>
+  // void assign(InputIterator first, InputIterator last);
+  // void assign(size_type n, const value_type &val);
+  // void push_back(const value_type &val);
+  // void pop_back();
+  // iterator insert(iterator position, const value_type &val);
+  // void insert(iterator position, size_type n, const value_type &val);
+  // template <class InputIterator>
+  // void insert(iterator position, InputIterator first, InputIterator last);
+  // iterator erase(iterator position);
+  // iterator erase(iterator first, iterator last);
+  // void swap(vector &x);
+  // void clear();
 
   // Allocator
-  allocator_type get_allocator() const;
+  allocator_type get_allocator() const {
+    return allocator_type();
+  }
 
  private:
-  value_type *store_;
+  static const size_type kDefaultCap_ = 1024;
+
+  size_type cap_;
+  pointer start_;
+  pointer finish_;
+  pointer end_of_storage_;
 };
 }  // namespace ft
 

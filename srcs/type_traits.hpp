@@ -36,16 +36,69 @@ struct remove_volatile<volatile T> {
   typedef T type;
 };
 
-/* is_integral */
-template <typename>
-struct is_integral_base {};
+template <typename T, T Val>
+struct integral_constant {
+  typedef integral_constant type;
+  typedef T value_type;
+  enum { value = Val };
+};
+
+typedef integral_constant<bool, true> true_type;
+typedef integral_constant<bool, false> false_type;
+
+/* is_integral
+テンプレートの完全特殊化と SFINAE を用いて実現する
+*/
+template <typename T>
+struct is_integral_base : public false_type {};
+
+template <>
+struct is_integral_base<bool> : public true_type {
+  typedef bool value;
+};
+template <>
+struct is_integral_base<char> : public true_type {
+  typedef char value;
+};
+template <>
+struct is_integral_base<char16_t> : public true_type {
+  typedef char16_t value;
+};
+template <>
+struct is_integral_base<char32_t> : public true_type {
+  typedef char32_t value;
+};
+template <>
+struct is_integral_base<wchar_t> : public true_type {
+  typedef wchar_t value;
+};
+template <>
+struct is_integral_base<short> : public true_type {
+  typedef short value;
+};
+template <>
+struct is_integral_base<int> : public true_type {
+  typedef int value;
+};
+template <>
+struct is_integral_base<long> : public true_type {
+  typedef long value;
+};
+template <>
+struct is_integral_base<long long> : public true_type {
+  typedef long long value;
+};
+
+template <typename T>
+struct is_integral
+    : public is_integral_base<typename remove_cv<T>::type>::type {};
 
 /* enable_if */
 /*
 整数のみしか受け付けないようなベクターは以下のように定義できる
 template <class T,
   typename std::enable_if<std::is_integral<T>::value,T>::type* = nullptr>
-class IntOnlyVector<T> {};
+class IntOnlyVector {};
 
 enable_ifのテンプレート第一引数がtrueになれば
   テンプレートから実体が生成されるのでオーバーロードの候補となる.

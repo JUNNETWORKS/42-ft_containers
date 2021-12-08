@@ -129,6 +129,17 @@ struct enable_if<true, T> {
   typedef T type;
 };
 
+/* is_same
+https://en.cppreference.com/w/cpp/types/is_same
+f T and U name the same type (taking into account const/volatile
+qualifications), provides the member constant value equal to true.
+Otherwise value is false.
+*/
+template <typename T, typename U>
+struct is_same : public false_type {};
+template <typename T>
+struct is_same : public true_type {};
+
 }  // namespace ft
 
 #endif

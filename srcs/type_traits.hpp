@@ -61,14 +61,6 @@ struct is_integral_base<char> : public true_type {
   typedef char value;
 };
 template <>
-struct is_integral_base<char16_t> : public true_type {
-  typedef char16_t value;
-};
-template <>
-struct is_integral_base<char32_t> : public true_type {
-  typedef char32_t value;
-};
-template <>
 struct is_integral_base<wchar_t> : public true_type {
   typedef wchar_t value;
 };
@@ -138,7 +130,7 @@ Otherwise value is false.
 template <typename T, typename U>
 struct is_same : public false_type {};
 template <typename T>
-struct is_same : public true_type {};
+struct is_same<T, T> : public true_type {};
 
 }  // namespace ft
 

@@ -2,7 +2,7 @@ CXX      := clang++
 CXXFLAGS := -Wall -Wextra -Werror
 CXXFLAGS += -std=c++98 -g -fsanitize=address
 OBJ_DIR  := objs
-NAME     := my_containers
+NAME     := ft_containers
 
 SRCS     := $(wildcard srcs/*.cpp)
 OBJECTS  := $(SRCS:%.cpp=$(OBJ_DIR)/%.o)

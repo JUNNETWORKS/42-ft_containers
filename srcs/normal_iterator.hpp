@@ -1,6 +1,7 @@
 #ifndef NORMAL_ITERATOR_H_
 #define NORMAL_ITERATOR_H_
 
+#include "iterator_traits.hpp"
 #include "type_traits.hpp"
 
 namespace ft {
@@ -41,7 +42,7 @@ class normal_iterator {
           Iter,
           typename enable_if<is_same<Iter, typename Container::pointer>::value,
                              Container>::type>& it)
-      : current_(it.current_) {}
+      : current_(it.base()) {}
 
   // Forward iterator requirements
   reference operator*() const {

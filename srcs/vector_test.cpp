@@ -42,7 +42,9 @@ int main() {
     // assert(*stl_it == *ft_it);
 
     (void)stl_it;
+    (void)const_stl_it;
     (void)ft_it;
+    (void)const_ft_it;
   }
   return 0;
 }

@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "normal_iterator.hpp"
-#include "vector_iterator.hpp"
 
 namespace ft {
 
@@ -21,8 +20,8 @@ class vector {
   typedef const value_type &const_reference;
   typedef value_type *pointer;
   typedef const value_type *const_pointer;
-  typedef vector_iterator<T> iterator;
-  typedef vector_iterator<const T> const_iterator;
+  typedef normal_iterator<pointer, vector> iterator;
+  typedef normal_iterator<const_pointer, vector> const_iterator;
   typedef std::size_t size_type;
 
   vector(allocator_type alloc = allocator_type()) : cap_(kDefaultCap_) {
@@ -88,15 +87,17 @@ class vector {
     return iterator(start_);
   }
 
-  // const_iterator begin() const {
-  //   return const_iterator(start_);
-  // }
+  const_iterator begin() const {
+    return const_iterator(start_);
+  }
 
   iterator end() {
     return iterator(finish_);
   }
 
-  const_iterator end() const;
+  const_iterator end() const {
+    return const_iterator(finish_);
+  }
 
   // reverse_iterator rbegin() {}
 

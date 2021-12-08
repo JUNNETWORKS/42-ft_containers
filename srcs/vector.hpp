@@ -2,6 +2,7 @@
 #define VECTOR_H_
 #include <memory>
 
+#include "normal_iterator.hpp"
 #include "vector_iterator.hpp"
 
 namespace ft {
@@ -21,7 +22,7 @@ class vector {
   typedef value_type *pointer;
   typedef const value_type *const_pointer;
   typedef vector_iterator<T> iterator;
-  typedef const vector_iterator<T> const_iterator;
+  typedef vector_iterator<const T> const_iterator;
   typedef std::size_t size_type;
 
   vector(allocator_type alloc = allocator_type()) : cap_(kDefaultCap_) {
@@ -87,13 +88,15 @@ class vector {
     return iterator(start_);
   }
 
-  // const_iterator begin() const;
+  // const_iterator begin() const {
+  //   return const_iterator(start_);
+  // }
 
   iterator end() {
     return iterator(finish_);
   }
 
-  // const_iterator end() const;
+  const_iterator end() const;
 
   // reverse_iterator rbegin() {}
 

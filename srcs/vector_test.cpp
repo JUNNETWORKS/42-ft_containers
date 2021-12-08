@@ -33,9 +33,12 @@ int main() {
     std::cout << "max_size: " << ft_vector.max_size() << std::endl;
     assert(stl_vector.capacity() == ft_vector.capacity());
     std::cout << "capacity: " << ft_vector.capacity() << std::endl;
+    assert(stl_vector.empty() == ft_vector.empty());
 
     std::vector<int>::iterator stl_it = stl_vector.begin();
+    std::vector<int>::const_iterator const_stl_it = stl_vector.begin();
     ft::vector<int>::iterator ft_it = ft_vector.begin();
+    ft::vector<int>::const_iterator const_ft_it = ft_vector.begin();
     // assert(*stl_it == *ft_it);
 
     (void)stl_it;

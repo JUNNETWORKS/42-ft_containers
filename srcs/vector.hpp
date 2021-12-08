@@ -97,7 +97,9 @@ class vector {
 
   // Capacity
 
-  size_type size() const;
+  size_type size() const {
+    return size_type(finish_ - start_);
+  }
 
   size_type max_size() const {
     return allocator_type().max_size();

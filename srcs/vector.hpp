@@ -1,11 +1,12 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
-
 #include <memory>
+
+#include "vector_iterator.hpp"
 
 namespace ft {
 
-template <typename T>
+template <typename>
 class vector_iterator;
 
 template <typename T, typename Allocator = std::allocator<T> >
@@ -75,13 +76,13 @@ class vector {
 
   // Iterators
   iterator begin() {
-    return vector_iterator<T>(start_);
+    return iterator(start_);
   }
 
   // const_iterator begin() const;
 
   iterator end() {
-    return vector_iterator<T>(finish_ + 1);
+    return iterator(finish_);
   }
 
   // const_iterator end() const;

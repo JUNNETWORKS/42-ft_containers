@@ -55,18 +55,26 @@ class vector {
   //   }
   // }
 
-  // vector(const vector &x) : cap_(cap_) {
-  //   allocator_type alloc = allocator_type();
-  //   start_ = alloc.allocate(x.cap_);
-  //   iterator it = x.begin();
-  //   for (size_type i = 0; it < x.end(); it++, i++) {
-  //     alloc.construct(start_ + i, *it);
-  //   }
-  // }
+  vector(const vector &x) : cap_(cap_) {
+    allocator_type alloc = allocator_type();
+    start_ = alloc.allocate(cap_);
+    for (size_type i = 0; i < x.size(); i++) {
+      alloc.construct(start_ + i, x[i]);
+    }
+    finish_ = start_ + x.size();
+    end_of_storage_ = start_ + cap_;
+  }
 
   vector &operator=(const vector &x) {
     allocator_type alloc = allocator_type();
-    alloc.allocate(x.cap_);
+
+    cap_ = x.cap_;
+    start_ = alloc.allocate(cap_);
+    for (size_type i = 0; i < x.size(); i++) {
+      alloc.construct(start_ + i, x[i]);
+    }
+    finish_ = start_ + x.size();
+    end_of_storage_ = start_ + cap_;
   }
 
   ~vector() {

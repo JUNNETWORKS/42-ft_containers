@@ -5,7 +5,7 @@
 #include <vector>
 
 template <typename T>
-bool is_same_vector(std::vector<T> stl_vector, ft::vector<T> ft_vector) {
+bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
   typename std::vector<T>::iterator stl_it = stl_vector.begin();
   typename ft::vector<T>::iterator ft_it = ft_vector.begin();
 

@@ -8,11 +8,11 @@
 #include "../srcs/type_traits.hpp"
 
 // stdバージョン
-// template <typename T>
-// void thisIsInteger(
-//     T x, typename std::enable_if<std::is_integral<T>::value>::type* = 0) {
-//   std::cout << "This is integer" << std::endl;
-// }
+template <typename T>
+void thisIsStdInteger(
+    T x, typename std::enable_if<std::is_integral<T>::value>::type* = 0) {
+  std::cout << "This is integer. Std." << std::endl;
+}
 
 template <typename T>
 void thisIsInteger(
@@ -22,7 +22,22 @@ void thisIsInteger(
 
 int main(int argc, char** argv) {
   /* enable_if, is_integral */
-  { thisIsInteger<int>(10); }
+  {
+    // these should be able to compile
+    thisIsInteger<int>(10);
+    thisIsInteger(10);
+    thisIsInteger(10u);
+    thisIsStdInteger(10u);
+    thisIsInteger(10l);
+    thisIsInteger(10ll);
+    thisIsInteger('a');
+
+    // these shouldn't be able to compile
+    // thisIsInteger("abc");
+    // thisIsInteger(std::string("abc"));
+    // thisIsInteger(10.0f);
+    // thisIsInteger(10.0);
+  }
 
   /* vector */
   {

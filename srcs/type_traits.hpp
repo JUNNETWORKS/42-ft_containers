@@ -77,7 +77,15 @@ struct is_integral_base<short> : public true_type {
   typedef short value;
 };
 template <>
+struct is_integral_base<unsigned short> : public true_type {
+  typedef short value;
+};
+template <>
 struct is_integral_base<int> : public true_type {
+  typedef int value;
+};
+template <>
+struct is_integral_base<unsigned int> : public true_type {
   typedef int value;
 };
 template <>
@@ -85,7 +93,15 @@ struct is_integral_base<long> : public true_type {
   typedef long value;
 };
 template <>
+struct is_integral_base<unsigned long> : public true_type {
+  typedef long value;
+};
+template <>
 struct is_integral_base<long long> : public true_type {
+  typedef long long value;
+};
+template <>
+struct is_integral_base<unsigned long long> : public true_type {
   typedef long long value;
 };
 

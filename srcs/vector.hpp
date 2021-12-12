@@ -1,6 +1,7 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 #include <memory>
+#include <stdexcept>
 
 #include "normal_iterator.hpp"
 #include "reverse_iterator.hpp"
@@ -27,16 +28,7 @@ class vector {
   typedef reverse_iterator<iterator> reverse_iterator;
   typedef std::size_t size_type;
 
-  vector(allocator_type alloc = allocator_type()) : cap_(kDefaultCap_) {
-    start_ = alloc.allocate(cap_);
-    for (size_type i = 0; i < cap_; i++) {
-      alloc.construct(start_ + i);
-    }
-    finish_ = start_;
-    end_of_storage_ = start_ + cap_;
-  }
-
-  vector(size_type n, const value_type &val = value_type(),
+  vector(size_type n = 0, const value_type &val = value_type(),
          allocator_type alloc = allocator_type())
       : cap_(n) {
     start_ = alloc.allocate(cap_);
@@ -140,7 +132,33 @@ class vector {
     return begin() == end();
   }
 
-  // void reserve(size_type n);
+  void reserve(size_type n) {
+    allocator_type allocator = allocator_type();
+    if (n > allocator.max_size())
+      throw std::length_error("vector::reserve");
+    if (capacity() < n) {
+      // 新しい領域の確保と先頭を記録.
+      pointer new_start = allocator.allocate(n);
+
+      size_type len = finish_ - start_;
+
+      // 新しい領域にデータをコピーする
+      for (size_type i = 0; i < len; i++) {
+        allocator.construct(new_start + i, *(start_ + i));
+
+        /* 古い領域のデータは不要なのでデストラクタを呼び出す */
+        allocator.destroy(start_ + i);
+      }
+      /* 古い領域を破棄 */
+      allocator.deallocate(start_, cap_);
+
+      /* 各種メンバー変数を更新 */
+      cap_ = n;
+      start_ = new_start;
+      finish_ = start_ + len;
+      end_of_storage_ = start_ + cap_;
+    }
+  }
 
   // Element access
   reference &operator[](int n) {

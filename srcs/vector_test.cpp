@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#define TEST_SECTION(msg) std::cout << "===== " msg " =====" << std::endl
+
 template <typename T>
 bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
   typename std::vector<T>::iterator stl_it = stl_vector.begin();
@@ -22,6 +24,8 @@ bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
 
 int main() {
   { /* sample test */
+    TEST_SECTION("sample test");
+
     std::vector<int> stl_vector(10, 0);
     ft::vector<int> ft_vector(10, 0);
 
@@ -36,9 +40,29 @@ int main() {
     assert(stl_vector.empty() == ft_vector.empty());
   }
 
+  {
+    // デフォルトコンストラクタ
+    TEST_SECTION("default constructor");
+
+    std::vector<int> stl_vector;
+    ft::vector<int> ft_vector;
+
+    assert(is_same_vector(stl_vector, ft_vector));
+
+    assert(stl_vector.size() == ft_vector.size());
+    std::cout << "size: " << ft_vector.size() << std::endl;
+    assert(stl_vector.max_size() == ft_vector.max_size());
+    std::cout << "max_size: " << ft_vector.max_size() << std::endl;
+    assert(stl_vector.capacity() == ft_vector.capacity());
+    std::cout << "capacity: " << ft_vector.capacity() << std::endl;
+    assert(stl_vector.empty() == ft_vector.empty());
+  }
+
   { /* normal iterator */
-    std::vector<int> stl_vector(10, 0);
-    ft::vector<int> ft_vector(10, 0);
+    TEST_SECTION("normal iterator");
+
+    std::vector<int> stl_vector(10);
+    ft::vector<int> ft_vector(10);
 
     /* begin() can return iterator and const_iterator */
     std::vector<int>::iterator stl_it = stl_vector.begin();
@@ -69,6 +93,8 @@ int main() {
   }
 
   { /* reverse iterator */
+    TEST_SECTION("reverse iterator");
+
     std::vector<int> stl_vector(10, 0);
     ft::vector<int> ft_vector(10, 0);
 
@@ -100,6 +126,52 @@ int main() {
     is_same_vector(stl_vector, ft_vector);
 
     std::cout << "reverse iterator implementation is correct!" << std::endl;
+  }
+
+  { /* Capacity */
+    TEST_SECTION("Capacity");
+
+    std::vector<int> test_lens;
+    test_lens.push_back(0);
+    test_lens.push_back(1);
+    test_lens.push_back(2);
+    test_lens.push_back(10);
+
+    for (std::vector<int>::const_iterator it = test_lens.begin();
+         it != test_lens.end(); ++it) {
+      int len = *it;
+      std::vector<int> stl_vector(len);
+      ft::vector<int> ft_vector(len);
+      assert(stl_vector.size() == ft_vector.size());
+      std::cout << "size: " << ft_vector.size() << std::endl;
+      assert(stl_vector.max_size() == ft_vector.max_size());
+      std::cout << "max_size: " << ft_vector.max_size() << std::endl;
+      assert(stl_vector.capacity() == ft_vector.capacity());
+      std::cout << "capacity: " << ft_vector.capacity() << std::endl;
+      assert(stl_vector.empty() == ft_vector.empty());
+
+      /* reserve */
+
+      // 現在の要素数より少ない時は何も起きない
+      stl_vector.reserve(0);
+      ft_vector.reserve(0);
+
+      // 現在の要素数より多い時は実行される
+      stl_vector.reserve(100);
+      ft_vector.reserve(100);
+
+      // allocator.max_size() を超えるのはエラー
+      try {
+        stl_vector.reserve(std::allocator<int>().max_size() + 1);
+      } catch (const std::length_error &e) {
+        std::cerr << e.what() << std::endl;
+      }
+      try {
+        ft_vector.reserve(std::allocator<int>().max_size() + 1);
+      } catch (const std::length_error &e) {
+        std::cerr << e.what() << std::endl;
+      }
+    }
   }
   return 0;
 }

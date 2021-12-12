@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "normal_iterator.hpp"
+#include "reverse_iterator.hpp"
 
 namespace ft {
 
@@ -22,6 +23,8 @@ class vector {
   typedef const value_type *const_pointer;
   typedef normal_iterator<pointer, vector> iterator;
   typedef normal_iterator<const_pointer, vector> const_iterator;
+  typedef reverse_iterator<const_iterator> const_reverse_iterator;
+  typedef reverse_iterator<iterator> reverse_iterator;
   typedef std::size_t size_type;
 
   vector(allocator_type alloc = allocator_type()) : cap_(kDefaultCap_) {
@@ -103,13 +106,21 @@ class vector {
     return const_iterator(finish_);
   }
 
-  // reverse_iterator rbegin() {}
+  reverse_iterator rbegin() {
+    return reverse_iterator(end());
+  }
 
-  // const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const {
+    return const_reverse_iterator(end());
+  }
 
-  // reverse_iterator rend() {}
+  reverse_iterator rend() {
+    return reverse_iterator(begin());
+  }
 
-  // const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const {
+    return const_reverse_iterator(begin());
+  }
 
   // Capacity
 

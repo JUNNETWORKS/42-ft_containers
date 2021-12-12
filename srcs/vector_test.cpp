@@ -92,7 +92,7 @@ int main() {
     stl_rit = stl_vector.rbegin();
     ft_rit = ft_vector.rbegin();
     /* iterator allow write value at *it */
-    for (int i = 0; stl_it != stl_vector.rend() && ft_it != ft_vector.rend();
+    for (int i = 0; stl_rit != stl_vector.rend() && ft_rit != ft_vector.rend();
          ++i, ++stl_rit, ++ft_rit) {
       *stl_rit = i;
       *ft_rit = i;

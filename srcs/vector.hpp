@@ -44,16 +44,20 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  // template <class InputIterator>
-  // vector(InputIterator first, InputIterator last,
-  //        allocator_type alloc = allocator_type()) {
-  //   // TODO: Random Access Iterator じゃないと減算がサポートされてない
-  //   cap_ = last - first;
-  //   start_ = alloc.allocate(cap_);
-  //   for (size_type i = 0; first != last; first++, i++) {
-  //     alloc.construct(start_ + i, *first);
-  //   }
-  // }
+  template <class InputIterator>
+  vector(InputIterator first, InputIterator last,
+         allocator_type alloc = allocator_type(),
+         typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
+    // TODO: Random Access Iterator じゃないと減算がサポートされてない
+    int n = last - first;
+    cap_ = n;
+    start_ = alloc.allocate(cap_);
+    for (size_type i = 0; first != last; first++, i++) {
+      alloc.construct(start_ + i, *first);
+    }
+    finish_ = start_ + n;
+    end_of_storage_ = start_ + cap_;
+  }
 
   vector(const vector &x) : cap_(cap_) {
     allocator_type alloc = allocator_type();

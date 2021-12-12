@@ -121,6 +121,16 @@ struct enable_if<true, T> {
   typedef T type;
 };
 
+/* disable_if */
+/* enable_if の説明内のtrue/falseを反対にした挙動になる */
+template <bool, typename T = void>
+struct disable_if {};
+
+template <typename T>
+struct disable_if<false, T> {
+  typedef T type;
+};
+
 /* is_same
 https://en.cppreference.com/w/cpp/types/is_same
 f T and U name the same type (taking into account const/volatile

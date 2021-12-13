@@ -161,18 +161,38 @@ class vector {
   }
 
   // Element access
-  reference &operator[](int n) {
+  reference operator[](size_type n) {
     return start_[n];
   }
-  // const_reference &operator[](int n) const;
-  reference &at(int n) {
+  const_reference operator[](size_type n) const {
     return start_[n];
   }
-  // const_reference &at(int n) const;
-  reference &front();
-  // const_reference &front() const;
-  reference &back();
-  // const_reference &back() const;
+  reference at(size_type n) {
+    if (n >= size())
+      throw std::out_of_range("vector::at out of range!");
+    return start_[n];
+  }
+  const_reference at(size_type n) const {
+    if (n >= size())
+      throw std::out_of_range("vector::at out of range!");
+    return start_[n];
+  }
+  reference front() {
+    return *begin();
+  }
+  const_reference front() const {
+    return *begin();
+  }
+  reference back() {
+    iterator tmp = end();
+    --tmp;
+    return *tmp;
+  }
+  const_reference back() const {
+    const_iterator tmp = end();
+    --tmp;
+    return *tmp;
+  }
 
   // Modifiers
   // template <class InputIterator>

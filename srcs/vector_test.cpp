@@ -1,6 +1,8 @@
 #include "vector.hpp"
 
 #include <cassert>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <vector>
 
@@ -23,6 +25,8 @@ bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
 }
 
 int main() {
+  srand(time(NULL));
+
   { /* sample test */
     TEST_SECTION("sample test");
 
@@ -171,6 +175,48 @@ int main() {
       } catch (const std::length_error &e) {
         std::cerr << e.what() << std::endl;
       }
+    }
+  }
+
+  {
+    // Element Access
+    TEST_SECTION("Element Access");
+
+    std::vector<int> stl_vector(3);
+    ft::vector<int> ft_vector(3);
+
+    for (int i = 0; i < 3; ++i) {
+      stl_vector[i] = i;
+      ft_vector[i] = i;
+    }
+    for (int i = 0; i < 3; ++i) {
+      assert(stl_vector[i] == ft_vector[i]);
+      assert(stl_vector.at(i) == ft_vector.at(i));
+    }
+    assert(stl_vector.front() == ft_vector.front());
+    assert(stl_vector.back() == ft_vector.back());
+
+    // vector.at() should throw out_of_range exception
+    //   if argument n is larger than container size
+    {
+      bool has_caught_exception = false;
+      try {
+        stl_vector.at(3);
+      } catch (std::out_of_range &e) {
+        std::cout << e.what() << std::endl;
+        has_caught_exception = true;
+      }
+      assert(has_caught_exception);  // STL vector の動作確認
+    }
+    {
+      bool has_caught_exception = false;
+      try {
+        ft_vector.at(3);
+      } catch (std::out_of_range &e) {
+        std::cout << e.what() << std::endl;
+        has_caught_exception = true;
+      }
+      assert(has_caught_exception);
     }
   }
   return 0;

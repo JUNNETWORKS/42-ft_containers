@@ -160,24 +160,33 @@ int main() {
       // 現在の要素数より少ない時は何も起きない
       stl_vector.reserve(0);
       ft_vector.reserve(0);
+      assert(stl_vector.size() == ft_vector.size());
+      assert(stl_vector.capacity() == ft_vector.capacity());
 
       // 現在の要素数より多い時は実行される
       stl_vector.reserve(100);
       ft_vector.reserve(100);
+      assert(stl_vector.size() == ft_vector.size());
+      assert(stl_vector.capacity() == ft_vector.capacity());
 
       is_same_vector(stl_vector, ft_vector);
 
       // allocator.max_size() を超えるのはエラー
+      bool std_has_caught_exception = false;
       try {
         stl_vector.reserve(std::allocator<int>().max_size() + 1);
       } catch (const std::length_error &e) {
         std::cerr << e.what() << std::endl;
+        std_has_caught_exception = true;
       }
+      bool ft_has_caught_exception = false;
       try {
         ft_vector.reserve(std::allocator<int>().max_size() + 1);
       } catch (const std::length_error &e) {
         std::cerr << e.what() << std::endl;
+        ft_has_caught_exception = true;
       }
+      assert(std_has_caught_exception == ft_has_caught_exception);
     }
   }
 

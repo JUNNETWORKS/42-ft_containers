@@ -134,11 +134,10 @@ class vector {
   }
 
   void reserve(size_type n) {
-    allocator_type allocator = allocator_type();
     if (n > allocator.max_size())
       throw std::length_error("vector::reserve");
     if (capacity() < n) {
-      expand_and_copy_storage(calc_new_capacity(capacity()));
+      expand_and_copy_storage(n);
     }
   }
 

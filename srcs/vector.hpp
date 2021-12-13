@@ -180,8 +180,22 @@ class vector {
   // template <class InputIterator>
   // void assign(InputIterator first, InputIterator last);
   // void assign(size_type n, const value_type &val);
-  // void push_back(const value_type &val);
-  // void pop_back();
+  void push_back(const value_type &val) {
+    allocator_type allocator = allocator_type();
+    if (size() == capacity()) {
+      expand_and_copy_storage(calc_new_capacity(capacity()));
+    }
+    allocator.construct(finish_, val);
+    ++finish_;
+  }
+  void pop_back() {
+    allocator_type allocator = allocator_type();
+    if (size() == 0) {
+      return;
+    }
+    --finish_;
+    allocator.destroy(finish_);
+  }
   // iterator insert(iterator position, const value_type &val);
   // void insert(iterator position, size_type n, const value_type &val);
   // template <class InputIterator>

@@ -7,6 +7,7 @@
 #include <vector>
 
 #define TEST_SECTION(msg) std::cout << "===== " msg " =====" << std::endl
+#define TEST_SUBSECTION(msg) std::cout << "-- " msg " --" << std::endl
 
 template <typename T>
 bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
@@ -219,6 +220,33 @@ int main() {
         has_caught_exception = true;
       }
       assert(has_caught_exception);
+    }
+  }
+
+  {
+    // Modifications
+    TEST_SECTION("Modifications");
+
+    std::vector<std::string> stl_vector;
+    ft::vector<std::string> ft_vector;
+
+    TEST_SUBSECTION("push_back()");
+    // size() == capacity() になったら自動拡張される
+    for (int i = 0; i < 16; ++i) {
+      stl_vector.push_back("hoge");
+      ft_vector.push_back("hoge");
+      assert(stl_vector.size() == ft_vector.size());
+      assert(stl_vector.capacity() == ft_vector.capacity());
+      is_same_vector(stl_vector, ft_vector);
+    }
+
+    TEST_SUBSECTION("pop_back()");
+    for (int i = 0; i < 16; ++i) {
+      stl_vector.pop_back();
+      ft_vector.pop_back();
+      assert(stl_vector.size() == ft_vector.size());
+      assert(stl_vector.capacity() == ft_vector.capacity());
+      is_same_vector(stl_vector, ft_vector);
     }
   }
   return 0;

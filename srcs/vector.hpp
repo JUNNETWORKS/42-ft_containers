@@ -178,9 +178,34 @@ class vector {
   // Modifiers
   // template <class InputIterator>
   // void assign(InputIterator first, InputIterator last);
-  // void assign(size_type n, const value_type &val);
+  void assign(size_type n, const value_type &val) {
+    // *this の要素を全てn個のvalのコピーに置き換える
+    if (n > capacity()) {
+      // 新しく領域を確保し, そこにn個のvalのコピーを作成する
+      // 古い領域は破棄
+      vector<T> tmp(n, val);
+      swap(tmp);
+    } else if (n > size()) {
+      // 現在の領域に上書きする形でvalのコピーを現在のsize()個分作成
+      std::fill(begin(), end(), val);
+      // size()を超えた分は明示的にコンストラクタを呼ぶ必要がある
+      size_type remain = n - size();
+      for (size_type i = 0; i < remain; ++i) {
+        allocator.construct(finish_ + i, val);
+      }
+      finish_ = start_ + n;
+    } else {
+      // 現在の領域に上書きする形でvalのコピーをn個作成
+      std::fill_n(start_, n, val);
+      // storage_[n] 以降の領域のデータは不要なので破棄する
+      size_type remain = size() - n;
+      for (size_type i = 0; i < remain; ++i) {
+        allocator.destroy(start_ + n + i);
+      }
+      finish_ = start_ + n;
+    }
+  }
   void push_back(const value_type &val) {
-    allocator_type allocator = allocator_type();
     if (size() == capacity()) {
       expand_and_copy_storage(calc_new_capacity(capacity()));
     }
@@ -188,7 +213,6 @@ class vector {
     ++finish_;
   }
   void pop_back() {
-    allocator_type allocator = allocator_type();
     if (size() == 0) {
       return;
     }
@@ -201,7 +225,12 @@ class vector {
   // void insert(iterator position, InputIterator first, InputIterator last);
   // iterator erase(iterator position);
   // iterator erase(iterator first, iterator last);
-  // void swap(vector &x);
+  void swap(vector<T> &x) {
+    std::swap(cap_, x.cap_);
+    std::swap(start_, x.start_);
+    std::swap(finish_, x.finish_);
+    std::swap(end_of_storage_, x.end_of_storage_);
+  }
   // void clear();
 
   // Allocator
@@ -212,7 +241,6 @@ class vector {
  private:
   void expand_and_copy_storage(size_type new_cap) {
     std::cout << "expand_and_copy_storage is called!!" << std::endl;
-    allocator_type allocator = allocator_type();
 
     // 新しい領域の確保と先頭を記録.
     pointer new_start = allocator.allocate(new_cap);
@@ -243,11 +271,17 @@ class vector {
     return current_capacity * 2;
   }
 
+  static allocator_type allocator;
   size_type cap_;
   pointer start_;
   pointer finish_;
   pointer end_of_storage_;
 };
+
+template <typename T, typename Allocator>
+typename vector<T, Allocator>::allocator_type vector<T, Allocator>::allocator =
+    vector<T, Allocator>::allocator_type();
+
 }  // namespace ft
 
 #endif

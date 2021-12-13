@@ -239,6 +239,50 @@ int main() {
     std::vector<std::string> stl_vector;
     ft::vector<std::string> ft_vector;
 
+    TEST_SUBSECTION("assign(n, val)");
+    {
+      // capacityを超えるとき
+      {
+        std::vector<int> stl_assign_vector(5);
+        ft::vector<int> ft_assign_vector(5);
+
+        stl_assign_vector.assign(10, 2);
+        ft_assign_vector.assign(10, 2);
+        assert(stl_assign_vector.size() == ft_assign_vector.size());
+        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        is_same_vector(stl_assign_vector, ft_assign_vector);
+      }
+      // sizeを超える時
+      {
+        std::vector<int> stl_assign_vector(5);
+        ft::vector<int> ft_assign_vector(5);
+        stl_assign_vector.reserve(100);
+        ft_assign_vector.reserve(100);
+
+        stl_assign_vector.assign(10, 2);
+        ft_assign_vector.assign(10, 2);
+        assert(stl_assign_vector.size() == ft_assign_vector.size());
+        std::cout << "capacity of stl_assign_vector: "
+                  << stl_assign_vector.capacity() << std::endl;
+        std::cout << "capacity of ft_assign_vector: "
+                  << ft_assign_vector.capacity() << std::endl;
+        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        is_same_vector(stl_assign_vector, ft_assign_vector);
+      }
+
+      // sizeもcapacityも超えない時
+      {
+        std::vector<int> stl_assign_vector(100);
+        ft::vector<int> ft_assign_vector(100);
+
+        stl_assign_vector.assign(10, 2);
+        ft_assign_vector.assign(10, 2);
+        assert(stl_assign_vector.size() == ft_assign_vector.size());
+        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        is_same_vector(stl_assign_vector, ft_assign_vector);
+      }
+    }
+
     TEST_SUBSECTION("push_back()");
     // size() == capacity() になったら自動拡張される
     for (int i = 0; i < 16; ++i) {

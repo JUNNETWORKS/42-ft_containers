@@ -1,5 +1,6 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 
@@ -137,26 +138,7 @@ class vector {
     if (n > allocator.max_size())
       throw std::length_error("vector::reserve");
     if (capacity() < n) {
-      // 新しい領域の確保と先頭を記録.
-      pointer new_start = allocator.allocate(n);
-
-      size_type len = finish_ - start_;
-
-      // 新しい領域にデータをコピーする
-      for (size_type i = 0; i < len; i++) {
-        allocator.construct(new_start + i, *(start_ + i));
-
-        /* 古い領域のデータは不要なのでデストラクタを呼び出す */
-        allocator.destroy(start_ + i);
-      }
-      /* 古い領域を破棄 */
-      allocator.deallocate(start_, cap_);
-
-      /* 各種メンバー変数を更新 */
-      cap_ = n;
-      start_ = new_start;
-      finish_ = start_ + len;
-      end_of_storage_ = start_ + cap_;
+      expand_and_copy_storage(calc_new_capacity(capacity()));
     }
   }
 
@@ -215,7 +197,38 @@ class vector {
   }
 
  private:
-  static const size_type kDefaultCap_ = 1024;
+  void expand_and_copy_storage(size_type new_cap) {
+    std::cout << "expand_and_copy_storage is called!!" << std::endl;
+    allocator_type allocator = allocator_type();
+
+    // 新しい領域の確保と先頭を記録.
+    pointer new_start = allocator.allocate(new_cap);
+
+    size_type len = finish_ - start_;
+
+    // 新しい領域にデータをコピーする
+    for (size_type i = 0; i < len; i++) {
+      allocator.construct(new_start + i, *(start_ + i));
+
+      /* 古い領域のデータは不要なのでデストラクタを呼び出す */
+      allocator.destroy(start_ + i);
+    }
+    /* 古い領域を破棄 */
+    allocator.deallocate(start_, cap_);
+
+    /* 各種メンバー変数を更新 */
+    cap_ = new_cap;
+    start_ = new_start;
+    finish_ = start_ + len;
+    end_of_storage_ = start_ + cap_;
+  }
+
+  inline size_type calc_new_capacity(size_type current_capacity) {
+    if (current_capacity == 0) {
+      return 1;
+    }
+    return current_capacity * 2;
+  }
 
   size_type cap_;
   pointer start_;

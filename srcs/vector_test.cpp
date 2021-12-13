@@ -164,6 +164,8 @@ int main() {
       stl_vector.reserve(100);
       ft_vector.reserve(100);
 
+      is_same_vector(stl_vector, ft_vector);
+
       // allocator.max_size() を超えるのはエラー
       try {
         stl_vector.reserve(std::allocator<int>().max_size() + 1);

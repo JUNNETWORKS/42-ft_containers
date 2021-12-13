@@ -236,9 +236,6 @@ int main() {
     // Modifications
     TEST_SECTION("Modifications");
 
-    std::vector<std::string> stl_vector;
-    ft::vector<std::string> ft_vector;
-
     TEST_SUBSECTION("assign(n, val)");
     {
       // capacityを超えるとき
@@ -284,22 +281,41 @@ int main() {
     }
 
     TEST_SUBSECTION("push_back()");
-    // size() == capacity() になったら自動拡張される
-    for (int i = 0; i < 16; ++i) {
-      stl_vector.push_back("hoge");
-      ft_vector.push_back("hoge");
-      assert(stl_vector.size() == ft_vector.size());
-      assert(stl_vector.capacity() == ft_vector.capacity());
-      is_same_vector(stl_vector, ft_vector);
+    {
+      std::vector<std::string> stl_vector;
+      ft::vector<std::string> ft_vector;
+      // size() == capacity() になったら自動拡張される
+      for (int i = 0; i < 16; ++i) {
+        stl_vector.push_back("hoge");
+        ft_vector.push_back("hoge");
+        assert(stl_vector.size() == ft_vector.size());
+        assert(stl_vector.capacity() == ft_vector.capacity());
+        is_same_vector(stl_vector, ft_vector);
+      }
     }
 
     TEST_SUBSECTION("pop_back()");
-    for (int i = 0; i < 16; ++i) {
-      stl_vector.pop_back();
-      ft_vector.pop_back();
+    {
+      std::vector<std::string> stl_vector(16);
+      ft::vector<std::string> ft_vector(16);
+      for (int i = 0; i < 16; ++i) {
+        stl_vector.pop_back();
+        ft_vector.pop_back();
+        assert(stl_vector.size() == ft_vector.size());
+        assert(stl_vector.capacity() == ft_vector.capacity());
+        is_same_vector(stl_vector, ft_vector);
+      }
+    }
+
+    TEST_SUBSECTION("clear()");
+    {
+      std::vector<std::string> stl_vector(16);
+      ft::vector<std::string> ft_vector(16);
+      stl_vector.clear();
+      ft_vector.clear();
       assert(stl_vector.size() == ft_vector.size());
       assert(stl_vector.capacity() == ft_vector.capacity());
-      is_same_vector(stl_vector, ft_vector);
+      assert(stl_vector.empty() == ft_vector.empty());
     }
   }
   return 0;

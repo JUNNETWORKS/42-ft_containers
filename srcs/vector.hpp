@@ -225,13 +225,19 @@ class vector {
   // void insert(iterator position, InputIterator first, InputIterator last);
   // iterator erase(iterator position);
   // iterator erase(iterator first, iterator last);
+
   void swap(vector<T> &x) {
     std::swap(cap_, x.cap_);
     std::swap(start_, x.start_);
     std::swap(finish_, x.finish_);
     std::swap(end_of_storage_, x.end_of_storage_);
   }
-  // void clear();
+
+  void clear() {
+    while (size()) {
+      pop_back();
+    }
+  }
 
   // Allocator
   allocator_type get_allocator() const {

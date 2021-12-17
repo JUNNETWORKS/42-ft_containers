@@ -13,6 +13,23 @@ bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
   typename std::vector<T>::iterator stl_it = stl_vector.begin();
   typename ft::vector<T>::iterator ft_it = ft_vector.begin();
 
+  if (stl_vector.size() != ft_vector.size()) {
+    PRINT_FAILED("size are not same (is_same_vector())");
+    return false;
+  }
+  if (stl_vector.max_size() != ft_vector.max_size()) {
+    PRINT_FAILED("max_size are not same (is_same_vector())");
+    return false;
+  }
+  if (stl_vector.capacity() != ft_vector.capacity()) {
+    PRINT_FAILED("capacity are not same (is_same_vector())");
+    return false;
+  }
+  if (stl_vector.empty() != ft_vector.empty()) {
+    PRINT_FAILED("empty are not same (is_same_vector())");
+    return false;
+  }
+
   while (stl_it != stl_vector.end()) {
     if (*stl_it++ != *ft_it++) {
       return false;
@@ -27,28 +44,6 @@ bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
 int main() {
   srand(time(NULL));
 
-  { /* sample test */
-    TEST_SECTION("sample test");
-
-    std::vector<int> stl_vector(10, 0);
-    ft::vector<int> ft_vector(10, 0);
-
-    ASSERT_TRUE("is_same_vector(stl_vector, ft_vector)",
-                is_same_vector(stl_vector, ft_vector));
-
-    ASSERT_EQ("ft_vector.size() should be equal to stl_vector.size()",
-              stl_vector.size(), ft_vector.size());
-    std::cout << "size: " << ft_vector.size() << std::endl;
-    ASSERT_EQ("ft_vector.max_size() should be equal to stl_vector.size()",
-              stl_vector.max_size(), ft_vector.max_size());
-    std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-    ASSERT_EQ("ft_vector.capacity() should be equal to stl_vector.size()",
-              stl_vector.capacity(), ft_vector.capacity());
-    std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-    ASSERT_EQ("ft_vector.empty() should be equal to stl_vector.size()",
-              stl_vector.empty(), ft_vector.empty());
-  }
-
   {
     // デフォルトコンストラクタ
     TEST_SECTION("default constructor");
@@ -56,20 +51,7 @@ int main() {
     std::vector<int> stl_vector;
     ft::vector<int> ft_vector;
 
-    ASSERT_TRUE("is_same_vector(stl_vector, ft_vector)",
-                is_same_vector(stl_vector, ft_vector));
-
-    ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
-              ft_vector.size());
-    std::cout << "size: " << ft_vector.size() << std::endl;
-    ASSERT_EQ("stl_vector.max_size() == ft_vector.max_size()",
-              stl_vector.max_size(), ft_vector.max_size());
-    std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-    ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
-              stl_vector.capacity(), ft_vector.capacity());
-    std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-    ASSERT_EQ("stl_vector.empty() == ft_vector.empty()", stl_vector.empty(),
-              ft_vector.empty());
+    ASSERT_TRUE("default constructor", is_same_vector(stl_vector, ft_vector));
   }
 
   { /* normal iterator */
@@ -101,7 +83,7 @@ int main() {
       *stl_it = i;
       *ft_it = i;
     }
-    is_same_vector(stl_vector, ft_vector);
+    ASSERT_TRUE("normal iterator", is_same_vector(stl_vector, ft_vector));
 
     std::cout << "normal iterator implementation is correct!" << std::endl;
   }
@@ -137,9 +119,7 @@ int main() {
       *stl_rit = i;
       *ft_rit = i;
     }
-    is_same_vector(stl_vector, ft_vector);
-
-    std::cout << "reverse iterator implementation is correct!" << std::endl;
+    ASSERT_TRUE("reverse iterator", is_same_vector(stl_vector, ft_vector));
   }
 
   { /* Capacity */
@@ -156,37 +136,18 @@ int main() {
       int len = *it;
       std::vector<int> stl_vector(len);
       ft::vector<int> ft_vector(len);
-      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
-                ft_vector.size());
-      std::cout << "size: " << ft_vector.size() << std::endl;
-      ASSERT_EQ("stl_vector.max_size() == ft_vector.max_size()",
-                stl_vector.max_size(), ft_vector.max_size());
-      std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
-                stl_vector.capacity(), ft_vector.capacity());
-      std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-      ASSERT_EQ("stl_vector.empty() == ft_vector.empty()", stl_vector.empty(),
-                ft_vector.empty());
+      ASSERT_TRUE("capacity test", is_same_vector(stl_vector, ft_vector));
 
-      /* reserve */
-
-      TEST_SUBSECTION("現在の要素数より少ない時は何も起きない");
+      TEST_SUBSECTION("reserve");
       stl_vector.reserve(0);
       ft_vector.reserve(0);
-      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
-                ft_vector.size());
-      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
-                stl_vector.capacity(), ft_vector.capacity());
+      ASSERT_TRUE("現在の要素数より少ない時は何も起きない",
+                  is_same_vector(stl_vector, ft_vector));
 
-      TEST_SUBSECTION("現在の要素数より多い時は実行される");
       stl_vector.reserve(100);
       ft_vector.reserve(100);
-      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
-                ft_vector.size());
-      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
-                stl_vector.capacity(), ft_vector.capacity());
-
-      is_same_vector(stl_vector, ft_vector);
+      ASSERT_TRUE("現在の要素数より多い時は実行される",
+                  is_same_vector(stl_vector, ft_vector));
 
       bool std_has_caught_exception = false;
       try {
@@ -271,9 +232,10 @@ int main() {
 
     //     stl_assign_vector.assign(new_values.begin(), new_values.end());
     //     ft_assign_vector.assign(new_values.begin(), new_values.end());
-    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
-    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
-    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //     ASSERT_EQ(stl_assign_vector.size() == ft_assign_vector.size());
+    //     ASSERT_EQ(stl_assign_vector.capacity() ==
+    //     ft_assign_vector.capacity()); is_same_vector(stl_assign_vector,
+    //     ft_assign_vector);
     //   }
     //   // sizeを超える時
     //   {
@@ -286,13 +248,14 @@ int main() {
 
     //     stl_assign_vector.assign(new_values.begin(), new_values.end());
     //     ft_assign_vector.assign(new_values.begin(), new_values.end());
-    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
+    //     ASSERT_EQ(stl_assign_vector.size() == ft_assign_vector.size());
     //     std::cout << "capacity of stl_assign_vector: "
     //               << stl_assign_vector.capacity() << std::endl;
     //     std::cout << "capacity of ft_assign_vector: "
     //               << ft_assign_vector.capacity() << std::endl;
-    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
-    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //     ASSERT_EQ(stl_assign_vector.capacity() ==
+    //     ft_assign_vector.capacity()); is_same_vector(stl_assign_vector,
+    //     ft_assign_vector);
     //   }
 
     //   // sizeもcapacityも超えない時
@@ -304,9 +267,10 @@ int main() {
 
     //     stl_assign_vector.assign(new_values.begin(), new_values.end());
     //     ft_assign_vector.assign(new_values.begin(), new_values.end());
-    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
-    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
-    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //     ASSERT_EQ(stl_assign_vector.size() == ft_assign_vector.size());
+    //     ASSERT_EQ(stl_assign_vector.capacity() ==
+    //     ft_assign_vector.capacity()); is_same_vector(stl_assign_vector,
+    //     ft_assign_vector);
     //   }
     // }
 

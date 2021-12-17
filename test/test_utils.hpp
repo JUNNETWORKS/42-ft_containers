@@ -13,23 +13,27 @@ long long failed_count = 0;
 #define COL_BLUE "\x1B[34m"
 #define COL_RESET "\x1B[0m"
 
-#define TEST_SECTION(msg)                                         \
-  std::cout << "========== " << std::left << std::setw(20) << msg \
-            << " ==========" << std::endl
+#define TEST_SECTION(msg) \
+  std::cout << "========== " << std::left << std::setw(20) << msg << std::endl
 #define TEST_SUBSECTION(msg) \
-  std::cout << "-- " << std::left << std::setw(20) << msg << " --" << std::endl
+  std::cout << "-- " << std::left << std::setw(20) << msg << std::endl
 
 /* ASSERTIONS */
 
-#define ASSERT_TRUE(message, condition)                                      \
-  do {                                                                       \
-    if (condition) {                                                         \
-      std::cout << COL_GREEN << "\t✔ " << message << COL_RESET << std::endl; \
-      success_count++;                                                       \
-    } else {                                                                 \
-      std::cerr << COL_RED << "\t✘ " << message << COL_RESET << std::endl;   \
-      failed_count++;                                                        \
-    }                                                                        \
+#define PRINT_PASSED(message) \
+  std::cout << COL_GREEN << "\t✔ " << message << COL_RESET << std::endl
+#define PRINT_FAILED(message) \
+  std::cerr << COL_RED << "\t✘ " << message << COL_RESET << std::endl
+
+#define ASSERT_TRUE(message, condition) \
+  do {                                  \
+    if (condition) {                    \
+      PRINT_PASSED(message);            \
+      success_count++;                  \
+    } else {                            \
+      PRINT_FAILED(message);            \
+      failed_count++;                   \
+    }                                   \
   } while (0)
 
 #define ASSERT_FALSE(message, condition) \

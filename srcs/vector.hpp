@@ -55,7 +55,7 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  vector(const vector &x) : cap_(x.cap_) {
+  vector(const vector &x) : cap_(x.size()) {
     allocator_type alloc = allocator_type();
     start_ = alloc.allocate(cap_);
     for (size_type i = 0; i < x.size(); i++) {

@@ -176,10 +176,10 @@ class vector {
   }
 
   // Modifiers
-  // template <class InputIterator>
-  // void assign(InputIterator first, InputIterator last) {
-
-  // }
+  template <class InputIterator>
+  void assign(InputIterator first, InputIterator last) {
+    
+  }
   void assign(size_type n, const value_type &val) {
     // *this の要素を全てn個のvalのコピーに置き換える
     if (n > capacity()) {

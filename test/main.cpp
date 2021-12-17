@@ -18,6 +18,13 @@ class MyClass {
   }
 };
 
+template <typename T>
+void showVectorInfo(std::vector<T>& vec) {
+  std::cout << "Vector Information"
+            << "\tsize: " << vec.size() << "\n"
+            << "\tcap: " << vec.size() << std::endl;
+}
+
 // stdバージョン
 template <typename T>
 void thisIsStdInteger(
@@ -72,12 +79,15 @@ int main(int argc, char** argv) {
   }
 
   {
-    std::vector<int> a;
-    for (int i = 0; i < 50; ++i) {
-      std::cout << "size: " << a.size() << ", cap: " << a.capacity()
-                << std::endl;
-      a.push_back(i);
+    std::vector<int> a(10);
+    std::vector<int> additional_data;
+    for (int i = 0; i < 10; ++i) {
+      additional_data.push_back(i);
     }
+    showVectorInfo(a);
+    showVectorInfo(additional_data);
+    a.assign(additional_data.begin(), additional_data.end());
+    showVectorInfo(a);
   }
 
   {

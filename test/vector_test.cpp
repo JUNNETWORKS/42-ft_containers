@@ -174,38 +174,38 @@ TEST_F(VectorTest, AtThrowOutOfRangeIfArgIsOutOfRange) {
   EXPECT_THROW(ft_vector.at(ft_vector.size()), std::out_of_range);
 }
 
-// TEST_F(VectorTest, AssignWithIteratorOverCapacity) {
-//   // capacityを超えるとき
-//   std::vector<int> new_values(kDefaultSize * 2, 1);
+TEST_F(VectorTest, AssignWithIteratorOverCapacity) {
+  // capacityを超えるとき
+  std::vector<int> new_values(kDefaultSize * 2, 1);
 
-//   stl_vector.assign(new_values.begin(), new_values.end());
-//   ft_vector.assign(new_values.begin(), new_values.end());
-//   expect_same_vector(stl_vector, ft_vector);
-// }
+  stl_vector.assign(new_values.begin(), new_values.end());
+  ft_vector.assign(new_values.begin(), new_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
 
-// TEST_F(VectorTest, AssignWithIteratorOverSize) {
-//   // sizeを超える時
-//   stl_vector.reserve(kDefaultSize * 10);
-//   ft_vector.reserve(kDefaultSize * 10);
-//   std::vector<int> new_values(kDefaultSize * 2, 1);
-//   stl_vector.assign(new_values.begin(), new_values.end());
-//   ft_vector.assign(new_values.begin(), new_values.end());
+TEST_F(VectorTest, AssignWithIteratorOverSize) {
+  // sizeを超える時
+  stl_vector.reserve(kDefaultSize * 10);
+  ft_vector.reserve(kDefaultSize * 10);
+  std::vector<int> new_values(kDefaultSize * 2, 1);
+  stl_vector.assign(new_values.begin(), new_values.end());
+  ft_vector.assign(new_values.begin(), new_values.end());
 
-//   expect_same_vector(stl_vector, ft_vector);
-// }
+  expect_same_vector(stl_vector, ft_vector);
+}
 
-// TEST_F(VectorTest, AssignWithIteratorNotOverCapacityAndSize) {
-//   // sizeもcapacityも超えない時
-//   std::vector<int> stl_vector(kDefaultSize * 10);
-//   ft::vector<int> ft_vector(kDefaultSize * 10);
+TEST_F(VectorTest, AssignWithIteratorNotOverCapacityAndSize) {
+  // sizeもcapacityも超えない時
+  std::vector<int> stl_vector(kDefaultSize * 10);
+  ft::vector<int> ft_vector(kDefaultSize * 10);
 
-//   std::vector<int> new_values(kDefaultSize, 1);
+  std::vector<int> new_values(kDefaultSize, 1);
 
-//   stl_vector.assign(new_values.begin(), new_values.end());
-//   ft_vector.assign(new_values.begin(), new_values.end());
+  stl_vector.assign(new_values.begin(), new_values.end());
+  ft_vector.assign(new_values.begin(), new_values.end());
 
-//   expect_same_vector(stl_vector, ft_vector);
-// }
+  expect_same_vector(stl_vector, ft_vector);
+}
 
 TEST_F(VectorTest, AssignOverCapacity) {
   // capacityを超えるとき

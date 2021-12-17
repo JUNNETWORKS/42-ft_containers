@@ -1,4 +1,9 @@
+# output files
 a.out
 *.o
 *.d
 ft_containers
+tester
+
+# google test
+/google_test/

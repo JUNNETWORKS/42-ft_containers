@@ -55,7 +55,7 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  vector(const vector &x) : cap_(cap_) {
+  vector(const vector &x) : cap_(x.cap_) {
     allocator_type alloc = allocator_type();
     start_ = alloc.allocate(cap_);
     for (size_type i = 0; i < x.size(); i++) {
@@ -177,7 +177,9 @@ class vector {
 
   // Modifiers
   // template <class InputIterator>
-  // void assign(InputIterator first, InputIterator last);
+  // void assign(InputIterator first, InputIterator last) {
+
+  // }
   void assign(size_type n, const value_type &val) {
     // *this の要素を全てn個のvalのコピーに置き換える
     if (n > capacity()) {
@@ -246,7 +248,7 @@ class vector {
 
  private:
   void expand_and_copy_storage(size_type new_cap) {
-    std::cout << "expand_and_copy_storage is called!!" << std::endl;
+    // std::cout << "expand_and_copy_storage is called!!" << std::endl;
 
     // 新しい領域の確保と先頭を記録.
     pointer new_start = allocator.allocate(new_cap);

@@ -6,8 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#define TEST_SECTION(msg) std::cout << "===== " msg " =====" << std::endl
-#define TEST_SUBSECTION(msg) std::cout << "-- " msg " --" << std::endl
+#include "test_utils.hpp"
 
 template <typename T>
 bool is_same_vector(std::vector<T> &stl_vector, ft::vector<T> &ft_vector) {
@@ -36,13 +35,17 @@ int main() {
 
     assert(is_same_vector(stl_vector, ft_vector));
 
-    assert(stl_vector.size() == ft_vector.size());
+    ASSERT_EQ("ft_vector.size() should be equal to stl_vector.size()",
+              stl_vector.size(), ft_vector.size());
     std::cout << "size: " << ft_vector.size() << std::endl;
-    assert(stl_vector.max_size() == ft_vector.max_size());
+    ASSERT_EQ("ft_vector.max_size() should be equal to stl_vector.size()",
+              stl_vector.max_size(), ft_vector.max_size());
     std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-    assert(stl_vector.capacity() == ft_vector.capacity());
+    ASSERT_EQ("ft_vector.capacity() should be equal to stl_vector.size()",
+              stl_vector.capacity(), ft_vector.capacity());
     std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-    assert(stl_vector.empty() == ft_vector.empty());
+    ASSERT_EQ("ft_vector.empty() should be equal to stl_vector.size()",
+              stl_vector.empty(), ft_vector.empty());
   }
 
   {
@@ -235,6 +238,56 @@ int main() {
   {
     // Modifications
     TEST_SECTION("Modifications");
+
+    // TEST_SUBSECTION("assign(first_it, last_it"));
+    // {
+    //   // capacityを超えるとき
+    //   {
+    //     std::vector<int> stl_assign_vector(5);
+    //     ft::vector<int> ft_assign_vector(5);
+
+    //     std::vector<int> new_values(10, 1);
+
+    //     stl_assign_vector.assign(new_values.begin(), new_values.end());
+    //     ft_assign_vector.assign(new_values.begin(), new_values.end());
+    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
+    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //   }
+    //   // sizeを超える時
+    //   {
+    //     std::vector<int> stl_assign_vector(5);
+    //     ft::vector<int> ft_assign_vector(5);
+    //     stl_assign_vector.reserve(100);
+    //     ft_assign_vector.reserve(100);
+
+    //     std::vector<int> new_values(10, 1);
+
+    //     stl_assign_vector.assign(new_values.begin(), new_values.end());
+    //     ft_assign_vector.assign(new_values.begin(), new_values.end());
+    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
+    //     std::cout << "capacity of stl_assign_vector: "
+    //               << stl_assign_vector.capacity() << std::endl;
+    //     std::cout << "capacity of ft_assign_vector: "
+    //               << ft_assign_vector.capacity() << std::endl;
+    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //   }
+
+    //   // sizeもcapacityも超えない時
+    //   {
+    //     std::vector<int> stl_assign_vector(100);
+    //     ft::vector<int> ft_assign_vector(100);
+
+    //     std::vector<int> new_values(10, 1);
+
+    //     stl_assign_vector.assign(new_values.begin(), new_values.end());
+    //     ft_assign_vector.assign(new_values.begin(), new_values.end());
+    //     assert(stl_assign_vector.size() == ft_assign_vector.size());
+    //     assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+    //     is_same_vector(stl_assign_vector, ft_assign_vector);
+    //   }
+    // }
 
     TEST_SUBSECTION("assign(n, val)");
     {

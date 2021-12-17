@@ -29,4 +29,11 @@ fclean: clean
 
 re: fclean all
 
+test_all: test_vector
+
+test_vector: %(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ vector_test.cpp
+	./$@
+	$(RM) $@
+
 .PHONY: all clean fclean re

@@ -61,103 +61,112 @@ int main(int argc, char** argv) {
   }
 
   /* vector */
-  {{std::vector<int> a(10);
-  std::cout << "----- a -----" << std::endl;
-  std::cout << "size: " << a.size() << std::endl;
-  std::cout << "max_size: " << a.max_size() << std::endl;
-  std::cout << "capacity: " << a.capacity() << std::endl;
-  std::cout << "empty: " << a.empty() << std::endl;
-  std::vector<int>::iterator it = a.begin();
-}
+  {
+    std::vector<int> a(10);
+    std::cout << "----- a -----" << std::endl;
+    std::cout << "size: " << a.size() << std::endl;
+    std::cout << "max_size: " << a.max_size() << std::endl;
+    std::cout << "capacity: " << a.capacity() << std::endl;
+    std::cout << "empty: " << a.empty() << std::endl;
+    std::vector<int>::iterator it = a.begin();
+  }
 
-{
-  std::vector<int> b;
-  std::cout << "----- b -----" << std::endl;
-  std::cout << "size: " << b.size() << std::endl;
-  std::cout << "max_size: " << b.max_size() << std::endl;
-  std::cout << "capacity: " << b.capacity() << std::endl;
-  std::cout << "empty: " << b.empty() << std::endl;
-}
+  {
+    std::vector<int> a;
+    for (int i = 0; i < 50; ++i) {
+      std::cout << "size: " << a.size() << ", cap: " << a.capacity()
+                << std::endl;
+      a.push_back(i);
+    }
+  }
 
-{
-  std::vector<int> c(0);
-  std::cout << "----- c -----" << std::endl;
-  std::cout << "size: " << c.size() << std::endl;
-  std::cout << "max_size: " << c.max_size() << std::endl;
-  std::cout << "capacity: " << c.capacity() << std::endl;
-  std::cout << "empty: " << c.empty() << std::endl;
-}
+  {
+    std::vector<int> b;
+    std::cout << "----- b -----" << std::endl;
+    std::cout << "size: " << b.size() << std::endl;
+    std::cout << "max_size: " << b.max_size() << std::endl;
+    std::cout << "capacity: " << b.capacity() << std::endl;
+    std::cout << "empty: " << b.empty() << std::endl;
+  }
 
-{
-  std::vector<int> d(1);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  d.push_back(2);
-  std::cout << "capacity: " << d.capacity() << std::endl;
-  std::cout << "d[0]: " << d[0] << std::endl;
-}
+  {
+    std::vector<int> c(0);
+    std::cout << "----- c -----" << std::endl;
+    std::cout << "size: " << c.size() << std::endl;
+    std::cout << "max_size: " << c.max_size() << std::endl;
+    std::cout << "capacity: " << c.capacity() << std::endl;
+    std::cout << "empty: " << c.empty() << std::endl;
+  }
 
-{
-  std::cout << "===== class test =====" << std::endl;
-  std::vector<MyClass> my_class_vector(1);
-  std::cout << "=== pop_back() ===" << std::endl;
-  my_class_vector.pop_back();
-}
+  {
+    std::vector<int> d(1);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    d.push_back(2);
+    std::cout << "capacity: " << d.capacity() << std::endl;
+    std::cout << "d[0]: " << d[0] << std::endl;
+  }
 
-{
-  std::cout << "==== assign test ====" << std::endl;
-  std::vector<int> assign_test_vector(10);
-  std::cout << "size: " << assign_test_vector.size() << std::endl;
-  std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
-  print_vector(assign_test_vector);
-  std::cout << std::endl;
+  {
+    std::cout << "===== class test =====" << std::endl;
+    std::vector<MyClass> my_class_vector(1);
+    std::cout << "=== pop_back() ===" << std::endl;
+    my_class_vector.pop_back();
+  }
 
-  assign_test_vector.assign(5, 1);
-  std::cout << "size: " << assign_test_vector.size() << std::endl;
-  std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
-  print_vector(assign_test_vector);
-  std::cout << std::endl;
+  {
+    std::cout << "==== assign test ====" << std::endl;
+    std::vector<int> assign_test_vector(10);
+    std::cout << "size: " << assign_test_vector.size() << std::endl;
+    std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
+    print_vector(assign_test_vector);
+    std::cout << std::endl;
 
-  assign_test_vector.assign(10, 2);
-  std::cout << "size: " << assign_test_vector.size() << std::endl;
-  std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
-  print_vector(assign_test_vector);
-  std::cout << std::endl;
+    assign_test_vector.assign(5, 1);
+    std::cout << "size: " << assign_test_vector.size() << std::endl;
+    std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
+    print_vector(assign_test_vector);
+    std::cout << std::endl;
 
-  assign_test_vector.assign(20, 3);
-  std::cout << "size: " << assign_test_vector.size() << std::endl;
-  std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
-  print_vector(assign_test_vector);
-}
+    assign_test_vector.assign(10, 2);
+    std::cout << "size: " << assign_test_vector.size() << std::endl;
+    std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
+    print_vector(assign_test_vector);
+    std::cout << std::endl;
 
-{
-  std::cout << "==== erase test ====" << std::endl;
-  std::vector<std::string> str_vector;
-  str_vector.push_back("hoge");
-  str_vector.push_back("fuga");
-  str_vector.push_back("hogefuga");
-  print_vector(str_vector);
-  std::cout << std::endl;
-  str_vector.erase(str_vector.begin());
-  print_vector(str_vector);
-}
-}
+    assign_test_vector.assign(20, 3);
+    std::cout << "size: " << assign_test_vector.size() << std::endl;
+    std::cout << "capacity: " << assign_test_vector.capacity() << std::endl;
+    print_vector(assign_test_vector);
+  }
 
-/* map */
-{}
+  {
+    std::cout << "==== erase test ====" << std::endl;
+    std::vector<std::string> str_vector;
+    str_vector.push_back("hoge");
+    str_vector.push_back("fuga");
+    str_vector.push_back("hogefuga");
+    print_vector(str_vector);
+    std::cout << std::endl;
+    str_vector.erase(str_vector.begin());
+    print_vector(str_vector);
+  }
 
-/* stack */
-{}
+  /* map */
+  {}
 
-/* set (bonus) */
-{}
+  /* stack */
+  {}
+
+  /* set (bonus) */
+  {}
 }

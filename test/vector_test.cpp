@@ -33,7 +33,8 @@ int main() {
     std::vector<int> stl_vector(10, 0);
     ft::vector<int> ft_vector(10, 0);
 
-    assert(is_same_vector(stl_vector, ft_vector));
+    ASSERT_TRUE("is_same_vector(stl_vector, ft_vector)",
+                is_same_vector(stl_vector, ft_vector));
 
     ASSERT_EQ("ft_vector.size() should be equal to stl_vector.size()",
               stl_vector.size(), ft_vector.size());
@@ -55,15 +56,20 @@ int main() {
     std::vector<int> stl_vector;
     ft::vector<int> ft_vector;
 
-    assert(is_same_vector(stl_vector, ft_vector));
+    ASSERT_TRUE("is_same_vector(stl_vector, ft_vector)",
+                is_same_vector(stl_vector, ft_vector));
 
-    assert(stl_vector.size() == ft_vector.size());
+    ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+              ft_vector.size());
     std::cout << "size: " << ft_vector.size() << std::endl;
-    assert(stl_vector.max_size() == ft_vector.max_size());
+    ASSERT_EQ("stl_vector.max_size() == ft_vector.max_size()",
+              stl_vector.max_size(), ft_vector.max_size());
     std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-    assert(stl_vector.capacity() == ft_vector.capacity());
+    ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+              stl_vector.capacity(), ft_vector.capacity());
     std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-    assert(stl_vector.empty() == ft_vector.empty());
+    ASSERT_EQ("stl_vector.empty() == ft_vector.empty()", stl_vector.empty(),
+              ft_vector.empty());
   }
 
   { /* normal iterator */
@@ -75,10 +81,10 @@ int main() {
     /* begin() can return iterator and const_iterator */
     std::vector<int>::iterator stl_it = stl_vector.begin();
     ft::vector<int>::iterator ft_it = ft_vector.begin();
-    assert(*stl_it == *ft_it);
+    ASSERT_EQ("*stl_it == *ft_it", *stl_it, *ft_it);
     std::vector<int>::const_iterator const_stl_it = stl_vector.begin();
     ft::vector<int>::const_iterator const_ft_it = ft_vector.begin();
-    assert(*const_stl_it == *const_ft_it);
+    ASSERT_EQ("*const_stl_it == *const_ft_it", *const_stl_it, *const_ft_it);
 
     /* for loop ends until it reach end() */
     const_stl_it = stl_vector.begin();
@@ -109,11 +115,11 @@ int main() {
     /* begin() can return iterator and const_iterator */
     std::vector<int>::reverse_iterator stl_rit = stl_vector.rbegin();
     ft::vector<int>::reverse_iterator ft_rit = ft_vector.rbegin();
-    assert(*stl_rit == *ft_rit);
+    ASSERT_EQ("*stl_rit == *ft_rit", *stl_rit, *ft_rit);
     std::vector<int>::const_reverse_iterator const_stl_rit =
         stl_vector.rbegin();
     ft::vector<int>::const_reverse_iterator const_ft_rit = ft_vector.rbegin();
-    assert(*const_stl_rit == *const_ft_rit);
+    ASSERT_EQ("*const_stl_rit == *const_ft_rit", *const_stl_rit, *const_ft_rit);
 
     /* for loop ends until it reach rend() */
     const_stl_rit = stl_vector.rbegin();
@@ -150,31 +156,38 @@ int main() {
       int len = *it;
       std::vector<int> stl_vector(len);
       ft::vector<int> ft_vector(len);
-      assert(stl_vector.size() == ft_vector.size());
+      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+                ft_vector.size());
       std::cout << "size: " << ft_vector.size() << std::endl;
-      assert(stl_vector.max_size() == ft_vector.max_size());
+      ASSERT_EQ("stl_vector.max_size() == ft_vector.max_size()",
+                stl_vector.max_size(), ft_vector.max_size());
       std::cout << "max_size: " << ft_vector.max_size() << std::endl;
-      assert(stl_vector.capacity() == ft_vector.capacity());
+      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+                stl_vector.capacity(), ft_vector.capacity());
       std::cout << "capacity: " << ft_vector.capacity() << std::endl;
-      assert(stl_vector.empty() == ft_vector.empty());
+      ASSERT_EQ("stl_vector.empty() == ft_vector.empty()", stl_vector.empty(),
+                ft_vector.empty());
 
       /* reserve */
 
-      // 現在の要素数より少ない時は何も起きない
+      TEST_SUBSECTION("現在の要素数より少ない時は何も起きない");
       stl_vector.reserve(0);
       ft_vector.reserve(0);
-      assert(stl_vector.size() == ft_vector.size());
-      assert(stl_vector.capacity() == ft_vector.capacity());
+      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+                ft_vector.size());
+      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+                stl_vector.capacity(), ft_vector.capacity());
 
-      // 現在の要素数より多い時は実行される
+      TEST_SUBSECTION("現在の要素数より多い時は実行される");
       stl_vector.reserve(100);
       ft_vector.reserve(100);
-      assert(stl_vector.size() == ft_vector.size());
-      assert(stl_vector.capacity() == ft_vector.capacity());
+      ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+                ft_vector.size());
+      ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+                stl_vector.capacity(), ft_vector.capacity());
 
       is_same_vector(stl_vector, ft_vector);
 
-      // allocator.max_size() を超えるのはエラー
       bool std_has_caught_exception = false;
       try {
         stl_vector.reserve(std::allocator<int>().max_size() + 1);
@@ -189,7 +202,8 @@ int main() {
         std::cerr << e.what() << std::endl;
         ft_has_caught_exception = true;
       }
-      assert(std_has_caught_exception == ft_has_caught_exception);
+      ASSERT_EQ("allocator.max_size() を超えるのはエラー",
+                std_has_caught_exception, ft_has_caught_exception);
     }
   }
 
@@ -205,14 +219,15 @@ int main() {
       ft_vector[i] = i;
     }
     for (int i = 0; i < 3; ++i) {
-      assert(stl_vector[i] == ft_vector[i]);
-      assert(stl_vector.at(i) == ft_vector.at(i));
+      ASSERT_EQ("stl_vector[i] == ft_vector[i]", stl_vector[i], ft_vector[i]);
+      ASSERT_EQ("stl_vector.at(i) == ft_vector.at(i)", stl_vector.at(i),
+                ft_vector.at(i));
     }
-    assert(stl_vector.front() == ft_vector.front());
-    assert(stl_vector.back() == ft_vector.back());
+    ASSERT_EQ("stl_vector.front() == ft_vector.front()", stl_vector.front(),
+              ft_vector.front());
+    ASSERT_EQ("stl_vector.back() == ft_vector.back()", stl_vector.back(),
+              ft_vector.back());
 
-    // vector.at() should throw out_of_range exception
-    //   if argument n is larger than container size
     {
       bool has_caught_exception = false;
       try {
@@ -221,7 +236,10 @@ int main() {
         std::cout << e.what() << std::endl;
         has_caught_exception = true;
       }
-      assert(has_caught_exception);  // STL vector の動作確認
+      ASSERT_TRUE(
+          "std::vector.at() should throw out_of_range exception  "
+          "if argument n is larger than container size",
+          has_caught_exception);  // STL vector の動作確認
     }
     {
       bool has_caught_exception = false;
@@ -231,7 +249,10 @@ int main() {
         std::cout << e.what() << std::endl;
         has_caught_exception = true;
       }
-      assert(has_caught_exception);
+      ASSERT_TRUE(
+          "ft::vector.at() should throw out_of_range exception  "
+          "if argument n is larger than container size",
+          has_caught_exception);
     }
   }
 
@@ -298,8 +319,10 @@ int main() {
 
         stl_assign_vector.assign(10, 2);
         ft_assign_vector.assign(10, 2);
-        assert(stl_assign_vector.size() == ft_assign_vector.size());
-        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        ASSERT_EQ("stl_assign_vector.size() == ft_assign_vector.size()",
+                  stl_assign_vector.size(), ft_assign_vector.size());
+        ASSERT_EQ("stl_assign_vector.capacity() == ft_assign_vector.capacity()",
+                  stl_assign_vector.capacity(), ft_assign_vector.capacity());
         is_same_vector(stl_assign_vector, ft_assign_vector);
       }
       // sizeを超える時
@@ -311,12 +334,14 @@ int main() {
 
         stl_assign_vector.assign(10, 2);
         ft_assign_vector.assign(10, 2);
-        assert(stl_assign_vector.size() == ft_assign_vector.size());
+        ASSERT_EQ("stl_assign_vector.size() == ft_assign_vector.size()",
+                  stl_assign_vector.size(), ft_assign_vector.size());
         std::cout << "capacity of stl_assign_vector: "
                   << stl_assign_vector.capacity() << std::endl;
         std::cout << "capacity of ft_assign_vector: "
                   << ft_assign_vector.capacity() << std::endl;
-        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        ASSERT_EQ("stl_assign_vector.capacity() == ft_assign_vector.capacity()",
+                  stl_assign_vector.capacity(), ft_assign_vector.capacity());
         is_same_vector(stl_assign_vector, ft_assign_vector);
       }
 
@@ -327,8 +352,10 @@ int main() {
 
         stl_assign_vector.assign(10, 2);
         ft_assign_vector.assign(10, 2);
-        assert(stl_assign_vector.size() == ft_assign_vector.size());
-        assert(stl_assign_vector.capacity() == ft_assign_vector.capacity());
+        ASSERT_EQ("stl_assign_vector.size() == ft_assign_vector.size()",
+                  stl_assign_vector.size(), ft_assign_vector.size());
+        ASSERT_EQ("stl_assign_vector.capacity() == ft_assign_vector.capacity()",
+                  stl_assign_vector.capacity(), ft_assign_vector.capacity());
         is_same_vector(stl_assign_vector, ft_assign_vector);
       }
     }
@@ -341,8 +368,10 @@ int main() {
       for (int i = 0; i < 16; ++i) {
         stl_vector.push_back("hoge");
         ft_vector.push_back("hoge");
-        assert(stl_vector.size() == ft_vector.size());
-        assert(stl_vector.capacity() == ft_vector.capacity());
+        ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+                  ft_vector.size());
+        ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+                  stl_vector.capacity(), ft_vector.capacity());
         is_same_vector(stl_vector, ft_vector);
       }
     }
@@ -354,8 +383,10 @@ int main() {
       for (int i = 0; i < 16; ++i) {
         stl_vector.pop_back();
         ft_vector.pop_back();
-        assert(stl_vector.size() == ft_vector.size());
-        assert(stl_vector.capacity() == ft_vector.capacity());
+        ASSERT_EQ("stl_vector.size() == ft_vector.size()", stl_vector.size(),
+                  ft_vector.size());
+        ASSERT_EQ("stl_vector.capacity() == ft_vector.capacity()",
+                  stl_vector.capacity(), ft_vector.capacity());
         is_same_vector(stl_vector, ft_vector);
       }
     }
@@ -371,5 +402,7 @@ int main() {
       assert(stl_vector.empty() == ft_vector.empty());
     }
   }
+
+  print_test_result();
   return 0;
 }

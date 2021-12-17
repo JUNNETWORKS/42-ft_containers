@@ -4,7 +4,8 @@ CXXFLAGS += -std=c++98 -g -fsanitize=address
 OBJ_DIR  := objs
 NAME     := ft_containers
 
-SRCS     := $(wildcard srcs/*.cpp)
+SRC_DIR  := srcs
+SRCS     := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS  := $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
          := $(OBJECTS:.o=.d)
@@ -29,11 +30,15 @@ fclean: clean
 
 re: fclean all
 
+# TEST
+
+TEST_DIR  := test
+
 test_all: test_vector
 
-test_vector: %(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ vector_test.cpp
+test_vector: $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -I$(SRC_DIR) -o $@ $^ $(TEST_DIR)/vector_test.cpp
 	./$@
-	$(RM) $@
+	@$(RM) $@
 
 .PHONY: all clean fclean re

@@ -44,8 +44,7 @@ class vector {
   vector(InputIterator first, InputIterator last,
          allocator_type alloc = allocator_type(),
          typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
-    // TODO: Random Access Iterator じゃないと減算がサポートされてない
-    int n = last - first;
+    int n = std::distance(first, last);
     cap_ = n;
     start_ = alloc.allocate(cap_);
     for (size_type i = 0; first != last; first++, i++) {

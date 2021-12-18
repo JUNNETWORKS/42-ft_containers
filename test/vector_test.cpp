@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <iterator>
 #include <vector>
 
 class VectorTest : public ::testing::Test {
@@ -214,6 +215,10 @@ TEST_F(VectorTest, AssignOverCapacity) {
 
   expect_same_vector(stl_vector, ft_vector);
 }
+
+// TODO: Iteratorを受け取る関数のテストに
+// RandomAccessIterator以外のイテレータのテストを追加する.
+// InputIteratorが動けば他のiteratorは動くはずなのでInputIteratorのテストを追加する.
 
 TEST_F(VectorTest, AssignOverSize) {
   // capacityは超えないけどsizeを超える時

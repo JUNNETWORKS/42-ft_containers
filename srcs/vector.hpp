@@ -142,33 +142,41 @@ class vector {
   }
 
   // Element access
+
   reference operator[](size_type n) {
     return start_[n];
   }
+
   const_reference operator[](size_type n) const {
     return start_[n];
   }
+
   reference at(size_type n) {
     if (n >= size())
       throw std::out_of_range("vector::at out of range!");
     return start_[n];
   }
+
   const_reference at(size_type n) const {
     if (n >= size())
       throw std::out_of_range("vector::at out of range!");
     return start_[n];
   }
+
   reference front() {
     return *begin();
   }
+
   const_reference front() const {
     return *begin();
   }
+
   reference back() {
     iterator tmp = end();
     --tmp;
     return *tmp;
   }
+
   const_reference back() const {
     const_iterator tmp = end();
     --tmp;
@@ -178,8 +186,32 @@ class vector {
   // Modifiers
   template <class InputIterator>
   void assign(InputIterator first, InputIterator last) {
-    
+    size_type n = std::distance(first, last);
+    // *this の要素を全てn個のvalのコピーに置き換える
+    if (n > capacity()) {
+      // 新しく領域を確保し, そこにn個のvalのコピーを作成する
+      // 古い領域は破棄
+      vector<T> tmp(first, last);
+      swap(tmp);
+    } else if (n > size()) {
+      for (size_type i = 0; first != last; ++first, ++i) {
+        allocator.construct(start_ + i, *first);
+      }
+      finish_ = start_ + n;
+    } else {
+      // 現在の領域に上書きする形でvalのコピーをn個作成
+      size_type i = 0;
+      for (; first != last; ++first, ++i) {
+        allocator.construct(start_ + i, *first);
+      }
+      // storage_[n] 以降の領域のデータは不要なので破棄する
+      for (; i < size(); ++i) {
+        allocator.destroy(start_ + i);
+      }
+      finish_ = start_ + n;
+    }
   }
+
   void assign(size_type n, const value_type &val) {
     // *this の要素を全てn個のvalのコピーに置き換える
     if (n > capacity()) {
@@ -214,6 +246,7 @@ class vector {
     allocator.construct(finish_, val);
     ++finish_;
   }
+
   void pop_back() {
     if (size() == 0) {
       return;
@@ -221,6 +254,7 @@ class vector {
     --finish_;
     allocator.destroy(finish_);
   }
+
   // iterator insert(iterator position, const value_type &val);
   // void insert(iterator position, size_type n, const value_type &val);
   // template <class InputIterator>

@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/jun/Desktop/work_space/42tokyo/ft_containers'
+make: Nothing to be done for 'all'.
+make: Leaving directory '/home/jun/Desktop/work_space/42tokyo/ft_containers'
+ 

@@ -23,8 +23,8 @@ class VectorTest : public ::testing::Test {
   }
 
   template <typename T>
-  inline void expect_same_vector(std::vector<T> &stl_vector,
-                                 ft::vector<T> &ft_vector) {
+  void expect_same_vector(std::vector<T> &stl_vector,
+                          ft::vector<T> &ft_vector) {
     typename std::vector<T>::iterator stl_it = stl_vector.begin();
     typename ft::vector<T>::iterator ft_it = ft_vector.begin();
 
@@ -236,6 +236,245 @@ TEST_F(VectorTest, AssignNotOverCapacityAndSize) {
   stl_vector.assign(kDefaultSize / 2, 2);
   ft_vector.assign(kDefaultSize / 2, 2);
 
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertOverCapacityAtFirst) {
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertOverCapacityAtMiddle) {
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10);
+}
+
+TEST_F(VectorTest, InsertOverCapacityAtLast) {
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.end(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertNotOverCapacityAtFirst) {
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), 1, 10);
+  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertNotOverCapacityAtMiddle) {
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 1, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10);
+}
+
+TEST_F(VectorTest, InsertNotOverCapacityAtLast) {
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), 1, 10);
+  ft_vector.insert(ft_vector.end(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.begin(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    additional_values.begin(), additional_values.end());
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   additional_values.begin(), additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.end(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  stl_vector.reserve(stl_vector.capacity() * 10);
+  ft_vector.reserve(ft_vector.capacity() * 10);
+
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.begin(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  stl_vector.reserve(stl_vector.capacity() * 10);
+  ft_vector.reserve(ft_vector.capacity() * 10);
+
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    additional_values.begin(), additional_values.end());
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   additional_values.begin(), additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
+  std::vector<int> additional_values;
+  for (int i = 0; i < stl_vector.capacity(); ++i) {
+    additional_values.push_back(i);
+  }
+
+  stl_vector.reserve(stl_vector.capacity() * 10);
+  ft_vector.reserve(ft_vector.capacity() * 10);
+
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.end(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertOverCapacity) {
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10);
+
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), stl_vector.capacity(), 10);
+  ft_vector.insert(ft_vector.end(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertNotOverCapacity) {
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), 1, 10);
+  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 1, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10);
+
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), 1, 10);
+  ft_vector.insert(ft_vector.end(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10);
+  ft_vector.insert(ft_vector.begin(), 10);
+}
+
+TEST_F(VectorTest, InsertWithIteratorOverCapacity) {
+  std::vector<int> additional_values(stl_vector.capacity(), 10);
+
+  // 最初に挿入
+  std::cout << "最初に挿入" << std::endl;
+  stl_vector.insert(stl_vector.begin(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.begin(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+  // 途中に挿入
+  std::cout << "途中に挿入" << std::endl;
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    additional_values.begin(), additional_values.end());
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   additional_values.begin(), additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+  // 最後に挿入
+  std::cout << "最後に挿入" << std::endl;
+  stl_vector.insert(stl_vector.end(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.end(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, InsertWithIteratorNotOverCapacity) {
+  stl_vector.reserve(stl_vector.capacity() * 10);
+  ft_vector.reserve(ft_vector.capacity() * 10);
+
+  std::vector<int> additional_values(1, 0);
+
+  // 最初に挿入
+  stl_vector.insert(stl_vector.begin(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.begin(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+  // 途中に挿入
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
+                    additional_values.begin(), additional_values.end());
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
+                   additional_values.begin(), additional_values.end());
+  expect_same_vector(stl_vector, ft_vector);
+  // 最後に挿入
+  stl_vector.insert(stl_vector.end(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.end(), additional_values.begin(),
+                   additional_values.end());
   expect_same_vector(stl_vector, ft_vector);
 }
 

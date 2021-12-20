@@ -19,10 +19,19 @@ class MyClass {
 };
 
 template <typename T>
-void showVectorInfo(std::vector<T>& vec) {
+void printVectorInfo(std::vector<T>& vec) {
   std::cout << "Vector Information"
             << "\tsize: " << vec.size() << "\n"
-            << "\tcap: " << vec.size() << std::endl;
+            << "\tcap: " << vec.capacity() << std::endl;
+}
+
+template <typename T>
+void printVector(std::vector<T>& vec) {
+  std::cout << "Vector Data" << std::endl;
+  for (typename std::vector<T>::const_iterator it = vec.begin();
+       it != vec.end(); ++it) {
+    std::cout << "\t" << *it << std::endl;
+  }
 }
 
 // stdバージョン
@@ -84,10 +93,49 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 10; ++i) {
       additional_data.push_back(i);
     }
-    showVectorInfo(a);
-    showVectorInfo(additional_data);
+    printVectorInfo(a);
+    printVectorInfo(additional_data);
     a.assign(additional_data.begin(), additional_data.end());
-    showVectorInfo(a);
+    printVectorInfo(a);
+  }
+
+  {
+    std::cout
+        << "--------------------------- insert test ---------------------------"
+        << std::endl;
+    std::vector<std::string> a(4, "__init__");
+
+    printVectorInfo(a);
+    printVector(a);
+    std::cout << "------------------------" << std::endl;
+    a.insert(a.begin(), "this is string at begin().");
+    printVectorInfo(a);
+    printVector(a);
+    std::cout << "------------------------" << std::endl;
+    a.insert(a.begin() + 1, "this is string at begin() + 1.");
+    printVectorInfo(a);
+    printVector(a);
+    std::cout << "------------------------" << std::endl;
+    a.insert(a.begin() + 1, "this is string at begin() + 1.");
+    printVectorInfo(a);
+    printVector(a);
+    std::cout << "------------------------" << std::endl;
+  }
+
+  {
+    std::cout << "--------------------------- insert(it, it) test "
+                 "---------------------------"
+              << std::endl;
+    std::vector<std::string> a(4, "__init__");
+
+    std::vector<std::string> additional_data(2, "additional");
+
+    printVectorInfo(a);
+    printVector(a);
+    std::cout << "------------------------" << std::endl;
+    a.insert(a.begin(), additional_data.begin(), additional_data.end());
+    printVectorInfo(a);
+    printVector(a);
   }
 
   {

@@ -9,6 +9,8 @@
 #include <iterator>
 #include <vector>
 
+#include "debug_utils.hpp"
+
 class VectorTest : public ::testing::Test {
  protected:
   static const size_t kDefaultSize = 10;
@@ -23,14 +25,15 @@ class VectorTest : public ::testing::Test {
   }
 
   template <typename T>
-  void expect_same_vector(std::vector<T> &stl_vector,
-                          ft::vector<T> &ft_vector) {
+  void expect_same_data_in_vector(std::vector<T>& stl_vector,
+                                  ft::vector<T>& ft_vector) {
     typename std::vector<T>::iterator stl_it = stl_vector.begin();
     typename ft::vector<T>::iterator ft_it = ft_vector.begin();
 
     EXPECT_EQ(stl_vector.size(), ft_vector.size());
     EXPECT_EQ(stl_vector.max_size(), ft_vector.max_size());
-    EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
+    // capacityの初期値や増加ルールなどの厳密な値は仕様で定められていない
+    // EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
     EXPECT_EQ(stl_vector.empty(), ft_vector.empty());
 
     while (stl_it != stl_vector.end()) {
@@ -52,14 +55,14 @@ TEST_F(VectorTest, DefaultConstructor) {
   std::vector<int> stl_vector;
   ft::vector<int> ft_vector;
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, ConstructorWithOneNumericArg) {
   std::vector<int> stl_vector(10);
   ft::vector<int> ft_vector(10);
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, CopyConstructor) {
@@ -69,8 +72,8 @@ TEST_F(VectorTest, CopyConstructor) {
   stl_vector2.push_back(2);
   ft_vector2.push_back(2);
 
-  expect_same_vector(stl_vector, ft_vector);
-  expect_same_vector(stl_vector2, ft_vector2);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector2, ft_vector2);
 }
 
 TEST_F(VectorTest, NormalIterator) {
@@ -98,7 +101,7 @@ TEST_F(VectorTest, NormalIterator) {
     *ft_it = i;
   }
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, ReverseIterator) {
@@ -125,7 +128,7 @@ TEST_F(VectorTest, ReverseIterator) {
     *stl_rit = i;
     *ft_rit = i;
   }
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, CapacityIncreaseByTheRuleOfDoubles) {
@@ -141,17 +144,20 @@ TEST_F(VectorTest, CapacityIncreaseByTheRuleOfDoubles) {
 TEST_F(VectorTest, ReserveDoesnotDoAnythingIfArgIsLessThanCurrentSize) {
   stl_vector.reserve(0);
   ft_vector.reserve(0);
+  EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
   stl_vector.reserve(1);
   ft_vector.reserve(1);
+  EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, ReserveIncreaseCapacityIfArgIsLargerThanCurrentSize) {
   stl_vector.reserve(100);
   ft_vector.reserve(100);
+  EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, ReserveThrowExceptionIfArgIsLargerThanMaxSizeOfAllocator) {
@@ -181,7 +187,7 @@ TEST_F(VectorTest, AssignWithIteratorOverCapacity) {
 
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, AssignWithIteratorOverSize) {
@@ -192,7 +198,7 @@ TEST_F(VectorTest, AssignWithIteratorOverSize) {
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, AssignWithIteratorNotOverCapacityAndSize) {
@@ -205,7 +211,7 @@ TEST_F(VectorTest, AssignWithIteratorNotOverCapacityAndSize) {
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, AssignOverCapacity) {
@@ -213,7 +219,7 @@ TEST_F(VectorTest, AssignOverCapacity) {
   stl_vector.assign(kDefaultSize * 2, 2);
   ft_vector.assign(kDefaultSize * 2, 2);
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 // TODO: Iteratorを受け取る関数のテストに
@@ -228,7 +234,7 @@ TEST_F(VectorTest, AssignOverSize) {
   stl_vector.assign(kDefaultSize * 2, 2);
   ft_vector.assign(kDefaultSize * 2, 2);
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, AssignNotOverCapacityAndSize) {
@@ -236,7 +242,7 @@ TEST_F(VectorTest, AssignNotOverCapacityAndSize) {
   stl_vector.assign(kDefaultSize / 2, 2);
   ft_vector.assign(kDefaultSize / 2, 2);
 
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertOverCapacityAtFirst) {
@@ -297,11 +303,19 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
   }
 
   // 最初に挿入
+  // 1回目のcapacity拡大は cap = size() + (last - first)
   stl_vector.insert(stl_vector.begin(), additional_values.begin(),
                     additional_values.end());
   ft_vector.insert(ft_vector.begin(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+
+  // 2回目以降のcapacity拡大は cap = cap * 2 になるっぽい??
+  stl_vector.insert(stl_vector.begin(), additional_values.begin(),
+                    additional_values.end());
+  ft_vector.insert(ft_vector.begin(), additional_values.begin(),
+                   additional_values.end());
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
@@ -315,7 +329,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
                     additional_values.begin(), additional_values.end());
   ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
                    additional_values.begin(), additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
@@ -329,7 +343,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
                     additional_values.end());
   ft_vector.insert(ft_vector.end(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
@@ -346,7 +360,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
                     additional_values.end());
   ft_vector.insert(ft_vector.begin(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
@@ -363,7 +377,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
                     additional_values.begin(), additional_values.end());
   ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
                    additional_values.begin(), additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
@@ -380,7 +394,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
                     additional_values.end());
   ft_vector.insert(ft_vector.end(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertOverCapacity) {
@@ -430,26 +444,27 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacity) {
   std::vector<int> additional_values(stl_vector.capacity(), 10);
 
   // 最初に挿入
-  std::cout << "最初に挿入" << std::endl;
   stl_vector.insert(stl_vector.begin(), additional_values.begin(),
                     additional_values.end());
   ft_vector.insert(ft_vector.begin(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+
   // 途中に挿入
-  std::cout << "途中に挿入" << std::endl;
+  additional_values.assign(additional_values.size(), 11);
   stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
                     additional_values.begin(), additional_values.end());
   ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
                    additional_values.begin(), additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+
   // 最後に挿入
-  std::cout << "最後に挿入" << std::endl;
+  additional_values.assign(additional_values.size(), 12);
   stl_vector.insert(stl_vector.end(), additional_values.begin(),
                     additional_values.end());
   ft_vector.insert(ft_vector.end(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacity) {
@@ -463,19 +478,21 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacity) {
                     additional_values.end());
   ft_vector.insert(ft_vector.begin(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+
   // 途中に挿入
   stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
                     additional_values.begin(), additional_values.end());
   ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
                    additional_values.begin(), additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+
   // 最後に挿入
   stl_vector.insert(stl_vector.end(), additional_values.begin(),
                     additional_values.end());
   ft_vector.insert(ft_vector.end(), additional_values.begin(),
                    additional_values.end());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, PushBack) {
@@ -484,7 +501,7 @@ TEST_F(VectorTest, PushBack) {
     stl_vector.push_back(i);
     ft_vector.push_back(i);
   }
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, PopBack) {
@@ -495,7 +512,7 @@ TEST_F(VectorTest, PopBack) {
   for (int i = 0; i < 16; ++i) {
     stl_vector.pop_back();
     ft_vector.pop_back();
-    expect_same_vector(stl_vector, ft_vector);
+    expect_same_data_in_vector(stl_vector, ft_vector);
   }
 }
 
@@ -503,5 +520,5 @@ TEST_F(VectorTest, Clear) {
   stl_vector.clear();
   ft_vector.clear();
   EXPECT_EQ(stl_vector.empty(), ft_vector.empty());
-  expect_same_vector(stl_vector, ft_vector);
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }

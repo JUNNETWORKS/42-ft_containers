@@ -208,23 +208,17 @@ int main(int argc, char** argv) {
   }
 
   {
+    typedef std::vector<int> container;
+    typedef typename container::iterator iterator;
     std::cout << "==== erase test ====" << std::endl;
-    std::vector<std::string> str_vector;
-    str_vector.push_back("hoge");
-    str_vector.push_back("fuga");
-    str_vector.push_back("hogefuga");
-    print_vector(str_vector);
-    std::cout << std::endl;
-    str_vector.erase(str_vector.begin());
-    print_vector(str_vector);
+    std::vector<int> vec;
+    for (int i = 0; i < 10; ++i) {
+      vec.push_back(i);
+    }
+    print_vector(vec);
+
+    iterator it = vec.erase(vec.begin() + 1, vec.end() - 2);
+    std::cout << "return *it: " << *it << std::endl;
+    print_vector(vec);
   }
-
-  /* map */
-  {}
-
-  /* stack */
-  {}
-
-  /* set (bonus) */
-  {}
 }

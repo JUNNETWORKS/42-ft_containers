@@ -114,7 +114,7 @@ class vector {
     return const_reverse_iterator(begin());
   }
 
-  // Capacity
+  // Size and Capacity
 
   size_type size() const {
     return size_type(finish_ - start_);
@@ -123,6 +123,8 @@ class vector {
   size_type max_size() const {
     return allocator_type().max_size();
   }
+
+  // void resize(size_type sz, T c = T());
 
   size_type capacity() const {
     return cap_;
@@ -267,9 +269,42 @@ class vector {
     insert_range(position, first, last);
   }
 
-  // iterator erase(iterator position);
+  iterator erase(iterator position) {
+    size_type pos_idx = std::distance(begin(), position);
+    size_type end_idx = size();
 
-  // iterator erase(iterator first, iterator last);
+    // positionとそれ以降の要素を1つずつ前にずらす
+    size_type idx;
+    for (idx = pos_idx; idx + 1 < end_idx; ++idx) {
+      start_[idx] = start_[idx + 1];
+    }
+
+    size_type new_end_idx = end_idx - 1;
+    // 移動後に残ったケツのデータのデストラクタを呼ぶ
+    allocator.destroy(start_ + new_end_idx);
+    finish_ = start_ + new_end_idx;
+
+    return iterator(start_ + pos_idx);
+  }
+
+  iterator erase(iterator first, iterator last) {
+    size_type range = std::distance(first, last);
+    size_type first_idx = std::distance(begin(), first);
+    size_type end_idx = size();
+
+    size_type idx;
+    for (idx = first_idx; idx + range < end_idx; ++idx) {
+      start_[idx] = start_[idx + range];
+    }
+    size_type new_end_idx = idx;
+
+    // 余ったやつはデストラクタ呼ぶ
+    for (; idx < end_idx; ++idx) {
+      allocator.destroy(start_ + idx);
+    }
+    finish_ = start_ + new_end_idx;
+    return iterator(start_ + first_idx);
+  }
 
   void swap(vector<T> &x) {
     std::swap(cap_, x.cap_);

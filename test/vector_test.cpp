@@ -13,6 +13,9 @@
 
 class VectorTest : public ::testing::Test {
  protected:
+  typedef typename std::vector<int>::iterator stl_iterator;
+  typedef typename ft::vector<int>::iterator ft_iterator;
+
   static const size_t kDefaultSize = 10;
 
   void SetUp() override {
@@ -492,6 +495,88 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacity) {
                     additional_values.end());
   ft_vector.insert(ft_vector.end(), additional_values.begin(),
                    additional_values.end());
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithOneIteratorAtBegin) {
+  stl_iterator stl_it = stl_vector.erase(stl_vector.begin());
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin());
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithOneIteratorAtMiddle) {
+  stl_iterator stl_it =
+      stl_vector.erase(stl_vector.begin() + stl_vector.size() / 2);
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin() + ft_vector.size() / 2);
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithOneIteratorAtLast) {
+  stl_iterator stl_it = stl_vector.erase(stl_vector.end() - 1);
+  ft_iterator ft_it = ft_vector.erase(ft_vector.end() - 1);
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithOneIteratorOnlyOneElement) {
+  std::vector<int> stl_vector(1);
+  ft::vector<int> ft_vector(1);
+  stl_iterator stl_it = stl_vector.erase(stl_vector.begin());
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin());
+
+  EXPECT_EQ(stl_it == stl_vector.end(), ft_it == ft_vector.end());
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithTwoIteratorBetweenBeginAndMiddle) {
+  stl_iterator stl_it = stl_vector.erase(
+      stl_vector.begin(), stl_vector.begin() + stl_vector.size() / 2);
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin(),
+                                      ft_vector.begin() + ft_vector.size() / 2);
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithTwoIteratorBetweenMiddleAndMiddle) {
+  stl_iterator stl_it =
+      stl_vector.erase(stl_vector.begin() + 2, stl_vector.end() - 2);
+  ft_iterator ft_it =
+      ft_vector.erase(ft_vector.begin() + 2, ft_vector.end() - 2);
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithTwoIteratorBetweenMiddleAndLast) {
+  stl_iterator stl_it = stl_vector.erase(
+      stl_vector.begin() + stl_vector.size() / 2, stl_vector.end());
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin() + ft_vector.size() / 2,
+                                      ft_vector.end());
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, EraseWithTwoIteratorBetweenBeginAndLast) {
+  stl_iterator stl_it = stl_vector.erase(
+      stl_vector.begin() + stl_vector.size() / 2, stl_vector.end());
+  ft_iterator ft_it = ft_vector.erase(ft_vector.begin() + ft_vector.size() / 2,
+                                      ft_vector.end());
+  EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
+            std::distance(ft_vector.begin(), ft_it));
+  EXPECT_EQ(*stl_it, *ft_it);
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 

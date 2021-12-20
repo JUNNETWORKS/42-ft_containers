@@ -248,6 +248,27 @@ TEST_F(VectorTest, AssignNotOverCapacityAndSize) {
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
+TEST_F(VectorTest, ResizeGreaterThanSize) {
+  stl_vector.resize(stl_vector.size() * 2);
+  ft_vector.resize(ft_vector.size() * 2);
+
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, ResizeEqualSize) {
+  stl_vector.resize(stl_vector.size());
+  ft_vector.resize(ft_vector.size());
+
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
+TEST_F(VectorTest, ResizeLessThanSize) {
+  stl_vector.resize(stl_vector.size() / 2);
+  ft_vector.resize(ft_vector.size() / 2);
+
+  expect_same_data_in_vector(stl_vector, ft_vector);
+}
+
 TEST_F(VectorTest, InsertOverCapacityAtFirst) {
   // 最初に挿入
   stl_vector.insert(stl_vector.begin(), stl_vector.capacity(), 10);

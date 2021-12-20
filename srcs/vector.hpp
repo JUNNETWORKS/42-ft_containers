@@ -124,8 +124,6 @@ class vector {
     return allocator_type().max_size();
   }
 
-  // void resize(size_type sz, T c = T());
-
   size_type capacity() const {
     return cap_;
   }
@@ -254,6 +252,16 @@ class vector {
     }
     --finish_;
     allocator.destroy(finish_);
+  }
+
+  void resize(size_type n, T value = T()) {
+    if (n < size()) {
+      erase(begin() + n, end());
+    } else {
+      for (int i = size(); i < n; ++i) {
+        push_back(value);
+      }
+    }
   }
 
   iterator insert(iterator position, const value_type &val) {

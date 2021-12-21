@@ -13,8 +13,11 @@
 
 class VectorTest : public ::testing::Test {
  protected:
-  typedef typename std::vector<int>::iterator stl_iterator;
-  typedef typename ft::vector<int>::iterator ft_iterator;
+  typedef int value_type;
+  typedef std::vector<value_type> stl_container;
+  typedef ft::vector<value_type> ft_container;
+  typedef typename stl_container::iterator stl_iterator;
+  typedef typename ft_container::iterator ft_iterator;
 
   static const size_t kDefaultSize = 10;
 
@@ -45,32 +48,32 @@ class VectorTest : public ::testing::Test {
     EXPECT_TRUE(ft_it == ft_vector.end());
   }
 
-  std::vector<int> stl_vector;
-  ft::vector<int> ft_vector;
-  std::vector<int> stl_empty_vector;
-  ft::vector<int> ft_empty_vector;
+  stl_container stl_vector;
+  ft_container ft_vector;
+  stl_container stl_empty_vector;
+  ft_container ft_empty_vector;
 
   std::vector<std::string> stl_str_vector;
   ft::vector<std::string> ft_str_vector;
 };
 
 TEST_F(VectorTest, DefaultConstructor) {
-  std::vector<int> stl_vector;
-  ft::vector<int> ft_vector;
+  stl_container stl_vector;
+  ft_container ft_vector;
 
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, ConstructorWithOneNumericArg) {
-  std::vector<int> stl_vector(10);
-  ft::vector<int> ft_vector(10);
+  stl_container stl_vector(10);
+  ft_container ft_vector(10);
 
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, CopyConstructor) {
-  std::vector<int> stl_vector2(stl_vector);
-  ft::vector<int> ft_vector2(ft_vector);
+  stl_container stl_vector2(stl_vector);
+  ft_container ft_vector2(ft_vector);
 
   stl_vector2.push_back(2);
   ft_vector2.push_back(2);
@@ -81,11 +84,11 @@ TEST_F(VectorTest, CopyConstructor) {
 
 TEST_F(VectorTest, NormalIterator) {
   /* begin() can return iterator and const_iterator */
-  std::vector<int>::iterator stl_it = stl_vector.begin();
-  ft::vector<int>::iterator ft_it = ft_vector.begin();
+  stl_container::iterator stl_it = stl_vector.begin();
+  ft_container::iterator ft_it = ft_vector.begin();
   ASSERT_EQ(*stl_it, *ft_it);
-  std::vector<int>::const_iterator const_stl_it = stl_vector.begin();
-  ft::vector<int>::const_iterator const_ft_it = ft_vector.begin();
+  stl_container::const_iterator const_stl_it = stl_vector.begin();
+  ft_container::const_iterator const_ft_it = ft_vector.begin();
   ASSERT_EQ(*const_stl_it, *const_ft_it);
 
   /* for loop ends until it reach end() */
@@ -109,11 +112,11 @@ TEST_F(VectorTest, NormalIterator) {
 
 TEST_F(VectorTest, ReverseIterator) {
   /* begin() can return iterator and const_iterator */
-  std::vector<int>::reverse_iterator stl_rit = stl_vector.rbegin();
-  ft::vector<int>::reverse_iterator ft_rit = ft_vector.rbegin();
+  stl_container::reverse_iterator stl_rit = stl_vector.rbegin();
+  ft_container::reverse_iterator ft_rit = ft_vector.rbegin();
   ASSERT_EQ(*stl_rit, *ft_rit);
-  std::vector<int>::const_reverse_iterator const_stl_rit = stl_vector.rbegin();
-  ft::vector<int>::const_reverse_iterator const_ft_rit = ft_vector.rbegin();
+  stl_container::const_reverse_iterator const_stl_rit = stl_vector.rbegin();
+  ft_container::const_reverse_iterator const_ft_rit = ft_vector.rbegin();
   ASSERT_EQ(*const_stl_rit, *const_ft_rit);
 
   /* for loop ends until it reach rend() */
@@ -186,7 +189,7 @@ TEST_F(VectorTest, AtThrowOutOfRangeIfArgIsOutOfRange) {
 
 TEST_F(VectorTest, AssignWithIteratorOverCapacity) {
   // capacityを超えるとき
-  std::vector<int> new_values(kDefaultSize * 2, 1);
+  stl_container new_values(kDefaultSize * 2, 1);
 
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
@@ -197,7 +200,7 @@ TEST_F(VectorTest, AssignWithIteratorOverSize) {
   // sizeを超える時
   stl_vector.reserve(kDefaultSize * 10);
   ft_vector.reserve(kDefaultSize * 10);
-  std::vector<int> new_values(kDefaultSize * 2, 1);
+  stl_container new_values(kDefaultSize * 2, 1);
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
 
@@ -206,10 +209,10 @@ TEST_F(VectorTest, AssignWithIteratorOverSize) {
 
 TEST_F(VectorTest, AssignWithIteratorNotOverCapacityAndSize) {
   // sizeもcapacityも超えない時
-  std::vector<int> stl_vector(kDefaultSize * 10);
-  ft::vector<int> ft_vector(kDefaultSize * 10);
+  stl_container stl_vector(kDefaultSize * 10);
+  ft_container ft_vector(kDefaultSize * 10);
 
-  std::vector<int> new_values(kDefaultSize, 1);
+  stl_container new_values(kDefaultSize, 1);
 
   stl_vector.assign(new_values.begin(), new_values.end());
   ft_vector.assign(new_values.begin(), new_values.end());
@@ -321,7 +324,7 @@ TEST_F(VectorTest, InsertNotOverCapacityAtLast) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -343,7 +346,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -357,7 +360,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -371,7 +374,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -388,7 +391,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -405,7 +408,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
-  std::vector<int> additional_values;
+  stl_container additional_values;
   for (int i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
@@ -465,7 +468,7 @@ TEST_F(VectorTest, InsertNotOverCapacity) {
 }
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacity) {
-  std::vector<int> additional_values(stl_vector.capacity(), 10);
+  stl_container additional_values(stl_vector.capacity(), 10);
 
   // 最初に挿入
   stl_vector.insert(stl_vector.begin(), additional_values.begin(),
@@ -495,7 +498,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacity) {
   stl_vector.reserve(stl_vector.capacity() * 10);
   ft_vector.reserve(ft_vector.capacity() * 10);
 
-  std::vector<int> additional_values(1, 0);
+  stl_container additional_values(1, 0);
 
   // 最初に挿入
   stl_vector.insert(stl_vector.begin(), additional_values.begin(),
@@ -548,8 +551,8 @@ TEST_F(VectorTest, EraseWithOneIteratorAtLast) {
 }
 
 TEST_F(VectorTest, EraseWithOneIteratorOnlyOneElement) {
-  std::vector<int> stl_vector(1);
-  ft::vector<int> ft_vector(1);
+  stl_container stl_vector(1);
+  ft_container ft_vector(1);
   stl_iterator stl_it = stl_vector.erase(stl_vector.begin());
   ft_iterator ft_it = ft_vector.erase(ft_vector.begin());
 

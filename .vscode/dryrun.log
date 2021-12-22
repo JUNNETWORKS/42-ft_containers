@@ -1,5 +1,0 @@
-make --dry-run --keep-going --print-directory
-make: Entering directory '/home/jun/Desktop/work_space/42tokyo/ft_containers'
-clang++ -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address --coverage -o ft_containers 
-make: Leaving directory '/home/jun/Desktop/work_space/42tokyo/ft_containers'
- 

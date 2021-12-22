@@ -7,3 +7,6 @@ tester
 
 # google test
 /google_test/
+
+#editor
+.vscode/

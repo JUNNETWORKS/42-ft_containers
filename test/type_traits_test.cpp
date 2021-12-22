@@ -125,7 +125,7 @@ TEST(IsSame, TwoAreSame) {
   EXPECT_TRUE((ft::is_same<int, std::int32_t>::value));
 }
 
-TEST(IsSame, TowAreNotSame) {
-  EXPECT_TRUE((ft::is_same<int, unsigned int>::value));
+TEST(IsSame, TwoAreNotSame) {
+  EXPECT_FALSE((ft::is_same<int, unsigned int>::value));
   EXPECT_FALSE((ft::is_same<char, int>::value));
 }

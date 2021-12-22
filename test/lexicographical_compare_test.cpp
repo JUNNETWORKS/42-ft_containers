@@ -40,11 +40,8 @@ TEST(LexicographicalCompare, FirstRangeIsLessThanSecondRange) {
 }
 
 TEST(LexicographicalCompare, FirstRangeLengthIsLessThanSecondRangeLength) {
-  container vec1;
-  container vec2;
-  vec1.push_back(10);
-  vec2.push_back(10);
-  vec2.push_back(9);
+  container vec1(1);
+  container vec2(2);
 
   EXPECT_TRUE(ft::lexicographical_compare(vec1.begin(), vec1.end(),
                                           vec2.begin(), vec2.end()));
@@ -54,9 +51,7 @@ TEST(LexicographicalCompare, FirstRangeLengthIsLessThanSecondRangeLength) {
 
 TEST(LexicographicalCompare, FirstRangeLengthIsZero) {
   container vec1;
-  container vec2;
-  vec2.push_back(10);
-  vec2.push_back(9);
+  container vec2(2);
 
   EXPECT_TRUE(ft::lexicographical_compare(vec1.begin(), vec1.end(),
                                           vec2.begin(), vec2.end()));
@@ -90,11 +85,8 @@ TEST(LexicographicalCompareWithComparisonFunction,
 
 TEST(LexicographicalCompareWithComparisonFunction,
      FirstRangeLengthIsLessThanSecondRangeLength) {
-  container vec1;
-  container vec2;
-  vec1.push_back(10);
-  vec2.push_back(10);
-  vec2.push_back(9);
+  container vec1(1);
+  container vec2(2);
 
   EXPECT_TRUE(ft::lexicographical_compare(
       vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), compare<int>));
@@ -104,9 +96,7 @@ TEST(LexicographicalCompareWithComparisonFunction,
 
 TEST(LexicographicalCompareWithComparisonFunction, FirstRangeLengthIsZero) {
   container vec1;
-  container vec2;
-  vec2.push_back(10);
-  vec2.push_back(9);
+  container vec2(2);
 
   EXPECT_TRUE(ft::lexicographical_compare(
       vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), compare<int>));

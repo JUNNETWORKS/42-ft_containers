@@ -82,7 +82,7 @@ TEST_F(VectorTest, CopyConstructor) {
   expect_same_data_in_vector(stl_vector2, ft_vector2);
 }
 
-TEST_F(VectorTest, AssignationOperator) {
+TEST_F(VectorTest, AssignmentOperator) {
   ft_container ft_vector2;
 
   ft_vector2 = ft_vector;

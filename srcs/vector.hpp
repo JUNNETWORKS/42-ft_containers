@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
+#include "lexicographical_compare.hpp"
 #include "normal_iterator.hpp"
 #include "reverse_iterator.hpp"
 
@@ -441,6 +442,40 @@ class vector {
 template <typename T, typename Allocator>
 typename vector<T, Allocator>::allocator_type vector<T, Allocator>::allocator =
     vector<T, Allocator>::allocator_type();
+
+template <class T, class Alloc>
+bool operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  return lhs.size() == rhs.size() &&
+         std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class T, class Alloc>
+bool operator!=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  return !(lhs == rhs);
+}
+
+template <class T, class Alloc>
+bool operator<(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  // return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+  //                                rhs.end());
+  return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(),
+                                      rhs.end());
+}
+
+template <class T, class Alloc>
+bool operator<=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  return !(lhs > rhs);
+}
+
+template <class T, class Alloc>
+bool operator>(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  return rhs < lhs;
+}
+
+template <class T, class Alloc>
+bool operator>=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
+  return !(lhs < rhs);
+}
 
 }  // namespace ft
 

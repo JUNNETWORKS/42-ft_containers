@@ -631,3 +631,91 @@ TEST_F(VectorTest, Clear) {
   EXPECT_EQ(stl_vector.empty(), ft_vector.empty());
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
+
+TEST(VectorOperator, Equal) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_TRUE(str_vec1 == str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_TRUE(str_vec1 == str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("b");
+  EXPECT_FALSE(str_vec1 == str_vec2);
+}
+
+TEST(VectorOperator, NotEqual) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_FALSE(str_vec1 != str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_FALSE(str_vec1 != str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("b");
+  EXPECT_TRUE(str_vec1 != str_vec2);
+}
+
+TEST(VectorOperator, LessThan) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_FALSE(str_vec1 < str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_FALSE(str_vec1 < str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("b");
+  EXPECT_TRUE(str_vec1 < str_vec2);
+}
+
+TEST(VectorOperator, LessThanOrEqual) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_TRUE(str_vec1 <= str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_TRUE(str_vec1 <= str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("b");
+  EXPECT_TRUE(str_vec1 <= str_vec2);
+  str_vec1.pop_back();
+  str_vec2.pop_back();
+  str_vec1.push_back("b");
+  str_vec2.push_back("a");
+  EXPECT_FALSE(str_vec1 <= str_vec2);
+}
+
+TEST(VectorOperator, GreaterThan) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_FALSE(str_vec1 > str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_FALSE(str_vec1 > str_vec2);
+  str_vec1.push_back("b");
+  str_vec2.push_back("a");
+  EXPECT_TRUE(str_vec1 > str_vec2);
+}
+
+TEST(VectorOperator, GreaterThanOrEqual) {
+  ft::vector<std::string> str_vec1;
+  ft::vector<std::string> str_vec2;
+
+  EXPECT_TRUE(str_vec1 >= str_vec2);
+  str_vec1.push_back("a");
+  str_vec2.push_back("a");
+  EXPECT_TRUE(str_vec1 >= str_vec2);
+  str_vec1.push_back("b");
+  str_vec2.push_back("a");
+  EXPECT_TRUE(str_vec1 >= str_vec2);
+  str_vec1.pop_back();
+  str_vec2.pop_back();
+  str_vec1.push_back("a");
+  str_vec2.push_back("b");
+  EXPECT_FALSE(str_vec1 >= str_vec2);
+}

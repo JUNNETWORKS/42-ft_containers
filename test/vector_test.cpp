@@ -82,6 +82,16 @@ TEST_F(VectorTest, CopyConstructor) {
   expect_same_data_in_vector(stl_vector2, ft_vector2);
 }
 
+TEST_F(VectorTest, AssignationOperator) {
+  ft_container ft_vector2;
+
+  ft_vector2 = ft_vector;
+  ft_vector.push_back(1);
+  ft_vector2.push_back(2);
+  EXPECT_EQ(ft_vector.back(), 1);
+  EXPECT_EQ(ft_vector2.back(), 2);
+}
+
 TEST_F(VectorTest, NormalIterator) {
   /* begin() can return iterator and const_iterator */
   stl_container::iterator stl_it = stl_vector.begin();

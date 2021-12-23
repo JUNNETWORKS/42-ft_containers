@@ -55,26 +55,28 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  vector(const vector &x) : cap_(x.size()) {
-    allocator_type alloc = allocator_type();
-    start_ = alloc.allocate(cap_);
-    for (size_type i = 0; i < x.size(); i++) {
-      alloc.construct(start_ + i, x[i]);
-    }
-    finish_ = start_ + x.size();
-    end_of_storage_ = start_ + cap_;
+  vector(const vector &x) : start_(), finish_(), end_of_storage_(), cap_() {
+    operator=(x);
   }
 
-  vector &operator=(const vector &x) {
-    allocator_type alloc = allocator_type();
+  const vector<T, Allocator> &operator=(const vector<T, Allocator> &x) {
+    if (this != &x) {
+      // 自分の配列を捨てる
+      for (size_type i = 0; size(); i++) {
+        allocator.destroy(start_ + i);
+      }
+      allocator.deallocate(start_, cap_);
 
-    cap_ = x.cap_;
-    start_ = alloc.allocate(cap_);
-    for (size_type i = 0; i < x.size(); i++) {
-      alloc.construct(start_ + i, x[i]);
+      // 新たに配列を作成し, データをxからコピー
+      cap_ = x.cap_;
+      start_ = allocator.allocate(cap_);
+      for (size_type i = 0; i < x.size(); i++) {
+        allocator.construct(start_ + i, x[i]);
+      }
+      finish_ = start_ + x.size();
+      end_of_storage_ = start_ + cap_;
     }
-    finish_ = start_ + x.size();
-    end_of_storage_ = start_ + cap_;
+    return *this;
   }
 
   ~vector() {
@@ -289,7 +291,7 @@ class vector {
     }
 
     size_type new_end_idx = end_idx - 1;
-    // 移動後に残ったケツのデータのデストラクタを呼ぶ
+    // 移動後に残った末尾のデータのデストラクタを呼ぶ
     allocator.destroy(start_ + new_end_idx);
     finish_ = start_ + new_end_idx;
 

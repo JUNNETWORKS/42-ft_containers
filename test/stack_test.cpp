@@ -41,6 +41,31 @@ TEST(Stack, InitializeWithContainer) {
   }
 }
 
+TEST(Stack, CopyConstructor) {
+  ft::stack<int> vec1;
+  vec1.push(1);
+  ft::stack<int> vec2(vec1);
+  vec2.push(2);
+
+  EXPECT_EQ(vec1.size(), 1);
+  EXPECT_EQ(vec1.top(), 1);
+  EXPECT_EQ(vec2.size(), 2);
+  EXPECT_EQ(vec2.top(), 2);
+}
+
+TEST(Stack, AssignmentOperator) {
+  ft::stack<int> vec1;
+  vec1.push(1);
+  ft::stack<int> vec2;
+  vec2 = vec1;
+  vec2.push(2);
+
+  EXPECT_EQ(vec1.size(), 1);
+  EXPECT_EQ(vec1.top(), 1);
+  EXPECT_EQ(vec2.size(), 2);
+  EXPECT_EQ(vec2.top(), 2);
+}
+
 TEST(Stack, Empty) {
   ft::stack<int> stack1;
 

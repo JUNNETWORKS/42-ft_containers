@@ -32,6 +32,15 @@ class stack {
   explicit stack(const container_type& container = container_type())
       : container_(container) {}
 
+  stack(const stack<T, Container>& other) : container_(other.container_) {}
+
+  const stack<T, Container>& operator=(const stack<T, Container>& rhs) {
+    if (this != &rhs) {
+      container_ = rhs.container_;
+    }
+    return *this;
+  }
+
   ~stack() {}
 
   bool empty() const {

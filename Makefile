@@ -34,6 +34,11 @@ fclean: clean
 .PHONY: re
 re: fclean all
 
+.PHONY: debug
+debug: $(OBJECTS)
+	$(CXX) -g -O0 $^ -o debug
+	gdb
+
 # Google Test
 
 GTESTDIR    :=   ./google_test

@@ -8,6 +8,9 @@ tester
 # google test
 /google_test/
 
-#editor
+# editor
 .vscode/
 .idea/
+
+# debugger
+peda-session-*.txt

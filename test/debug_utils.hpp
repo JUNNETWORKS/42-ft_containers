@@ -1,6 +1,8 @@
 #ifndef DEBUG_UTILS_H_
 #define DEBUG_UTILS_H_
 
+#include "vector.hpp"
+
 template <typename T>
 void printVectorInfo(std::vector<T>& vec) {
   std::cout << "STL Vector Information"

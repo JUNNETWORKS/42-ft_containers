@@ -44,7 +44,8 @@ SRCS_TEST := $(TEST_DIR)/vector_test.cpp  \
 	$(TEST_DIR)/type_traits_test.cpp \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
-	$(TEST_DIR)/pair_test.cpp
+	$(TEST_DIR)/pair_test.cpp \
+	$(TEST_DIR)/red_black_tree_test.cpp
 
 $(GTEST):
 	mkdir -p $(GTESTDIR)

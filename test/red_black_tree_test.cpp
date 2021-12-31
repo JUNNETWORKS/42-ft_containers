@@ -12,8 +12,17 @@
 TEST(RedBlackTree, BasicOperations) {
   ft::RedBlackTree<std::string, int> rb_tree;
   rb_tree.Insert("c", 1);
-  rb_tree.Insert("b", 1);
-  rb_tree.Insert("a", 1);
+  rb_tree.Insert("b", 2);
+  rb_tree.Insert("a", 3);
+
   std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
   rb_tree.PrintTree2D();
+
+  std::cout << "a: " << rb_tree["a"] << std::endl;
+  std::cout << "b: " << rb_tree["b"] << std::endl;
+  std::cout << "c: " << rb_tree["c"] << std::endl;
+
+  EXPECT_EQ(rb_tree["c"], 1);
+  EXPECT_EQ(rb_tree["b"], 2);
+  EXPECT_EQ(rb_tree["a"], 3);
 }

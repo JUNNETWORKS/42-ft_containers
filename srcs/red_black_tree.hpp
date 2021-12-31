@@ -63,7 +63,10 @@ class RedBlackTree {
 
   RedBlackTree &operator=(const RedBlackTree &rhs) {}
 
-  ~RedBlackTree() {}
+  ~RedBlackTree() {
+    // 全てのノードをdeleteする
+    DeleteTree(root_);
+  }
 
   // Tree operations
 
@@ -614,14 +617,18 @@ class RedBlackTree {
     x->color_ = RBTNode::BLACK;
   }
 
-  void DeleteTree() {
-    // TODO: 木の全てのノードを削除する.
+  void DeleteTree(RBTNode *deleting_target) {
+    // 木の全てのノードを削除する.
     // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
+    if (deleting_target == nil_node_) {
+      return;
+    }
+    DeleteTree(deleting_target->left_);
+    DeleteTree(deleting_target->right_);
+    DeleteNode(deleting_target);
   }
 
   void DeleteNode(RBTNode *z) {
-    z->key_.~key();
-    z->value.~value();
     delete z;
   }
 

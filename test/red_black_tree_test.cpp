@@ -25,4 +25,10 @@ TEST(RedBlackTree, BasicOperations) {
   EXPECT_EQ(rb_tree["c"], 1);
   EXPECT_EQ(rb_tree["b"], 2);
   EXPECT_EQ(rb_tree["a"], 3);
+
+  rb_tree.Delete("a");
+  rb_tree.Delete("b");
+  std::cout << "after delete a and b" << std::endl;
+  std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
+  rb_tree.PrintTree2D();
 }

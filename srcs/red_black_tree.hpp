@@ -217,18 +217,18 @@ class RedBlackTree {
     RBTNode *y = z;
     // 節点yを再彩色する可能性があるので元の色を保持する.
     // yの代入直後のyの色を覚えておく.
-    typename RBTNode::Color y_original_color = y->color;
+    typename RBTNode::Color y_original_color = y->color_;
 
     if (z->left_ == nil_node_) {
       x = z->right_;
       DeleteTransplant(z, z->right_);
     } else if (z->right_ == nil_node_) {
       x = z->left_;
-      DeleteTransplant(z, z->left);
+      DeleteTransplant(z, z->left_);
     } else {
       // 削除ノードが2つ子を持つ場合
       y = TreeMinimum(z->right_);
-      y_original_color = y->color;
+      y_original_color = y->color_;
       x = y->right_;
       if (y->parent_ == z) {
         // 削除ノードの右の子が次節点の場合
@@ -236,12 +236,12 @@ class RedBlackTree {
       } else {
         DeleteTransplant(y, y->right_);
         y->right_ = z->right_;
-        y->right_->parent = y;
+        y->right_->parent_ = y;
       }
       DeleteTransplant(y, y->right_);
-      y->left = z->left_;
+      y->left_ = z->left_;
       y->left_->parent_ = y;
-      y->color = z->color;
+      y->color_ = z->color_;
     }
     DeleteNode(z);
 
@@ -637,11 +637,11 @@ class RedBlackTree {
       return nil_node_;
     }
 
-    RBTNode *current = root;
+    const RBTNode *current = root;
     while (current->left_ != nil_node_) {
       current = current->left_;
     }
-    return current;
+    return const_cast<RBTNode *>(current);
   }
 
   RBTNode *TreeMaximum(const RBTNode *root) const {
@@ -649,11 +649,11 @@ class RedBlackTree {
       return nil_node_;
     }
 
-    RBTNode *current = root;
+    const RBTNode *current = root;
     while (current->right_ != nil_node_) {
       current = current->right_;
     }
-    return current;
+    return const_cast<RBTNode *>(current);
   }
 
   // // TODO: 中間順木巡回の順序での次の節点のポインタを返す

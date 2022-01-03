@@ -35,6 +35,23 @@ TEST(RedBlackTree, BasicOperations) {
   rb_tree.PrintTree2D();
 }
 
+TEST(Modifier, ModifyExistNode) {
+  ft::RedBlackTree<std::string, int> rb_tree;
+  rb_tree.Insert("a", 1);
+  EXPECT_EQ(rb_tree["a"], 1);
+  rb_tree.Insert("a", 2);
+  EXPECT_EQ(rb_tree["a"], 2);
+  rb_tree.Delete("a");
+}
+
+TEST(Modifier, DeleteAndAccessItShouldThrowException) {
+  ft::RedBlackTree<std::string, int> rb_tree;
+  rb_tree.Insert("a", 1);
+  EXPECT_EQ(rb_tree["a"], 1);
+  rb_tree.Delete("a");
+  EXPECT_THROW(rb_tree["a"], std::out_of_range);
+}
+
 TEST(TreeSuccessor, Random100) {
   srand(time(NULL));
   typedef ft::RedBlackTree<int, int> tree_type;

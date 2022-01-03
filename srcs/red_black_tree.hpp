@@ -71,13 +71,15 @@ class RedBlackTree {
   }
 
   // Tree operations
-
   void Insert(const Key &key, const Value &value) {
     RBTNode *parent = nil_node_;
     RBTNode *current = root_;
     while (current != nil_node_) {
       parent = current;
-      if (key < current->key_) {
+      if (key == current->key_) {
+        current->value_ = value;
+        return;
+      } else if (key < current->key_) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -105,8 +107,7 @@ class RedBlackTree {
   Value &operator[](const Key &key) const {
     RBTNode *node = Search(key);
     if (node == nil_node_) {
-      // TODO: throw an NotFoundException
-      // throw hogefuga;
+      throw std::out_of_range("key isn't in the tree.");
     }
     return node->value_;
   }

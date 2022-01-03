@@ -62,5 +62,35 @@ TEST(TreeSuccessor, Random100) {
   }
   node = rb_tree.TreeSuccessor(node);
   // 最後はNULLが返ってくる
-  EXPECT_EQ(node, NULL);
+  EXPECT_TRUE(node == NULL);
+}
+
+TEST(TreePredecessor, Random100) {
+  srand(time(NULL));
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef typename tree_type::node_type node_type;
+  typedef std::set<int> set_type;
+  const int loop_num = 10;
+
+  set_type s;
+  tree_type rb_tree;
+
+  for (int i = 0; i < loop_num; i++) {
+    int num = rand() % 10000;
+    s.insert(num);
+  }
+  for (set_type::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit) {
+    int num = *rit;
+    rb_tree.Insert(num, num);
+  }
+
+  const node_type *node = NULL;
+  for (set_type::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit) {
+    node = rb_tree.TreePredecessor(node);
+    EXPECT_EQ(node->key_, *rit);
+    EXPECT_EQ(node->value_, *rit);
+  }
+  node = rb_tree.TreePredecessor(node);
+  // 最後はNULLが返ってくる
+  EXPECT_TRUE(node == NULL);
 }

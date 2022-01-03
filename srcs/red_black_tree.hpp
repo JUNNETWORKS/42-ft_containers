@@ -1,6 +1,7 @@
 #ifndef RED_BLACK_TREE_H_
 #define RED_BLACK_TREE_H_
 
+#include <cstddef>
 #include <iostream>
 
 #include "stack.hpp"
@@ -24,7 +25,7 @@ namespace ft {
 //    と言い換えることができる)
 template <typename Key, typename Value>
 class RedBlackTree {
- private:
+ public:
   struct RBTNode {
     enum Color { BLACK = 0, RED = 1 };
 
@@ -45,6 +46,7 @@ class RedBlackTree {
   };
 
  public:
+  typedef RBTNode node_type;
   typedef std::size_t size_type;
 
   // Constructor, Descructor
@@ -94,8 +96,6 @@ class RedBlackTree {
     new_node->right_ = nil_node_;
     new_node->color_ = RBTNode::RED;  // 新しいノードの色は最初は赤に設定される
     InsertFixup(new_node);
-
-    PrintNodeInfo(new_node);
   }
 
   void Delete(Key key) {
@@ -281,7 +281,9 @@ class RedBlackTree {
     return current;
   }
 
- private:
+  //  private:
+  // テスト用にパブリックにしてる
+ public:
   enum Direction { LEFT = 0, RIGHT = 1 };
 
   // Fix tree
@@ -656,10 +658,45 @@ class RedBlackTree {
     return const_cast<RBTNode *>(current);
   }
 
-  // // TODO: 中間順木巡回の順序での次の節点のポインタを返す
+  // 中間順木巡回の順序での次の節点のポインタを返す
+  // current == NULL の時は中間順木巡回の最初のポインタを返す
+  const RBTNode *TreeSuccessor(const RBTNode *current = NULL) const {
+    if (!current || current == nil_node_) {
+      return TreeMinimum(root_);
+    }
+    if (current == current->parent_->left_ && current->right_ == nil_node_) {
+      // currentが親の左の子で, なおかつ右に子を持っていない場合,
+      // 次のノードは親である
+      return current->parent_;
+    } else if (current->right_ != nil_node_) {
+      // currentが右の子を持っている時は右の子の中の最小が次のノード
+      return TreeMinimum(current->right_);
+    } else if (current == current->parent_->right_ &&
+               current->left_ == nil_node_ && current->right_ == nil_node_) {
+      // currentが親の右の子で, なおかつ左右に子を持たない
+      // currentより大きくなるまで親を遡る.
+      // NIL_Nodeまで達したのならcurrentは最後のノード
+      const RBTNode *next_node = current->parent_;
+      while (next_node != nil_node_ && next_node->key_ < current->key_) {
+        next_node = next_node->parent_;
+      }
+      if (next_node == nil_node_) {
+        // currentは最後のノードだった
+        return NULL;
+      }
+      return next_node;
+    }
+    // TODO: ここまで来たってことはバグってる. そのうちなんとかする.
+    throw std::exception();
+  }
+
+  // // TODO: 中間順木巡回の順序での前の節点のポインタを返す
   // // 再帰を使わない中間順木巡回
-  // RBTNode *TreeSuccessor() {
-  //   static stack<RBTNode *> s;
+  // // current == NULL の時は中間順木巡回の最後のポインタを返す
+  // const RBTNode *TreePredecessor(const RBTNode *current = NULL) const {
+  //   if (!current || current == nil_node_) {
+  //     return TreeMaximum(root_);
+  //   }
   // }
 
   // Members

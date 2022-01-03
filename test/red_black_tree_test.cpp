@@ -2,11 +2,13 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <iterator>
+#include <set>
 #include <vector>
 
 TEST(RedBlackTree, BasicOperations) {
@@ -31,4 +33,34 @@ TEST(RedBlackTree, BasicOperations) {
   std::cout << "after delete a and b" << std::endl;
   std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
   rb_tree.PrintTree2D();
+}
+
+TEST(TreeSuccessor, Random100) {
+  srand(time(NULL));
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef typename tree_type::node_type node_type;
+  typedef std::set<int> set_type;
+  const int loop_num = 1000;
+
+  set_type s;
+  tree_type rb_tree;
+
+  for (int i = 0; i < loop_num; i++) {
+    int num = rand() % 10000;
+    s.insert(num);
+  }
+  for (set_type::iterator it = s.begin(); it != s.end(); ++it) {
+    int num = *it;
+    rb_tree.Insert(num, num);
+  }
+
+  const node_type *node = NULL;
+  for (set_type::iterator it = s.begin(); it != s.end(); ++it) {
+    node = rb_tree.TreeSuccessor(node);
+    EXPECT_EQ(node->key_, *it);
+    EXPECT_EQ(node->value_, *it);
+  }
+  node = rb_tree.TreeSuccessor(node);
+  // 最後はNULLが返ってくる
+  EXPECT_EQ(node, NULL);
 }

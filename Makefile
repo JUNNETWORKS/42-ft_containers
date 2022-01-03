@@ -63,8 +63,19 @@ $(GTEST):
 .PHONY: test
 test: $(GTEST) 
 	# Google Test require C++11
-	clang++ -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
-	-DDEBUG -g -fsanitize=integer -fsanitize=address \
+	g++ -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
+	-DDEBUG -g -fsanitize=address \
+	-ftest-coverage -fprofile-arcs -lgcov \
 	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(SRCS_TEST) -o tester
 	./tester
+	# coverage
+	lcov -c -b . -d . -o cov_test.info --gcov-tool /usr/bin/gcov-8
+	lcov -r cov_test.info "*/googletest/*" "*/c++/*" -o coverageFiltered.info --gcov-tool /usr/bin/gcov-8
+	genhtml coverageFiltered.info -o cov_test_html
+	
 	rm tester
+	rm *.gcda
+	rm *.gcno
+	rm coverageFiltered.info
+	rm default.profraw
+	rm cov_test.info

@@ -14,3 +14,10 @@ tester
 
 # debugger
 peda-session-*.txt
+
+# coverage test
+*.info
+*.profraw
+*.gcda
+*.gcno
+cov_test_html/

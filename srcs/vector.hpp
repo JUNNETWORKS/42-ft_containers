@@ -24,10 +24,10 @@ class vector {
   typedef const value_type &const_reference;
   typedef value_type *pointer;
   typedef const value_type *const_pointer;
-  typedef normal_iterator<pointer, vector> iterator;
-  typedef normal_iterator<const_pointer, vector> const_iterator;
-  typedef reverse_iterator<const_iterator> const_reverse_iterator;
-  typedef reverse_iterator<iterator> reverse_iterator;
+  typedef ft::normal_iterator<pointer, vector> iterator;
+  typedef ft::normal_iterator<const_pointer, vector> const_iterator;
+  typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+  typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef std::size_t size_type;
 
   vector(size_type n = 0, const value_type &val = value_type(),

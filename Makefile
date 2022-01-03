@@ -70,12 +70,11 @@ test: $(GTEST)
 	./tester
 	# coverage
 	lcov -c -b . -d . -o cov_test.info --gcov-tool /usr/bin/gcov-8
-	lcov -r cov_test.info "*/googletest/*" "*/c++/*" -o coverageFiltered.info --gcov-tool /usr/bin/gcov-8
+	lcov -r cov_test.info "*/google_test/*" "*/c++/*" -o coverageFiltered.info --gcov-tool /usr/bin/gcov-8
 	genhtml coverageFiltered.info -o cov_test_html
 	
 	rm tester
 	rm *.gcda
 	rm *.gcno
 	rm coverageFiltered.info
-	rm default.profraw
 	rm cov_test.info

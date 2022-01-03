@@ -672,8 +672,8 @@ class RedBlackTree {
       // currentが右の子を持っている時は右の子の中の最小が次のノード
       return TreeMinimum(current->right_);
     } else if (current == current->parent_->right_ &&
-               current->left_ == nil_node_ && current->right_ == nil_node_) {
-      // currentが親の右の子で, なおかつ左右に子を持たない
+               current->right_ == nil_node_) {
+      // currentが親の右の子で, なおかつ右に子を持たない
       // currentより大きくなるまで親を遡る.
       // NIL_Nodeまで達したのならcurrentは最後のノード
       const RBTNode *next_node = current->parent_;
@@ -705,8 +705,8 @@ class RedBlackTree {
       // currentの次に小さい値
       return TreeMaximum(current->left_);
     } else if (current == current->parent_->left_ &&
-               current->left_ == nil_node_ && current->right_ == nil_node_) {
-      // currentが親の左の子で, なおかつ左右に子を持たない
+               current->left_ == nil_node_) {
+      // currentが親の左の子で, なおかつ左に子を持たない
       // currentより小さくなるまで親を遡る.
       // NIL_Nodeまで達したのならcurrentは最後のノード
       const RBTNode *next_node = current->parent_;

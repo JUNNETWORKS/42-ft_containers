@@ -70,7 +70,7 @@ TEST(TreePredecessor, Random100) {
   typedef ft::RedBlackTree<int, int> tree_type;
   typedef typename tree_type::node_type node_type;
   typedef std::set<int> set_type;
-  const int loop_num = 10;
+  const int loop_num = 1000;
 
   set_type s;
   tree_type rb_tree;

@@ -665,30 +665,29 @@ class RedBlackTree {
     if (!current || current == nil_node_) {
       return TreeMinimum(root_);
     }
-    if (current == current->parent_->left_ && current->right_ == nil_node_) {
-      // currentが親の左の子で, なおかつ右に子を持っていない場合,
-      // 次のノードは親である
-      return current->parent_;
-    } else if (current->right_ != nil_node_) {
+    if (current->right_ != nil_node_) {
       // currentが右の子を持っている時は右の子の中の最小が次のノード
       return TreeMinimum(current->right_);
-    } else if (current == current->parent_->right_ &&
-               current->right_ == nil_node_) {
-      // currentが親の右の子で, なおかつ右に子を持たない
-      // currentより大きくなるまで親を遡る.
-      // NIL_Nodeまで達したのならcurrentは最後のノード
-      const RBTNode *next_node = current->parent_;
-      while (next_node != nil_node_ && next_node->key_ < current->key_) {
-        next_node = next_node->parent_;
+    } else {
+      if (current == current->parent_->left_) {
+        // currentが親の左の子で, なおかつ右に子を持っていない場合,
+        // 次のノードは親である
+        return current->parent_;
+      } else {
+        // currentが親の右の子で, なおかつ右に子を持たない
+        // currentより大きくなるまで親を遡る.
+        // NIL_Nodeまで達したのならcurrentは最後のノード
+        const RBTNode *next_node = current->parent_;
+        while (next_node != nil_node_ && next_node->key_ < current->key_) {
+          next_node = next_node->parent_;
+        }
+        if (next_node == nil_node_) {
+          // currentは最後のノードだった
+          return NULL;
+        }
+        return next_node;
       }
-      if (next_node == nil_node_) {
-        // currentは最後のノードだった
-        return NULL;
-      }
-      return next_node;
     }
-    // TODO: ここまで来たってことはバグってる. そのうちなんとかする.
-    throw std::exception();
   }
 
   // 中間順木巡回の逆順序での前の節点のポインタを返す
@@ -697,31 +696,30 @@ class RedBlackTree {
     if (!current || current == nil_node_) {
       return TreeMaximum(root_);
     }
-    if (current == current->parent_->right_ && current->left_ == nil_node_) {
-      // currentが親の右のノードで, currentが左の子を持たない場合,
-      // 次のノードはcurrentの親
-      return current->parent_;
-    } else if (current->left_ != nil_node_) {
+    if (current->left_ != nil_node_) {
       // currentが左の子を持つ場合は左部分木の中の最大値
       // currentの次に小さい値
       return TreeMaximum(current->left_);
-    } else if (current == current->parent_->left_ &&
-               current->left_ == nil_node_) {
-      // currentが親の左の子で, なおかつ左に子を持たない
-      // currentより小さくなるまで親を遡る.
-      // NIL_Nodeまで達したのならcurrentは最後のノード
-      const RBTNode *next_node = current->parent_;
-      while (next_node != nil_node_ && next_node->key_ > current->key_) {
-        next_node = next_node->parent_;
+    } else {
+      if (current == current->parent_->left_) {
+        // currentが親の左の子で, なおかつ左に子を持たない
+        // currentより小さくなるまで親を遡る.
+        // NIL_Nodeまで達したのならcurrentは最後のノード
+        const RBTNode *next_node = current->parent_;
+        while (next_node != nil_node_ && next_node->key_ > current->key_) {
+          next_node = next_node->parent_;
+        }
+        if (next_node == nil_node_) {
+          // currentは最後のノードだった
+          return NULL;
+        }
+        return next_node;
+      } else {
+        // currentが親の右のノードで, currentが左の子を持たない場合,
+        // 次のノードはcurrentの親
+        return current->parent_;
       }
-      if (next_node == nil_node_) {
-        // currentは最後のノードだった
-        return NULL;
-      }
-      return next_node;
     }
-    // TODO: ここまで来たってことはバグってる. そのうちなんとかする.
-    throw std::exception();
   }
 
   // Members

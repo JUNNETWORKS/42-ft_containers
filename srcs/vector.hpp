@@ -55,7 +55,7 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  vector(const vector &x) : start_(), finish_(), end_of_storage_(), cap_() {
+  vector(const vector &x) : cap_(), start_(), finish_(), end_of_storage_() {
     operator=(x);
   }
 
@@ -261,7 +261,7 @@ class vector {
     if (n < size()) {
       erase(begin() + n, end());
     } else {
-      for (int i = size(); i < n; ++i) {
+      for (size_type i = size(); i < n; ++i) {
         push_back(value);
       }
     }

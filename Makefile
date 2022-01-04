@@ -57,7 +57,7 @@ DEPENDENCIES_TEST \
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	g++ -Wall -Wextra -Werror --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) \
+	g++ -g -Wall -Wextra -Werror --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) \
 	-c $< -MMD -o $@
 
 -include $(DEPENDENCIES_TEST)

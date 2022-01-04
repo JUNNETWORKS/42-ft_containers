@@ -111,3 +111,65 @@ TEST(TreePredecessor, Random100) {
   // 最後はNULLが返ってくる
   EXPECT_TRUE(node == NULL);
 }
+
+TEST(RedBlackTree, CopyConstructor) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  srand(time(NULL));
+  const int loop_num = 10;
+
+  tree_type t1;
+
+  for (int i = 0; i < loop_num; ++i) {
+    t1.Insert(rand(), rand());
+  }
+
+  t1.Insert(0, 1);
+
+  tree_type t2 = t1;
+  tree_type t3(t1);
+  tree_type t4;
+  t4 = t1;
+
+  // Deep Copy Check
+  std::cout << "Deep Copy Check" << std::endl;
+  t2[0] = 2;
+  t3[0] = 3;
+  t4[0] = 4;
+  EXPECT_EQ(t1[0], 1);
+  EXPECT_EQ(t2[0], 2);
+  EXPECT_EQ(t3[0], 3);
+  EXPECT_EQ(t4[0], 4);
+
+  std::cout << "Delete Node 0" << std::endl;
+  t1.Delete(0);
+  t2.Delete(0);
+  t3.Delete(0);
+  t4.Delete(0);
+
+  std::cout << "Start TreeSuccessor" << std::endl;
+  const tree_type::node_type *n1 = t1.TreeSuccessor();
+  const tree_type::node_type *n2 = t2.TreeSuccessor();
+  const tree_type::node_type *n3 = t3.TreeSuccessor();
+  const tree_type::node_type *n4 = t4.TreeSuccessor();
+  while (n1) {
+    std::cout << n1->key_ << std::endl;
+    EXPECT_EQ(n1->key_, n2->key_);
+    EXPECT_EQ(n1->value_, n2->value_);
+    EXPECT_NE(n1, n2);
+    EXPECT_EQ(n1->key_, n3->key_);
+    EXPECT_EQ(n1->value_, n3->value_);
+    EXPECT_NE(n1, n3);
+    EXPECT_EQ(n1->key_, n4->key_);
+    EXPECT_EQ(n1->value_, n4->value_);
+    EXPECT_NE(n1, n4);
+    n1 = t1.TreeSuccessor(n1);
+    n2 = t2.TreeSuccessor(n2);
+    n3 = t3.TreeSuccessor(n3);
+    n4 = t4.TreeSuccessor(n4);
+  }
+  // 最後はNULL
+  EXPECT_EQ(n1, n2);
+  EXPECT_EQ(n1, n3);
+  EXPECT_EQ(n1, n4);
+}

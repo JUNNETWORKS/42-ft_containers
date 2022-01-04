@@ -43,6 +43,24 @@ class RedBlackTree {
           left_(),
           right_(),
           color_(BLACK) {}
+
+    RBTNode(const RBTNode &other) {
+      operator=(other);
+    }
+
+    RBTNode &operator=(const RBTNode &rhs) {
+      if (&rhs != this) {
+        key_ = rhs.key_;
+        value_ = rhs.value_;
+        parent_ = rhs.parent_;
+        left_ = rhs.left_;
+        right_ = rhs.right_;
+        color_ = rhs.color_;
+      }
+      return *this;
+    }
+
+    ~RBTNode() {}
   };
 
  public:
@@ -61,9 +79,20 @@ class RedBlackTree {
     nil_node_->color_ = RBTNode::BLACK;
   }
 
-  RedBlackTree(const RedBlackTree &other) {}
+  RedBlackTree(const RedBlackTree &other)
+      : nil_node_object_(Key(), Value()),
+        nil_node_(&nil_node_object_),
+        root_(nil_node_) {
+    operator=(other);
+  }
 
-  RedBlackTree &operator=(const RedBlackTree &rhs) {}
+  RedBlackTree &operator=(const RedBlackTree &rhs) {
+    if (&rhs != this) {
+      // ノードをディープコピー
+      root_ = CopyTree(rhs.root_, rhs.nil_node_);
+    }
+    return *this;
+  }
 
   ~RedBlackTree() {
     // 全てのノードをdeleteする
@@ -101,7 +130,7 @@ class RedBlackTree {
   }
 
   void Delete(Key key) {
-    Delete(Search(key));
+    DeleteNodeFromTree(Search(key));
   }
 
   Value &operator[](const Key &key) const {
@@ -210,7 +239,7 @@ class RedBlackTree {
    *                                       /
    *                                      3
    */
-  void Delete(RBTNode *z) {
+  void DeleteNodeFromTree(RBTNode *z) {
     // yがもともと置かれていた場所に移動する節点
     RBTNode *x;
     // 木からの削除あるいは木の中の移動が想定される節点.
@@ -633,6 +662,27 @@ class RedBlackTree {
 
   void DeleteNode(RBTNode *z) {
     delete z;
+  }
+
+  RBTNode *CopyTree(RBTNode *other_root, RBTNode *other_nil_node) {
+    if (other_root == other_nil_node) {
+      return nil_node_;
+    }
+    RBTNode *copy_root = CopyNode(other_root, other_nil_node);
+    copy_root->parent_ = nil_node_;
+    copy_root->left_ = CopyTree(other_root->left_, other_nil_node);
+    copy_root->left_->parent_ = copy_root;
+    copy_root->right_ = CopyTree(other_root->right_, other_nil_node);
+    copy_root->right_->parent_ = copy_root;
+    return copy_root;
+  }
+
+  RBTNode *CopyNode(const RBTNode *z, const RBTNode *nil_node) {
+    if (z == nil_node) {
+      return nil_node_;
+    }
+    RBTNode *new_node = new RBTNode(*z);
+    return new_node;
   }
 
   RBTNode *TreeMinimum(const RBTNode *root) const {

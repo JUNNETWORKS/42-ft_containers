@@ -102,12 +102,14 @@ template <class T>
 bool return_true_if_integral(
     T val,
     typename ft::enable_if<std::is_integral<T>::value>::type* = nullptr) {
+  (void)val;
   return true;
 }
 template <class T>
 bool return_true_if_integral(
     T val,
     typename ft::disable_if<std::is_integral<T>::value>::type* = nullptr) {
+  (void)val;
   return false;
 }
 

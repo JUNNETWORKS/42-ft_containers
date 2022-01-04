@@ -182,13 +182,13 @@ TEST_F(VectorTest, ReserveThrowExceptionIfArgIsLargerThanMaxSizeOfAllocator) {
 }
 
 TEST_F(VectorTest, AccessElementBySquareBrackets) {
-  for (int i = 0; i < stl_vector.size(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.size(); ++i) {
     EXPECT_EQ(stl_vector[i], ft_vector[i]);
   }
 }
 
 TEST_F(VectorTest, AccessElementByAt) {
-  for (int i = 0; i < stl_vector.size(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.size(); ++i) {
     EXPECT_EQ(stl_vector.at(i), ft_vector.at(i));
   }
 }
@@ -335,7 +335,7 @@ TEST_F(VectorTest, InsertNotOverCapacityAtLast) {
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 
@@ -357,7 +357,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtFirst) {
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 
@@ -371,7 +371,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtMiddle) {
 
 TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 
@@ -385,7 +385,7 @@ TEST_F(VectorTest, InsertWithIteratorOverCapacityAtLast) {
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 
@@ -402,7 +402,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtFirst) {
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 
@@ -419,7 +419,7 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtMiddle) {
 
 TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
   stl_container additional_values;
-  for (int i = 0; i < stl_vector.capacity(); ++i) {
+  for (stl_container::size_type i = 0; i < stl_vector.capacity(); ++i) {
     additional_values.push_back(i);
   }
 

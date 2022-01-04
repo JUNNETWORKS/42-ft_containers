@@ -20,13 +20,13 @@ TEST(Stack, InitializeIntStackAndBasicOperations) {
   int_stack.push(1);
   int_stack.push(2);
 
-  EXPECT_EQ(int_stack.size(), 2);
+  EXPECT_EQ(int_stack.size(), 2ul);
   EXPECT_EQ(int_stack.top(), 2);
   int_stack.pop();
-  EXPECT_EQ(int_stack.size(), 1);
+  EXPECT_EQ(int_stack.size(), 1ul);
   EXPECT_EQ(int_stack.top(), 1);
   int_stack.pop();
-  EXPECT_EQ(int_stack.size(), 0);
+  EXPECT_EQ(int_stack.size(), 0ul);
   EXPECT_TRUE(int_stack.empty());
 }
 
@@ -47,9 +47,9 @@ TEST(Stack, CopyConstructor) {
   ft::stack<int> vec2(vec1);
   vec2.push(2);
 
-  EXPECT_EQ(vec1.size(), 1);
+  EXPECT_EQ(vec1.size(), 1ul);
   EXPECT_EQ(vec1.top(), 1);
-  EXPECT_EQ(vec2.size(), 2);
+  EXPECT_EQ(vec2.size(), 2ul);
   EXPECT_EQ(vec2.top(), 2);
 }
 
@@ -60,9 +60,9 @@ TEST(Stack, AssignmentOperator) {
   vec2 = vec1;
   vec2.push(2);
 
-  EXPECT_EQ(vec1.size(), 1);
+  EXPECT_EQ(vec1.size(), 1ul);
   EXPECT_EQ(vec1.top(), 1);
-  EXPECT_EQ(vec2.size(), 2);
+  EXPECT_EQ(vec2.size(), 2ul);
   EXPECT_EQ(vec2.top(), 2);
 }
 
@@ -77,7 +77,7 @@ TEST(Stack, Empty) {
 TEST(Stack, Size) {
   ft::stack<int> stack1;
 
-  for (int i = 0; i < 10; ++i) {
+  for (ft::stack<int>::size_type i = 0; i < 10; ++i) {
     EXPECT_EQ(stack1.size(), i);
     stack1.push(i);
   }

@@ -132,7 +132,6 @@ TEST(RedBlackTree, CopyConstructor) {
   t4 = t1;
 
   // Deep Copy Check
-  std::cout << "Deep Copy Check" << std::endl;
   t2[0] = 2;
   t3[0] = 3;
   t4[0] = 4;
@@ -141,19 +140,16 @@ TEST(RedBlackTree, CopyConstructor) {
   EXPECT_EQ(t3[0], 3);
   EXPECT_EQ(t4[0], 4);
 
-  std::cout << "Delete Node 0" << std::endl;
   t1.Delete(0);
   t2.Delete(0);
   t3.Delete(0);
   t4.Delete(0);
 
-  std::cout << "Start TreeSuccessor" << std::endl;
   const tree_type::node_type *n1 = t1.TreeSuccessor();
   const tree_type::node_type *n2 = t2.TreeSuccessor();
   const tree_type::node_type *n3 = t3.TreeSuccessor();
   const tree_type::node_type *n4 = t4.TreeSuccessor();
   while (n1) {
-    std::cout << n1->key_ << std::endl;
     EXPECT_EQ(n1->key_, n2->key_);
     EXPECT_EQ(n1->value_, n2->value_);
     EXPECT_NE(n1, n2);

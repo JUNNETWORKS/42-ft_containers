@@ -141,6 +141,81 @@ class RedBlackTree {
     return node->value_;
   }
 
+  RBTNode *Search(const Key &key) const {
+    RBTNode *current = root_;
+    while (current != nil_node_ && current->key_ != key) {
+      if (key < current->key_) {
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return current;
+  }
+
+  // 中間順木巡回の順序での次の節点のポインタを返す
+  // current == NULL の時は中間順木巡回の最初のポインタを返す
+  const RBTNode *TreeSuccessor(const RBTNode *current = NULL) const {
+    if (!current || current == nil_node_) {
+      return TreeMinimum(root_);
+    }
+    if (current->right_ != nil_node_) {
+      // currentが右の子を持っている時は右の子の中の最小が次のノード
+      return TreeMinimum(current->right_);
+    } else {
+      if (current == current->parent_->left_) {
+        // currentが親の左の子で, なおかつ右に子を持っていない場合,
+        // 次のノードは親である
+        return current->parent_;
+      } else {
+        // currentが親の右の子で, なおかつ右に子を持たない
+        // currentより大きくなるまで親を遡る.
+        // NIL_Nodeまで達したのならcurrentは最後のノード
+        const RBTNode *next_node = current->parent_;
+        while (next_node != nil_node_ && next_node->key_ < current->key_) {
+          next_node = next_node->parent_;
+        }
+        if (next_node == nil_node_) {
+          // currentは最後のノードだった
+          return NULL;
+        }
+        return next_node;
+      }
+    }
+  }
+
+  // 中間順木巡回の逆順序での前の節点のポインタを返す
+  // current == NULL の時は中間順木巡回の最後のポインタを返す
+  const RBTNode *TreePredecessor(const RBTNode *current = NULL) const {
+    if (!current || current == nil_node_) {
+      return TreeMaximum(root_);
+    }
+    if (current->left_ != nil_node_) {
+      // currentが左の子を持つ場合は左部分木の中の最大値
+      // currentの次に小さい値
+      return TreeMaximum(current->left_);
+    } else {
+      if (current == current->parent_->left_) {
+        // currentが親の左の子で, なおかつ左に子を持たない
+        // currentより小さくなるまで親を遡る.
+        // NIL_Nodeまで達したのならcurrentは最後のノード
+        const RBTNode *next_node = current->parent_;
+        while (next_node != nil_node_ && next_node->key_ > current->key_) {
+          next_node = next_node->parent_;
+        }
+        if (next_node == nil_node_) {
+          // currentは最後のノードだった
+          return NULL;
+        }
+        return next_node;
+      } else {
+        // currentが親の右のノードで, currentが左の子を持たない場合,
+        // 次のノードはcurrentの親
+        return current->parent_;
+      }
+    }
+  }
+
   // Debug methods
 
   void PrintTree2D() const {
@@ -186,134 +261,8 @@ class RedBlackTree {
               << "\n\tRight: " << node->right_->key_ << std::endl;
   }
 
-  /* ノードの削除
-   *
-   * q: 削除ノードの親ノード(左右は問わない)
-   * z: 削除ノード
-   * l: 削除ノードの左の子
-   * r: 削除ノードの右の子
-   * 1,2,3...: その他のノード
-   *
-   * パターン1: 削除ノードが左の子を持たない場合
-   *      q                     q
-   *      |                     |
-   *      z          -->        r
-   *       \
-   *        r
-   *
-   * パターン2: 削除ノードが右の子を持たない場合
-   *      q                     q
-   *      |                     |
-   *      z          -->        l
-   *     /
-   *    l
-   *
-   * パターン3: 削除ノードが2つの子を持ち,
-   *            削除ノードの右の子が次節点の場合
-   *      q                       q
-   *      |                       |
-   *      z          -->          r
-   *     / \                     / \
-   *    l   r                   l   1
-   *         \
-   *          1
-   *
-   * パターン4: 削除ノードが2つの子を持ち,
-   *            削除ノードの右の部分木内にある場合
-   *            (ただし削除ノードの右の子は次節点ではない)
-   *      q                                                 q
-   *      |                                                 |
-   *      z          -- yの場所をxで置き換える -->          z
-   *     / \           (次節点は左の子を持たない)          / \
-   *    l   r                                             l   r     2
-   *       /                                                 /
-   *      2                                                 3
-   *       \
-   *        3
-   *
-   *                                      q
-   *                                      |
-   *  -- zの部分をyに置き換える -->       2
-   *                                     / \
-   *                                    l   r
-   *                                       /
-   *                                      3
-   */
-  void DeleteNodeFromTree(RBTNode *z) {
-    // yがもともと置かれていた場所に移動する節点
-    RBTNode *x;
-    // 木からの削除あるいは木の中の移動が想定される節点.
-    // zの子が1つの場合は削除対象, zの子が2つの場合は移動対象.
-    RBTNode *y = z;
-    // 節点yを再彩色する可能性があるので元の色を保持する.
-    // yの代入直後のyの色を覚えておく.
-    typename RBTNode::Color y_original_color = y->color_;
-
-    if (z->left_ == nil_node_) {
-      x = z->right_;
-      DeleteTransplant(z, z->right_);
-    } else if (z->right_ == nil_node_) {
-      x = z->left_;
-      DeleteTransplant(z, z->left_);
-    } else {
-      // 削除ノードが2つ子を持つ場合
-      y = TreeMinimum(z->right_);
-      y_original_color = y->color_;
-      x = y->right_;
-      if (y->parent_ == z) {
-        // 削除ノードの右の子が次節点の場合
-        x->parent_ = y;
-      } else {
-        DeleteTransplant(y, y->right_);
-        y->right_ = z->right_;
-        y->right_->parent_ = y;
-      }
-      DeleteTransplant(y, y->right_);
-      y->left_ = z->left_;
-      y->left_->parent_ = y;
-      y->color_ = z->color_;
-    }
-    DeleteNode(z);
-
-    if (y_original_color == RBTNode::BLACK) {
-      // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
-      // x(もともとyがあった場所)から上に2色条件を違反していないか見ていく
-      //
-      // yが赤ならば以下の3つの理由によってyの削除あるいは移動は2色条件を維持する.
-      // 1. 木の黒高さは変化しない.
-      // 2. 2つの赤節点が連続することは無い.
-      //    なぜならyはzの色を継承した上でzの場所に移されるので,
-      //    yの木の新しい場所で2つの赤節点が連続することはない.
-      // 3. yが赤ならば, yが根であるはずはなく, 根は依然として黒である.
-      //
-      // yが黒ならば以下の3つの問題が発生する可能性がある.
-      // 1. 元々はyが根であって, yの赤の子が新しい根になった時,
-      //    2色条件その2(根は黒である)に違反する.
-      // 2. xとx.parentが共に赤の時,
-      //    2色条件その4(赤ノードは黒2つを子に持つ)に違反する.
-      // 3. 木の中をyが移動すると,
-      //    元々yを含んでいた単純道の黒節点数が1減少する可能性がある.
-      //    これは2色条件その5(任意のノードは子孫の葉までに含まれる黒節点数は一定である)
-      //    に違反する.
-      DeleteFixup(x);
-    }
-  }
-
-  RBTNode *Search(const Key &key) const {
-    RBTNode *current = root_;
-    while (current != nil_node_ && current->key_ != key) {
-      if (key < current->key_) {
-        current = current->left_;
-      } else {
-        current = current->right_;
-      }
-    }
-    return current;
-  }
-
-  //  private:
-  // テスト用にパブリックにしてる
- public:
+ protected:
+  // テスト用にprotectedにしてる
   enum Direction { LEFT = 0, RIGHT = 1 };
 
   // Fix tree
@@ -495,6 +444,119 @@ class RedBlackTree {
       }
     }
     root_->color_ = RBTNode::BLACK;
+  }
+
+  /* ノードの削除
+   *
+   * q: 削除ノードの親ノード(左右は問わない)
+   * z: 削除ノード
+   * l: 削除ノードの左の子
+   * r: 削除ノードの右の子
+   * 1,2,3...: その他のノード
+   *
+   * パターン1: 削除ノードが左の子を持たない場合
+   *      q                     q
+   *      |                     |
+   *      z          -->        r
+   *       \
+   *        r
+   *
+   * パターン2: 削除ノードが右の子を持たない場合
+   *      q                     q
+   *      |                     |
+   *      z          -->        l
+   *     /
+   *    l
+   *
+   * パターン3: 削除ノードが2つの子を持ち,
+   *            削除ノードの右の子が次節点の場合
+   *      q                       q
+   *      |                       |
+   *      z          -->          r
+   *     / \                     / \
+   *    l   r                   l   1
+   *         \
+   *          1
+   *
+   * パターン4: 削除ノードが2つの子を持ち,
+   *            削除ノードの右の部分木内にある場合
+   *            (ただし削除ノードの右の子は次節点ではない)
+   *      q                                                 q
+   *      |                                                 |
+   *      z          -- yの場所をxで置き換える -->          z
+   *     / \           (次節点は左の子を持たない)          / \
+   *    l   r                                             l   r     2
+   *       /                                                 /
+   *      2                                                 3
+   *       \
+   *        3
+   *
+   *                                      q
+   *                                      |
+   *  -- zの部分をyに置き換える -->       2
+   *                                     / \
+   *                                    l   r
+   *                                       /
+   *                                      3
+   */
+  void DeleteNodeFromTree(RBTNode *z) {
+    // yがもともと置かれていた場所に移動する節点
+    RBTNode *x;
+    // 木からの削除あるいは木の中の移動が想定される節点.
+    // zの子が1つの場合は削除対象, zの子が2つの場合は移動対象.
+    RBTNode *y = z;
+    // 節点yを再彩色する可能性があるので元の色を保持する.
+    // yの代入直後のyの色を覚えておく.
+    typename RBTNode::Color y_original_color = y->color_;
+
+    if (z->left_ == nil_node_) {
+      x = z->right_;
+      DeleteTransplant(z, z->right_);
+    } else if (z->right_ == nil_node_) {
+      x = z->left_;
+      DeleteTransplant(z, z->left_);
+    } else {
+      // 削除ノードが2つ子を持つ場合
+      y = TreeMinimum(z->right_);
+      y_original_color = y->color_;
+      x = y->right_;
+      if (y->parent_ == z) {
+        // 削除ノードの右の子が次節点の場合
+        x->parent_ = y;
+      } else {
+        DeleteTransplant(y, y->right_);
+        y->right_ = z->right_;
+        y->right_->parent_ = y;
+      }
+      DeleteTransplant(y, y->right_);
+      y->left_ = z->left_;
+      y->left_->parent_ = y;
+      y->color_ = z->color_;
+    }
+    DeleteNode(z);
+
+    if (y_original_color == RBTNode::BLACK) {
+      // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
+      // x(もともとyがあった場所)から上に2色条件を違反していないか見ていく
+      //
+      // yが赤ならば以下の3つの理由によってyの削除あるいは移動は2色条件を維持する.
+      // 1. 木の黒高さは変化しない.
+      // 2. 2つの赤節点が連続することは無い.
+      //    なぜならyはzの色を継承した上でzの場所に移されるので,
+      //    yの木の新しい場所で2つの赤節点が連続することはない.
+      // 3. yが赤ならば, yが根であるはずはなく, 根は依然として黒である.
+      //
+      // yが黒ならば以下の3つの問題が発生する可能性がある.
+      // 1. 元々はyが根であって, yの赤の子が新しい根になった時,
+      //    2色条件その2(根は黒である)に違反する.
+      // 2. xとx.parentが共に赤の時,
+      //    2色条件その4(赤ノードは黒2つを子に持つ)に違反する.
+      // 3. 木の中をyが移動すると,
+      //    元々yを含んでいた単純道の黒節点数が1減少する可能性がある.
+      //    これは2色条件その5(任意のノードは子孫の葉までに含まれる黒節点数は一定である)
+      //    に違反する.
+      DeleteFixup(x);
+    }
   }
 
   // ある節点の子であるuを根とする部分木を別の節点の子のvを根とする部分木に置き換える.
@@ -707,69 +769,6 @@ class RedBlackTree {
       current = current->right_;
     }
     return const_cast<RBTNode *>(current);
-  }
-
-  // 中間順木巡回の順序での次の節点のポインタを返す
-  // current == NULL の時は中間順木巡回の最初のポインタを返す
-  const RBTNode *TreeSuccessor(const RBTNode *current = NULL) const {
-    if (!current || current == nil_node_) {
-      return TreeMinimum(root_);
-    }
-    if (current->right_ != nil_node_) {
-      // currentが右の子を持っている時は右の子の中の最小が次のノード
-      return TreeMinimum(current->right_);
-    } else {
-      if (current == current->parent_->left_) {
-        // currentが親の左の子で, なおかつ右に子を持っていない場合,
-        // 次のノードは親である
-        return current->parent_;
-      } else {
-        // currentが親の右の子で, なおかつ右に子を持たない
-        // currentより大きくなるまで親を遡る.
-        // NIL_Nodeまで達したのならcurrentは最後のノード
-        const RBTNode *next_node = current->parent_;
-        while (next_node != nil_node_ && next_node->key_ < current->key_) {
-          next_node = next_node->parent_;
-        }
-        if (next_node == nil_node_) {
-          // currentは最後のノードだった
-          return NULL;
-        }
-        return next_node;
-      }
-    }
-  }
-
-  // 中間順木巡回の逆順序での前の節点のポインタを返す
-  // current == NULL の時は中間順木巡回の最後のポインタを返す
-  const RBTNode *TreePredecessor(const RBTNode *current = NULL) const {
-    if (!current || current == nil_node_) {
-      return TreeMaximum(root_);
-    }
-    if (current->left_ != nil_node_) {
-      // currentが左の子を持つ場合は左部分木の中の最大値
-      // currentの次に小さい値
-      return TreeMaximum(current->left_);
-    } else {
-      if (current == current->parent_->left_) {
-        // currentが親の左の子で, なおかつ左に子を持たない
-        // currentより小さくなるまで親を遡る.
-        // NIL_Nodeまで達したのならcurrentは最後のノード
-        const RBTNode *next_node = current->parent_;
-        while (next_node != nil_node_ && next_node->key_ > current->key_) {
-          next_node = next_node->parent_;
-        }
-        if (next_node == nil_node_) {
-          // currentは最後のノードだった
-          return NULL;
-        }
-        return next_node;
-      } else {
-        // currentが親の右のノードで, currentが左の子を持たない場合,
-        // 次のノードはcurrentの親
-        return current->parent_;
-      }
-    }
   }
 
   // Members

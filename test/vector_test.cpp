@@ -614,6 +614,42 @@ TEST_F(VectorTest, EraseWithTwoIteratorBetweenBeginAndLast) {
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
+TEST_F(VectorTest, EraseDuringIterating) {
+  // Iteratorでループ回している間に要素を削除する場合は erase() を使う.
+  // http://marupeke296.com/TIPS_No12_ListElementErase.html
+  ft_vector[ft_vector.size() / 2] = 1;
+  for (ft_iterator ft_it = ft_vector.begin(); ft_it != ft_vector.end();) {
+    if (*ft_it == 1) {
+      ft_it = ft_vector.erase(ft_it);
+      continue;
+    }
+    ++ft_it;
+  }
+  for (ft_iterator ft_it = ft_vector.begin(); ft_it != ft_vector.end();
+       ++ft_it) {
+    // 1は消したから存在しないはず
+    EXPECT_NE(*ft_it, 1);
+  }
+}
+
+TEST_F(VectorTest, EraseAtTheEndDuringIterating) {
+  // イテレーターでループしながら最後の要素を erase() した時の挙動
+  ft_vector.push_back(1);
+  ft_vector.push_back(1);
+  for (ft_iterator ft_it = ft_vector.begin(); ft_it != ft_vector.end();) {
+    if (*ft_it == 1) {
+      ft_it = ft_vector.erase(ft_it);
+      continue;
+    }
+    ++ft_it;
+  }
+  for (ft_iterator ft_it = ft_vector.begin(); ft_it != ft_vector.end();
+       ++ft_it) {
+    // 1は消したから存在しないはず
+    EXPECT_NE(*ft_it, 1);
+  }
+}
+
 TEST_F(VectorTest, PushBack) {
   // size() == capacity() になったら自動拡張される
   for (int i = 0; i < 16; ++i) {

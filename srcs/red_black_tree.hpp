@@ -66,6 +66,12 @@ class RedBlackTree {
  public:
   typedef RBTNode node_type;
   typedef std::size_t size_type;
+  // typedef typename _Rep_type::iterator		 iterator;
+  // typedef typename _Rep_type::const_iterator	 const_iterator;
+  // typedef typename _Rep_type::size_type		 size_type;
+  // typedef typename _Rep_type::difference_type	 difference_type;
+  // typedef typename _Rep_type::reverse_iterator	 reverse_iterator;
+  // typedef typename _Rep_type::const_reverse_iterator const_reverse_iterator;
 
   // Constructor, Descructor
 
@@ -139,18 +145,6 @@ class RedBlackTree {
       throw std::out_of_range("key isn't in the tree.");
     }
     return node->value_;
-  }
-
-  RBTNode *Search(const Key &key) const {
-    RBTNode *current = root_;
-    while (current != nil_node_ && current->key_ != key) {
-      if (key < current->key_) {
-        current = current->left_;
-      } else {
-        current = current->right_;
-      }
-    }
-    return current;
   }
 
   // 中間順木巡回の順序での次の節点のポインタを返す
@@ -264,6 +258,18 @@ class RedBlackTree {
  protected:
   // テスト用にprotectedにしてる
   enum Direction { LEFT = 0, RIGHT = 1 };
+
+  RBTNode *Search(const Key &key) const {
+    RBTNode *current = root_;
+    while (current != nil_node_ && current->key_ != key) {
+      if (key < current->key_) {
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return current;
+  }
 
   // Fix tree
 

@@ -251,9 +251,6 @@ TEST(InsertFixup, UncleIsRedLeft) {
   node_type *new_node = insertNodeWithoutFixup(
       &rb_tree.root_, rb_tree.nil_node_, 3, 0, node_type::RED);
 
-  std::cout << "Uncle is Red" << std::endl;
-  rb_tree.PrintTree2D();
-
   rb_tree.InsertFixup(new_node);
 
   EXPECT_EQ(rb_tree.root_->key_, 10);
@@ -267,6 +264,46 @@ TEST(InsertFixup, UncleIsRedLeft) {
   EXPECT_EQ(left_subtree->left_->color_, tree_type::RBTNode::BLACK);
   EXPECT_EQ(left_subtree->left_->left_->key_, 3);
   EXPECT_EQ(left_subtree->left_->left_->color_, tree_type::RBTNode::RED);
+}
 
-  rb_tree.PrintTree2D();
+TEST(InsertFixup, UncleIsRedRight) {
+  /* 修正パターン1: 叔父ノードが赤色.
+   *              g_B                                        g_R
+   *             /   \                                      /   \
+   *           p_R    u_R     -- Change color g,p,u -->   p_B    u_B
+   *                   \                                          \
+   *                   n_R                                        n_R
+   *
+   * これをこのまま構築すると, 根は黒というルールによって根が黒になるので,
+   * 根の右部分木としてこの木を構築する.
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef ft::RedBlackTree<int, int>::RBTNode node_type;
+
+  tree_type rb_tree;
+
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 5, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 10, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 7, 0,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 12, 0,
+                         node_type::RED);
+  node_type *new_node = insertNodeWithoutFixup(
+      &rb_tree.root_, rb_tree.nil_node_, 15, 0, node_type::RED);
+
+  rb_tree.InsertFixup(new_node);
+
+  EXPECT_EQ(rb_tree.root_->key_, 5);
+  EXPECT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒
+  node_type *right_subtree = rb_tree.root_->right_;
+  EXPECT_EQ(right_subtree->key_, 10);
+  EXPECT_EQ(right_subtree->color_, tree_type::RBTNode::RED);
+  EXPECT_EQ(right_subtree->left_->key_, 7);
+  EXPECT_EQ(right_subtree->left_->color_, tree_type::RBTNode::BLACK);
+  EXPECT_EQ(right_subtree->right_->key_, 12);
+  EXPECT_EQ(right_subtree->right_->color_, tree_type::RBTNode::BLACK);
+  EXPECT_EQ(right_subtree->right_->right_->key_, 15);
+  EXPECT_EQ(right_subtree->right_->right_->color_, tree_type::RBTNode::RED);
 }

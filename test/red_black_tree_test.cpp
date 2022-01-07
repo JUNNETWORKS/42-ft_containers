@@ -11,6 +11,58 @@
 #include <set>
 #include <vector>
 
+// テスト用の関数. 色の修正や木の回転などを行わない挿入.
+template <class Key, class Value>
+typename ft::RedBlackTree<Key, Value>::RBTNode *insertNodeWithoutFixup(
+    typename ft::RedBlackTree<Key, Value>::RBTNode **root,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *new_node) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode RBTNode;
+
+  if (*root == nil_node) {
+    *root = new_node;
+    new_node->parent_ = nil_node;
+    new_node->left_ = nil_node;
+    new_node->right_ = nil_node;
+    return new_node;
+  }
+
+  RBTNode *parent = nil_node;
+  RBTNode *node = *root;
+  while (node != nil_node) {
+    if (new_node->key_ == node->key_) {
+      exit(1);
+    } else if (new_node->key_ < node->key_) {
+      parent = node;
+      node = node->left_;
+    } else {
+      parent = node;
+      node = node->right_;
+    }
+  }
+  new_node->parent_ = parent;
+  new_node->left_ = nil_node;
+  new_node->right_ = nil_node;
+  if (new_node->key_ < parent->key_) {
+    parent->left_ = new_node;
+  } else {
+    parent->right_ = new_node;
+  }
+  return new_node;
+}
+
+template <class Key, class Value>
+typename ft::RedBlackTree<Key, Value>::RBTNode *insertNodeWithoutFixup(
+    typename ft::RedBlackTree<Key, Value>::RBTNode **root,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node, Key key,
+    Value value, typename ft::RedBlackTree<Key, Value>::RBTNode::Color color) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
+  node_type *new_node = new node_type(key, value);
+  new_node->color_ = color;
+  insertNodeWithoutFixup<Key, Value>(root, nil_node, new_node);
+  return new_node;
+}
+
 TEST(RedBlackTree, BasicOperations) {
   ft::RedBlackTree<std::string, int> rb_tree;
   rb_tree.Insert("c", 1);
@@ -52,7 +104,7 @@ TEST(Modifier, DeleteAndAccessItShouldThrowException) {
   EXPECT_THROW(rb_tree["a"], std::out_of_range);
 }
 
-TEST(TreeSuccessor, Random100) {
+TEST(TreeSuccessor, Random1000) {
   srand(time(NULL));
   typedef ft::RedBlackTree<int, int> tree_type;
   typedef typename tree_type::node_type node_type;
@@ -82,7 +134,7 @@ TEST(TreeSuccessor, Random100) {
   EXPECT_TRUE(node == NULL);
 }
 
-TEST(TreePredecessor, Random100) {
+TEST(TreePredecessor, Random1000) {
   srand(time(NULL));
   typedef ft::RedBlackTree<int, int> tree_type;
   typedef typename tree_type::node_type node_type;
@@ -168,4 +220,53 @@ TEST(RedBlackTree, CopyConstructor) {
   EXPECT_EQ(n1, n2);
   EXPECT_EQ(n1, n3);
   EXPECT_EQ(n1, n4);
+}
+
+// Insert
+
+TEST(InsertFixup, UncleIsRedLeft) {
+  /* 修正パターン1: 叔父ノードが赤色.
+   *              g_B                                          g_R
+   *             /   \                                        /   \
+   *           p_R    u_R     -- Change color g,p,u -->     p_B   u_B
+   *           /                                            /
+   *         n_R                                          n_R
+   *
+   * これをこのまま構築すると, 根は黒というルールによって根が黒になるので,
+   * 根の左部分木としてこの木を構築する.
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef ft::RedBlackTree<int, int>::RBTNode node_type;
+
+  tree_type rb_tree;
+
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 10, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 5, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 7, 0,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 4, 0,
+                         node_type::RED);
+  node_type *new_node = insertNodeWithoutFixup(
+      &rb_tree.root_, rb_tree.nil_node_, 3, 0, node_type::RED);
+
+  std::cout << "Uncle is Red" << std::endl;
+  rb_tree.PrintTree2D();
+
+  rb_tree.InsertFixup(new_node);
+
+  EXPECT_EQ(rb_tree.root_->key_, 10);
+  EXPECT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒
+  node_type *left_subtree = rb_tree.root_->left_;
+  EXPECT_EQ(left_subtree->key_, 5);
+  EXPECT_EQ(left_subtree->color_, tree_type::RBTNode::RED);
+  EXPECT_EQ(left_subtree->right_->key_, 7);
+  EXPECT_EQ(left_subtree->right_->color_, tree_type::RBTNode::BLACK);
+  EXPECT_EQ(left_subtree->left_->key_, 4);
+  EXPECT_EQ(left_subtree->left_->color_, tree_type::RBTNode::BLACK);
+  EXPECT_EQ(left_subtree->left_->left_->key_, 3);
+  EXPECT_EQ(left_subtree->left_->left_->color_, tree_type::RBTNode::RED);
+
+  rb_tree.PrintTree2D();
 }

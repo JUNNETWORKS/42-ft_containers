@@ -63,7 +63,6 @@ class RedBlackTree {
     ~RBTNode() {}
   };
 
- public:
   typedef RBTNode node_type;
   typedef std::size_t size_type;
   // typedef typename _Rep_type::iterator		 iterator;
@@ -228,7 +227,8 @@ class RedBlackTree {
     // print current node after space
     std::cout << std::endl;
     for (int i = 10; i < space; i++) std::cout << " ";
-    std::cout << root->key_ << std::endl;
+    std::cout << root->key_ << (root->color_ == RBTNode::RED ? "(R)" : "(B)")
+              << std::endl;
 
     // print left
     PrintTree2DUtil(root->left_, space);
@@ -254,10 +254,6 @@ class RedBlackTree {
               << "\n\tLeft: " << node->left_->key_
               << "\n\tRight: " << node->right_->key_ << std::endl;
   }
-
- protected:
-  // テスト用にprotectedにしてる
-  enum Direction { LEFT = 0, RIGHT = 1 };
 
   RBTNode *Search(const Key &key) const {
     RBTNode *current = root_;

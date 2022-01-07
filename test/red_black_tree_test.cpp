@@ -325,3 +325,60 @@ TEST(Insert, UncleIsRedRight) {
   EXPECT_EQ(right_subtree->right_->right_->key_, 15);
   EXPECT_EQ(right_subtree->right_->right_->color_, tree_type::RBTNode::RED);
 }
+
+TEST(Insert, UncleIsBlackAndNewNodeIsLeftChild) {
+  /* 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
+   *              g_B                                     p_R
+   *             /   \                                   /   \
+   *           p_R    u_B     -- Rotate right g -->    n_R    g_B
+   *           /                                                \
+   *         n_R                                                u_B
+   *
+   *                                             p_B
+   *                                            /   \
+   *         -- Change color p,g -->          n_R   g_R
+   *                                                  \
+   *                                                  u_B
+   *
+   * これをこのまま構築すると, 根は黒というルールによって根が黒になるので,
+   * 根の左部分木としてこの木を構築する.
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef ft::RedBlackTree<int, int>::RBTNode node_type;
+
+  tree_type rb_tree;
+
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 10, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 5, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 7, 0,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 3, 0,
+                         node_type::RED);
+
+  // これがおかしいということはテストの入力がおかしいので, プログラムを終了
+  ASSERT_EQ(rb_tree.root_->key_, 10);
+  ASSERT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒
+  node_type *left_subtree = rb_tree.root_->left_;
+  ASSERT_EQ(left_subtree->key_, 5);
+  ASSERT_EQ(left_subtree->color_, tree_type::RBTNode::BLACK);
+  ASSERT_EQ(left_subtree->left_->key_, 3);
+  ASSERT_EQ(left_subtree->left_->color_, tree_type::RBTNode::RED);
+  ASSERT_EQ(left_subtree->right_->key_, 7);
+  ASSERT_EQ(left_subtree->right_->color_, tree_type::RBTNode::BLACK);
+
+  rb_tree.Insert(1, 0);
+
+  EXPECT_EQ(rb_tree.root_->key_, 10);
+  EXPECT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒
+  left_subtree = rb_tree.root_->left_;
+  EXPECT_EQ(left_subtree->key_, 3);
+  EXPECT_EQ(left_subtree->color_, tree_type::RBTNode::BLACK);
+  EXPECT_EQ(left_subtree->left_->key_, 1);
+  EXPECT_EQ(left_subtree->left_->color_, tree_type::RBTNode::RED);
+  EXPECT_EQ(left_subtree->right_->key_, 5);
+  EXPECT_EQ(left_subtree->right_->color_, tree_type::RBTNode::RED);
+  EXPECT_EQ(left_subtree->right_->right_->key_, 7);
+  EXPECT_EQ(left_subtree->right_->right_->color_, tree_type::RBTNode::BLACK);
+}

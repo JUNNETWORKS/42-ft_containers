@@ -224,7 +224,7 @@ TEST(RedBlackTree, CopyConstructor) {
 
 // Insert
 
-TEST(InsertFixup, UncleIsRedLeft) {
+TEST(Insert, UncleIsRedLeft) {
   /* 修正パターン1: 叔父ノードが赤色.
    *              g_B                                          g_R
    *             /   \                                        /   \
@@ -248,10 +248,8 @@ TEST(InsertFixup, UncleIsRedLeft) {
                          node_type::RED);
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 4, 0,
                          node_type::RED);
-  node_type *new_node = insertNodeWithoutFixup(
-      &rb_tree.root_, rb_tree.nil_node_, 3, 0, node_type::RED);
 
-  rb_tree.InsertFixup(new_node);
+  rb_tree.Insert(3, 0);
 
   EXPECT_EQ(rb_tree.root_->key_, 10);
   EXPECT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒
@@ -266,7 +264,7 @@ TEST(InsertFixup, UncleIsRedLeft) {
   EXPECT_EQ(left_subtree->left_->left_->color_, tree_type::RBTNode::RED);
 }
 
-TEST(InsertFixup, UncleIsRedRight) {
+TEST(Insert, UncleIsRedRight) {
   /* 修正パターン1: 叔父ノードが赤色.
    *              g_B                                        g_R
    *             /   \                                      /   \
@@ -290,10 +288,8 @@ TEST(InsertFixup, UncleIsRedRight) {
                          node_type::RED);
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 12, 0,
                          node_type::RED);
-  node_type *new_node = insertNodeWithoutFixup(
-      &rb_tree.root_, rb_tree.nil_node_, 15, 0, node_type::RED);
 
-  rb_tree.InsertFixup(new_node);
+  rb_tree.Insert(15, 0);
 
   EXPECT_EQ(rb_tree.root_->key_, 5);
   EXPECT_EQ(rb_tree.root_->color_, tree_type::RBTNode::BLACK);  // 根は黒

@@ -326,7 +326,7 @@ TEST(Insert, UncleIsRedRight) {
   EXPECT_EQ(right_subtree->right_->right_->color_, tree_type::RBTNode::RED);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsLeftChild) {
+TEST(Insert, UncleIsBlackAndNewNodeIsLeftLeft) {
   /* 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
    *              g_B                                     p_R
    *             /   \                                   /   \
@@ -383,7 +383,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsLeftChild) {
   EXPECT_EQ(left_subtree->right_->right_->color_, tree_type::RBTNode::BLACK);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsRightChild) {
+TEST(Insert, UncleIsBlackAndNewNodeIsRightRight) {
   /* 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
    *              g_B                                     p_R
    *             /   \                                   /   \

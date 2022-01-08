@@ -551,3 +551,120 @@ TEST(Insert, UncleIsBlackAndNewNodeIsRightleft) {
   EXPECT_EQ(right_subtree->left_->left_->key_, 3);
   EXPECT_EQ(right_subtree->left_->left_->color_, tree_type::RBTNode::BLACK);
 }
+
+TEST(Delete, TargetNodeHasOnlyRightChild) {
+  /* パターン1: 削除ノードが左の子を持たない場合
+   *      q                     q
+   *      |                     |
+   *      z          -->        r
+   *       \
+   *        r
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.Insert(5, 5);
+  rb_tree.Insert(7, 7);
+  rb_tree.Insert(9, 9);
+  rb_tree.Insert(11, 11);
+
+  rb_tree.Delete(9);
+
+  EXPECT_EQ(rb_tree[5], 5);
+  EXPECT_EQ(rb_tree[7], 7);
+  EXPECT_EQ(rb_tree[11], 11);
+}
+
+TEST(Delete, TargetNodeHasOnlyLeftChild) {
+  /* パターン2: 削除ノードが右の子を持たない場合
+   *      q                     q
+   *      |                     |
+   *      z          -->        l
+   *     /
+   *    l
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.Insert(5, 5);
+  rb_tree.Insert(4, 4);
+  rb_tree.Insert(3, 3);
+  rb_tree.Insert(2, 2);
+
+  rb_tree.Delete(3);
+
+  EXPECT_EQ(rb_tree[5], 5);
+  EXPECT_EQ(rb_tree[4], 4);
+  EXPECT_EQ(rb_tree[2], 2);
+}
+
+TEST(Delete, TargetNodeHasTwoChildAndRightChildIsNextNode) {
+  /* パターン3: 削除ノードが2つの子を持ち,
+   *            削除ノードの右の子が次節点の場合
+   *      q                       q
+   *      |                       |
+   *      z          -->          r
+   *     / \                     / \
+   *    l   r                   l   1
+   *         \
+   *          1
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+  rb_tree.Insert(2, 2);
+  rb_tree.Insert(1, 1);
+  rb_tree.Insert(3, 3);
+  rb_tree.Insert(4, 4);
+
+  rb_tree.Delete(2);
+
+  EXPECT_EQ(rb_tree[1], 1);
+  EXPECT_EQ(rb_tree[3], 3);
+  EXPECT_EQ(rb_tree[4], 4);
+}
+
+TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
+  /* パターン4: 削除ノードが2つの子を持ち,
+   *            次節点が削除ノードの右の部分木内にある場合
+   *            (ただし削除ノードの右の子は次節点ではない)
+   *      q                                                 q
+   *      |                                                 |
+   *      z          -- 2の場所を3で置き換える -->          z
+   *     / \           (次節点は左の子を持たない)          / \
+   *    l   r                                             l   r     2
+   *       /                                                 /
+   *      2                                                 3
+   *       \
+   *        3
+   *
+   *                                      q
+   *                                      |
+   *  -- zの部分を2に置き換える -->       2
+   *                                     / \
+   *                                    l   r
+   *                                       /
+   *                                      3
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+  rb_tree.Insert(1, 1);
+  rb_tree.Insert(5, 5);
+  rb_tree.Insert(0, 0);
+  rb_tree.Insert(3, 3);
+  rb_tree.Insert(10, 10);
+  rb_tree.Insert(6, 6);
+  rb_tree.Insert(7, 7);
+
+  rb_tree.Delete(1);
+
+  EXPECT_EQ(rb_tree[5], 5);
+  EXPECT_EQ(rb_tree[0], 0);
+  EXPECT_EQ(rb_tree[3], 3);
+  EXPECT_EQ(rb_tree[10], 10);
+  EXPECT_EQ(rb_tree[6], 6);
+  EXPECT_EQ(rb_tree[7], 7);
+}

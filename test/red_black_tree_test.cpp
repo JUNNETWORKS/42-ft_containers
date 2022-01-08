@@ -11,6 +11,7 @@
 #include <set>
 #include <vector>
 
+namespace {
 // テスト用の関数. 色の修正や木の回転などを行わない挿入.
 template <class Key, class Value>
 typename ft::RedBlackTree<Key, Value>::RBTNode *insertNodeWithoutFixup(
@@ -62,6 +63,116 @@ typename ft::RedBlackTree<Key, Value>::RBTNode *insertNodeWithoutFixup(
   insertNodeWithoutFixup<Key, Value>(root, nil_node, new_node);
   return new_node;
 }
+
+template <class Key, class Value>
+void expectAllLeavesAreBlack(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node);
+
+template <class Key, class Value>
+void expectAllRedNodeHasTwoBlackChild(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node);
+
+template <class Key, class Value>
+int expectAllPathesAreSameBlackNodeCount(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node,
+    int black_count = 0);
+
+// テスト用の関数. 赤黒木のルールを守っているか確かめる.
+//
+// Red Black Tree の2色条件
+// 1. 各ノードは赤か黒の色である
+// 2. 根は黒である. (たまにこの条件は省かれる)
+// 3. 派(NIL)は全て黒である. 葉は全て根と同じ色である.
+// 4. 赤のノードは黒ノードを2つ子に持つ.
+// 5. 任意のノードについて,
+//    そのノードから子孫の葉までの道に含まれる黒ノードの数は,
+//    選んだ葉に依らず一定である.
+//    (この条件は,
+//    「根から葉までの道に含まれる黒いノードの数は、葉によらず一定である」
+//    と言い換えることができる)
+template <class Key, class Value>
+void expectRedBlackTreeKeepRules(
+    typename ft::RedBlackTree<Key, Value> &rb_tree) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
+
+  // 2. 根は黒である. (たまにこの条件は省かれる)
+  EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);
+
+  // 3. 派(NIL)は全て黒である. 葉は全て根と同じ色である.
+  EXPECT_EQ(rb_tree.nil_node_->color_, node_type::BLACK);
+  expectAllLeavesAreBlack<Key, Value>(rb_tree.root_, rb_tree.nil_node_);
+
+  // 4. 赤のノードは黒ノードを2つ子に持つ.
+  expectAllRedNodeHasTwoBlackChild<Key, Value>(rb_tree.root_,
+                                               rb_tree.nil_node_);
+
+  // 5. 任意のノードについて,
+  //    そのノードから子孫の葉までの道に含まれる黒ノードの数は,
+  //    選んだ葉に依らず一定である.
+  //    (この条件は,
+  //    「根から葉までの道に含まれる黒いノードの数は、葉によらず一定である」
+  //    と言い換えることができる)
+  expectAllPathesAreSameBlackNodeCount<Key, Value>(rb_tree.root_,
+                                                   rb_tree.nil_node_);
+}
+
+template <class Key, class Value>
+void expectAllLeavesAreBlack(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
+
+  if (node == nil_node) {
+    return;
+  }
+  if (node->left_ == nil_node && node->right_ == nil_node) {
+    EXPECT_EQ(node->color_, node_type::BLACK);
+  }
+  expectAllLeavesAreBlack<Key, Value>(node->left_, nil_node);
+  expectAllLeavesAreBlack<Key, Value>(node->right_, nil_node);
+}
+
+template <class Key, class Value>
+void expectAllRedNodeHasTwoBlackChild(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
+
+  if (node == nil_node) {
+    return;
+  }
+  if (node->color_ == node_type::RED) {
+    EXPECT_EQ(node->left_->color_, node_type::BLACK);
+    EXPECT_EQ(node->right_->color_, node_type::BLACK);
+  }
+  expectAllRedNodeHasTwoBlackChild<Key, Value>(node->left_, nil_node);
+  expectAllRedNodeHasTwoBlackChild<Key, Value>(node->right_, nil_node);
+}
+
+template <class Key, class Value>
+int expectAllPathesAreSameBlackNodeCount(
+    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
+    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node, int black_count) {
+  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
+
+  if (node == nil_node) {
+    return black_count;
+  }
+  if (node->color_ == node_type::BLACK) {
+    black_count++;
+  }
+  int left_count = expectAllPathesAreSameBlackNodeCount<Key, Value>(
+      node->left_, nil_node, black_count);
+  int right_count = expectAllPathesAreSameBlackNodeCount<Key, Value>(
+      node->right_, nil_node, black_count);
+  EXPECT_EQ(left_count, right_count);
+  return left_count;
+}
+
+}  // namespace
 
 TEST(RedBlackTree, BasicOperations) {
   ft::RedBlackTree<std::string, int> rb_tree;

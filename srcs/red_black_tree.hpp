@@ -481,12 +481,12 @@ class RedBlackTree {
    *          1
    *
    * パターン4: 削除ノードが2つの子を持ち,
-   *            削除ノードの右の部分木内にある場合
+   *            次節点が削除ノードの右の部分木内にある場合
    *            (ただし削除ノードの右の子は次節点ではない)
    *      q                                                 q
    *      |                                                 |
-   *      z          -- yの場所をxで置き換える -->          z
-   *     / \           (次節点は左の子を持たない)          / \
+   *      z        -- y(2)の場所をx(3)で置き換える -->      z
+   *     / \         (次節点は左の子を持たない)            / \
    *    l   r                                             l   r     2
    *       /                                                 /
    *      2                                                 3
@@ -495,7 +495,7 @@ class RedBlackTree {
    *
    *                                      q
    *                                      |
-   *  -- zの部分をyに置き換える -->       2
+   *  -- zの部分をy(2)に置き換える -->    2
    *                                     / \
    *                                    l   r
    *                                       /
@@ -530,7 +530,7 @@ class RedBlackTree {
         y->right_ = z->right_;
         y->right_->parent_ = y;
       }
-      DeleteTransplant(y, y->right_);
+      DeleteTransplant(z, y);
       y->left_ = z->left_;
       y->left_->parent_ = y;
       y->color_ = z->color_;

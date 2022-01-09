@@ -65,11 +65,6 @@ typename ft::RedBlackTree<Key, Value>::RBTNode *insertNodeWithoutFixup(
 }
 
 template <class Key, class Value>
-void expectAllLeavesAreBlack(
-    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
-    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node);
-
-template <class Key, class Value>
 void expectAllRedNodeHasTwoBlackChild(
     typename ft::RedBlackTree<Key, Value>::RBTNode *node,
     typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node);
@@ -101,9 +96,9 @@ void expectRedBlackTreeKeepRules(
   // 2. 根は黒である. (たまにこの条件は省かれる)
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);
 
-  // 3. 派(NIL)は全て黒である. 葉は全て根と同じ色である.
+  // 3. 葉(NIL)は全て黒である. 葉は全て根と同じ色である.
   EXPECT_EQ(rb_tree.nil_node_->color_, node_type::BLACK);
-  expectAllLeavesAreBlack<Key, Value>(rb_tree.root_, rb_tree.nil_node_);
+  EXPECT_EQ(rb_tree.root_->color_, rb_tree.nil_node_->color_);
 
   // 4. 赤のノードは黒ノードを2つ子に持つ.
   expectAllRedNodeHasTwoBlackChild<Key, Value>(rb_tree.root_,
@@ -117,22 +112,6 @@ void expectRedBlackTreeKeepRules(
   //    と言い換えることができる)
   expectAllPathesAreSameBlackNodeCount<Key, Value>(rb_tree.root_,
                                                    rb_tree.nil_node_);
-}
-
-template <class Key, class Value>
-void expectAllLeavesAreBlack(
-    typename ft::RedBlackTree<Key, Value>::RBTNode *node,
-    typename ft::RedBlackTree<Key, Value>::RBTNode *nil_node) {
-  typedef typename ft::RedBlackTree<Key, Value>::RBTNode node_type;
-
-  if (node == nil_node) {
-    return;
-  }
-  if (node->left_ == nil_node && node->right_ == nil_node) {
-    EXPECT_EQ(node->color_, node_type::BLACK);
-  }
-  expectAllLeavesAreBlack<Key, Value>(node->left_, nil_node);
-  expectAllLeavesAreBlack<Key, Value>(node->right_, nil_node);
 }
 
 template <class Key, class Value>

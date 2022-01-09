@@ -759,7 +759,7 @@ TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
   EXPECT_EQ(rb_tree[7], 7);
 }
 
-TEST(Delete, TargetNodesBrotherIsRed) {
+TEST(DeleteLeft, TargetNodesBrotherIsRed) {
   /* 修正パターン1: 兄弟が赤
    *       p_B                                             p_R
    *      /   \                                           /   \
@@ -815,7 +815,7 @@ TEST(Delete, TargetNodesBrotherIsRed) {
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(Delete, TargetNodeAndBrotherAreBlack) {
+TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
   /* 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
    *       p_B                                   p_B
    *      /   \                                 /   \
@@ -855,7 +855,7 @@ TEST(Delete, TargetNodeAndBrotherAreBlack) {
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(Delete,
+TEST(DeleteLeft,
      TargetNodesdBrotherIsBlackAndBrothersLeftChildIsRedAndRightOneIsBlack) {
   /* 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
    *       p_B                                                        p_B
@@ -910,7 +910,7 @@ TEST(Delete,
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(Delete, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
+TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   /* 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤 (左の子は赤でも黒でもいい)
    *       p_R                                                       p_B
    *      /   \                                                     /   \

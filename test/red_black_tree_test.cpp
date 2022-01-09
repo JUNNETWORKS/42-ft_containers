@@ -666,6 +666,19 @@ TEST(Insert, UncleIsBlackAndNewNodeIsRightleft) {
   EXPECT_EQ(right_subtree->left_->left_->color_, tree_type::RBTNode::BLACK);
 }
 
+TEST(Search, BasicOperations) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+
+  for (int i = 0; i < 1000; ++i) {
+    rb_tree.Insert(i, i);
+  }
+  for (int i = 0; i < 1000; ++i) {
+    EXPECT_EQ(rb_tree[i], i);
+  }
+}
+
 TEST(Delete, TargetNodeHasOnlyRightChild) {
   /* パターン1: 削除ノードが左の子を持たない場合
    *      q                     q

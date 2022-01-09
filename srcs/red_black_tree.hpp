@@ -685,7 +685,7 @@ class RedBlackTree {
           // 修正パターン1: 兄弟が赤
           w->color_ = RBTNode::BLACK;
           x->parent_->color_ = RBTNode::RED;
-          RotateLeft(x->parent_);
+          RotateRight(x->parent_);
           w = x->parent_->left_;
         }
         if (w->right_->color_ == RBTNode::BLACK &&
@@ -698,14 +698,14 @@ class RedBlackTree {
             // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
             w->right_->color_ = RBTNode::BLACK;
             w->color_ = RBTNode::RED;
-            RotateRight(w);
+            RotateLeft(w);
             w = x->parent_->left_;
           }
           // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
           w->color_ = x->parent_->color_;
           x->parent_->color_ = RBTNode::BLACK;
           w->left_->color_ = RBTNode::BLACK;
-          RotateLeft(x->parent_);
+          RotateRight(x->parent_);
           x = root_;
         }
       }

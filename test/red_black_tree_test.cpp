@@ -314,6 +314,30 @@ TEST(RedBlackTree, CopyConstructor) {
 
 // Insert
 
+TEST(Insert, Random1000) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+
+  srand(time(NULL));
+
+  for (int i = 0; i < 1000; ++i) {
+    rb_tree.Insert(rand(), 0);
+  }
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(Insert, Sorted1000) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+
+  tree_type rb_tree;
+
+  for (int i = 0; i < 1000; ++i) {
+    rb_tree.Insert(i, 0);
+  }
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
 TEST(Insert, UncleIsRedLeft) {
   /* 修正パターン1: 叔父ノードが赤色.
    *              g_B                                          g_R

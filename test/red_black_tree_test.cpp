@@ -808,10 +808,7 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(5);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -848,10 +845,7 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 8, 8,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(3);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -903,10 +897,7 @@ TEST(DeleteLeft,
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 25, 25,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(5);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -968,9 +959,7 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 45, 45,
                          node_type::RED);
 
-  rb_tree.PrintTree2D();
   rb_tree.Delete(5);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1025,10 +1014,7 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 35, 35,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(75);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1067,10 +1053,7 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(75);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1123,10 +1106,7 @@ TEST(DeleteRight,
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 40, 40,
                          node_type::BLACK);
 
-  rb_tree.PrintTree2D();
-  std::cout << "--------------------" << std::endl;
   rb_tree.Delete(60);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1189,8 +1169,6 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 23, 23,
                          node_type::RED);
 
-  rb_tree.PrintTree2D();
   rb_tree.Delete(60);
-  rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }

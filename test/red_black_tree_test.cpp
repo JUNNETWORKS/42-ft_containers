@@ -224,6 +224,29 @@ TEST(TreeSuccessor, Random1000) {
   EXPECT_TRUE(node == NULL);
 }
 
+TEST(TreeSuccessor, DeleteNodeDuringIteration) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef typename tree_type::node_type node_type;
+
+  tree_type rb_tree;
+
+  for (int i = 0; i < 5; ++i) {
+    rb_tree.Insert(i, i);
+  }
+  const node_type *node = rb_tree.TreeSuccessor(NULL);
+  int i = 0;
+  while (node) {
+    EXPECT_EQ(node->value_, i);
+    if (i == 1) {
+      // 2をスキップする
+      ++i;
+      rb_tree.Delete(i);
+    }
+    node = rb_tree.TreeSuccessor(node);
+    ++i;
+  }
+}
+
 TEST(TreePredecessor, Random1000) {
   srand(time(NULL));
   typedef ft::RedBlackTree<int, int> tree_type;
@@ -252,6 +275,29 @@ TEST(TreePredecessor, Random1000) {
   node = rb_tree.TreePredecessor(node);
   // 最後はNULLが返ってくる
   EXPECT_TRUE(node == NULL);
+}
+
+TEST(TreePredecessor, DeleteNodeDuringIteration) {
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef typename tree_type::node_type node_type;
+
+  tree_type rb_tree;
+
+  for (int i = 0; i < 5; ++i) {
+    rb_tree.Insert(i, i);
+  }
+  const node_type *node = rb_tree.TreePredecessor(NULL);
+  int i = 4;
+  while (node) {
+    EXPECT_EQ(node->value_, i);
+    if (i == 2) {
+      // 1をスキップする
+      --i;
+      rb_tree.Delete(i);
+    }
+    node = rb_tree.TreePredecessor(node);
+    --i;
+  }
 }
 
 TEST(RedBlackTree, CopyConstructor) {

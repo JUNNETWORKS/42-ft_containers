@@ -832,7 +832,7 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
    *          /             \
    *         3B             7B
    *           \         /        \
-   *           4B      6R        8B
+   *           4B      6B        8B
    */
   tree_type rb_tree;
   insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 5, 5,
@@ -970,6 +970,227 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
 
   rb_tree.PrintTree2D();
   rb_tree.Delete(5);
+  rb_tree.PrintTree2D();
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(DeleteRight, TargetNodesBrotherIsRed) {
+  /* 修正パターン1: 兄弟が赤
+   *       p_B                                                p_R
+   *      /   \                                              /   \
+   *    b_R   x_B        -- 親と兄弟の色を変える -->       b_B   x_B
+   *   /   \                                              /   \
+   * l_B   r_B                                          l_B   r_B
+   *
+   *                              b_B
+   *                             /   \
+   *    -- 親を右回転 -->      l_B   p_R
+   *                                /   \
+   *                              r_B   x_B
+   *
+   *    -- 修正パターン2,3,4で修正する -->
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef tree_type::RBTNode node_type;
+
+  /*
+   *                50B
+   *           /           \
+   *          25R          75B
+   *       /       \         \
+   *      20B      30B       80B
+   *     /   \    /   \
+   *   15B   22B 27B  35B
+   *
+   */
+  tree_type rb_tree;
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 50, 50,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 75, 75,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 80, 80,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 25, 25,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 20, 20,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 15, 15,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 22, 22,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 27, 27,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 35, 35,
+                         node_type::BLACK);
+
+  rb_tree.PrintTree2D();
+  std::cout << "--------------------" << std::endl;
+  rb_tree.Delete(75);
+  rb_tree.PrintTree2D();
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
+  /* 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
+   *       p_B                                   p_B
+   *      /   \                                 /   \
+   *    b_B   x_B   -- 兄弟を赤にする -->     b_R   x_B
+   *   /   \                                 /   \
+   * l_B   r_B                             l_B   r_B
+   *
+   *    -- xを親に設定し, ループを継続 -->
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef tree_type::RBTNode node_type;
+
+  /*
+   *               50B
+   *            /        \
+   *           25B       75B
+   *          /   \      /
+   *        10B   30B  80B
+   *
+   */
+  tree_type rb_tree;
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 50, 50,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 75, 75,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 80, 80,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 25, 25,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 10, 10,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
+                         node_type::BLACK);
+
+  rb_tree.PrintTree2D();
+  std::cout << "--------------------" << std::endl;
+  rb_tree.Delete(75);
+  rb_tree.PrintTree2D();
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(DeleteRight,
+     TargetNodesdBrotherIsBlackAndBrothersLeftChildIsRedAndRightOneIsBlack) {
+  /* 修正パターン3: 兄弟が黒 + 兄弟の右の子が赤, 左の子が黒
+   *       p_B                                                           p_B
+   *      /   \                                                         /   \
+   *    b_B   x_B      -- 兄弟と兄弟の右の子で色を交換する -->        b_R   x_B
+   *   /   \                                                         /   \
+   * l_B   r_R                                                     l_B   r_B
+   *
+   *          p_B                              p_B
+   *         /   \                            /   \
+   *       b_R   x_B   -- 兄弟を左回転 -->  r_B   x_B
+   *      /   \                             /
+   *    l_B   r_B                         b_R
+   *                                      /
+   *                                    l_B
+   *
+   *    -- 修正パターン4で修正する -->
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef tree_type::RBTNode node_type;
+
+  /*
+   *               50B
+   *           /           \
+   *          25B          60B
+   *        /     \        /
+   *      20B     30R    55B
+   *              /  \
+   *            27B  40B
+   */
+  tree_type rb_tree;
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 50, 50,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 60, 60,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 55, 55,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 25, 25,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 20, 20,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 27, 27,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 40, 40,
+                         node_type::BLACK);
+
+  rb_tree.PrintTree2D();
+  std::cout << "--------------------" << std::endl;
+  rb_tree.Delete(60);
+  rb_tree.PrintTree2D();
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
+  /* 修正パターン4: 兄弟が黒 + 兄弟の左の子が赤 (右の子は赤でも黒でもいい)
+   *       p_R                                                       p_B
+   *      /   \                                                     /   \
+   *     b_B  x_B  -- 親と兄弟の色を交換 & 兄弟の左を黒に -->     b_R   x_B
+   *    /   \                                                    /   \
+   *  l_R   r_B                                                l_B   r_B
+   *
+   *                             b_R
+   *                            /   \
+   *    -- 親を右回転 -->     l_B   p_B
+   *                               /   \
+   *                             r_B   x_B
+   */
+  typedef ft::RedBlackTree<int, int> tree_type;
+  typedef tree_type::RBTNode node_type;
+
+  /*
+   *                        50B
+   *                   /            \
+   *                 25B             60B
+   *             /        \        /
+   *           20R        30B     55B
+   *        /       \             /   \
+   *      10B       22B         52R   57R
+   *     /   \     /   \
+   *    7R   12R 21R   23R
+   *
+   */
+  tree_type rb_tree;
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 50, 50,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 60, 60,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 55, 55,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 52, 52,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 57, 57,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 25, 25,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 30, 30,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 20, 20,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 10, 10,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 22, 22,
+                         node_type::BLACK);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 7, 7,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 12, 12,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 21, 21,
+                         node_type::RED);
+  insertNodeWithoutFixup(&rb_tree.root_, rb_tree.nil_node_, 23, 23,
+                         node_type::RED);
+
+  rb_tree.PrintTree2D();
+  rb_tree.Delete(60);
   rb_tree.PrintTree2D();
   expectRedBlackTreeKeepRules(rb_tree);
 }

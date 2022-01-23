@@ -57,7 +57,7 @@ DEPENDENCIES_TEST \
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	g++ -g -Wall -Wextra -Werror --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) \
+	g++ -g -Wall -Wextra -Werror -DDEBUG --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) \
 	-c $< -MMD -o $@
 
 -include $(DEPENDENCIES_TEST)
@@ -77,7 +77,6 @@ test: $(OBJECTS_TEST)
 	-DDEBUG -g -fsanitize=address \
 	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) -o tester
 	./tester
-	rm tester
 
 coverage:
 	# Google Test require C++11

@@ -8,16 +8,16 @@
 
 namespace ft {
 
-enum RBTColor { BLACK = 0, RED = 1 };
-
 template <class Key, class Value>
 struct RBTNode {
+  enum Color { BLACK = 0, RED = 1 };
+
   Key key_;
   Value value_;
   RBTNode *parent_;
   RBTNode *left_;
   RBTNode *right_;
-  RBTColor color_;
+  Color color_;
 
   RBTNode(Key key, Value value = Value())
       : key_(key), value_(value), parent_(), left_(), right_(), color_(BLACK) {}
@@ -61,7 +61,8 @@ struct RBTNode {
 // Key: キー
 // Val: ノードに格納するデータ? mapだとpair, setだと_Key.
 // KeyOfValue: _Val型のデータからキーを取り出す
-template <typename Key, typename Value, typename KeyOfValue, typename Alloc>
+template <typename Key, typename Value, typename KeyOfValue,
+          typename Alloc = std::allocator<Value> >
 class RedBlackTree {
  public:
   typedef RBTNode<Key, Value> node_type;
@@ -77,10 +78,11 @@ class RedBlackTree {
   typedef ptrdiff_t difference_type;
   typedef Alloc allocator_type;
 
-  typedef _Rb_tree_iterator<value_type> iterator;
-  typedef _Rb_tree_const_iterator<value_type> const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+  // TODO: RBTree_iterator を作る
+  // typedef RBTree_iterator<value_type> iterator;
+  // typedef RBTree_const_iterator<value_type> const_iterator;
+  // typedef std::reverse_iterator<iterator> reverse_iterator;
+  // typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
   // Constructor, Descructor
 
@@ -140,7 +142,8 @@ class RedBlackTree {
     }
     new_node->left_ = nil_node_;
     new_node->right_ = nil_node_;
-    new_node->color_ = RBT_RED;  // 新しいノードの色は最初は赤に設定される
+    new_node->color_ =
+        node_type::RED;  // 新しいノードの色は最初は赤に設定される
     InsertFixup(new_node);
   }
 
@@ -240,7 +243,7 @@ class RedBlackTree {
     // print current node after space
     std::cout << std::endl;
     for (int i = 10; i < space; i++) std::cout << " ";
-    std::cout << root->key_ << (root->color_ == RBT_RED ? "(R)" : "(B)")
+    std::cout << root->key_ << (root->color_ == node_type::RED ? "(R)" : "(B)")
               << std::endl;
 
     // print left
@@ -407,17 +410,17 @@ class RedBlackTree {
    */
   void InsertFixup(node_type *new_node) {
     // 新しいノードは赤色であり, 赤ノードは赤ノードを子に持つことは出来ない.
-    while (new_node->parent_->color_ == RBT_RED) {
+    while (new_node->parent_->color_ == node_type::RED) {
       if (new_node->parent_ == new_node->parent_->parent_->left_) {
         // 新しいノードの親は祖父の左の子
         // 叔父ノード
         node_type *uncle_node = new_node->parent_->parent_->right_;
-        if (uncle_node->color_ == RBT_RED) {
+        if (uncle_node->color_ == node_type::RED) {
           // 修正パターン1: 親と叔父ノードが赤色
           // 親と叔父ノードを黒にし, 祖父を赤にする.
-          new_node->parent_->color_ = RBT_BLACK;
-          uncle_node->color_ = RBT_BLACK;
-          new_node->parent_->parent_->color_ = RBT_RED;
+          new_node->parent_->color_ = node_type::BLACK;
+          uncle_node->color_ = node_type::BLACK;
+          new_node->parent_->parent_->color_ = node_type::RED;
           new_node = new_node->parent_->parent_;
         } else {
           // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
@@ -428,20 +431,20 @@ class RedBlackTree {
             RotateLeft(new_node);
           }
           // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
-          new_node->parent_->color_ = RBT_BLACK;
-          new_node->parent_->parent_->color_ = RBT_RED;
+          new_node->parent_->color_ = node_type::BLACK;
+          new_node->parent_->parent_->color_ = node_type::RED;
           RotateRight(new_node->parent_->parent_);
         }
       } else {
         // 新しいノードの親は祖父の右の子
         // 叔父ノード
         node_type *uncle_node = new_node->parent_->parent_->left_;
-        if (uncle_node->color_ == RBT_RED) {
+        if (uncle_node->color_ == node_type::RED) {
           // 修正パターン1: 親と叔父ノードが赤色
           // 親と叔父ノードを黒にし, 祖父を赤にする.
-          new_node->parent_->color_ = RBT_BLACK;
-          uncle_node->color_ = RBT_BLACK;
-          new_node->parent_->parent_->color_ = RBT_RED;
+          new_node->parent_->color_ = node_type::BLACK;
+          uncle_node->color_ = node_type::BLACK;
+          new_node->parent_->parent_->color_ = node_type::RED;
           new_node = new_node->parent_->parent_;
         } else {
           // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
@@ -452,13 +455,13 @@ class RedBlackTree {
             RotateRight(new_node);
           }
           // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
-          new_node->parent_->color_ = RBT_BLACK;
-          new_node->parent_->parent_->color_ = RBT_RED;
+          new_node->parent_->color_ = node_type::BLACK;
+          new_node->parent_->parent_->color_ = node_type::RED;
           RotateLeft(new_node->parent_->parent_);
         }
       }
     }
-    root_->color_ = RBT_BLACK;
+    root_->color_ = node_type::BLACK;
   }
 
   /* ノードの削除
@@ -522,7 +525,7 @@ class RedBlackTree {
     node_type *y = z;
     // 節点yを再彩色する可能性があるので元の色を保持する.
     // yの代入直後のyの色を覚えておく.
-    typename RBTColor y_original_color = y->color_;
+    typename node_type::Color y_original_color = y->color_;
 
     if (z->left_ == nil_node_) {
       x = z->right_;
@@ -550,7 +553,7 @@ class RedBlackTree {
     }
     DeleteNode(z);
 
-    if (y_original_color == RBT_BLACK) {
+    if (y_original_color == node_type::BLACK) {
       // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
       // x(もともとyがあった場所)から上に2色条件を違反していないか見ていく
       //
@@ -660,47 +663,49 @@ class RedBlackTree {
    *                    x_B   l_B
    */
   void DeleteFixup(node_type *x) {
-    while (x != root_ && x->color_ == RBT_BLACK) {
+    while (x != root_ && x->color_ == node_type::BLACK) {
       if (x == x->parent_->left_) {
         // 兄弟ノード
         node_type *w = x->parent_->right_;
-        if (w->color_ == RBT_RED) {
+        if (w->color_ == node_type::RED) {
           // 修正パターン1: 兄弟が赤
-          w->color_ = RBT_BLACK;
-          x->parent_->color_ = RBT_RED;
+          w->color_ = node_type::BLACK;
+          x->parent_->color_ = node_type::RED;
           RotateLeft(x->parent_);
           w = x->parent_->right_;
         }
-        if (w->left_->color_ == RBT_BLACK && w->right_->color_ == RBT_BLACK) {
+        if (w->left_->color_ == node_type::BLACK &&
+            w->right_->color_ == node_type::BLACK) {
           // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
-          w->color_ = RBT_RED;
+          w->color_ = node_type::RED;
           x = x->parent_;
         } else {
-          if (w->right_->color_ == RBT_BLACK) {
+          if (w->right_->color_ == node_type::BLACK) {
             // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
-            w->left_->color_ = RBT_BLACK;
-            w->color_ = RBT_RED;
+            w->left_->color_ = node_type::BLACK;
+            w->color_ = node_type::RED;
             RotateRight(w);
             w = x->parent_->right_;
           }
           // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
           w->color_ = x->parent_->color_;
-          x->parent_->color_ = RBT_BLACK;
-          w->right_->color_ = RBT_BLACK;
+          x->parent_->color_ = node_type::BLACK;
+          w->right_->color_ = node_type::BLACK;
           RotateLeft(x->parent_);
           x = root_;
         }
       } else {
         // 兄弟ノード
         node_type *w = x->parent_->left_;
-        if (w->color_ == RBT_RED) {
+        if (w->color_ == node_type::RED) {
           // 修正パターン1: 兄弟が赤
-          w->color_ = RBT_BLACK;
-          x->parent_->color_ = RBT_RED;
+          w->color_ = node_type::BLACK;
+          x->parent_->color_ = node_type::RED;
           RotateRight(x->parent_);
           w = x->parent_->left_;
         }
-        if (w->right_->color_ == RBT_BLACK && w->left_->color_ == RBT_BLACK) {
+        if (w->right_->color_ == node_type::BLACK &&
+            w->left_->color_ == node_type::BLACK) {
           // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
           w->color_ = RBTNode::RED;
           x = x->parent_;

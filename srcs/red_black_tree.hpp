@@ -62,6 +62,7 @@ struct RBTNode {
 // Val: ノードに格納するデータ? mapだとpair, setだと_Key.
 // KeyOfValue: _Val型のデータからキーを取り出す
 template <typename Key, typename Value, typename KeyOfValue,
+          typename Compare = std::less<Key>,
           typename Alloc = std::allocator<Value> >
 class RedBlackTree {
  public:

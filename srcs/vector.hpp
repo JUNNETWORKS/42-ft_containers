@@ -241,6 +241,7 @@ class vector {
       finish_ = start_ + n;
     }
   }
+
   void push_back(const value_type &val) {
     if (size() == capacity()) {
       expand_and_copy_storage(calc_new_capacity(capacity()));

@@ -16,12 +16,12 @@ struct Select1st {
   /// @c result_type is the return type
   typedef typename Pair::first_type result_type;
 
-  typename Pair::first_type& operator()(Pair& __x) const {
-    return __x.first;
+  typename Pair::first_type& operator()(Pair& p) const {
+    return p.first;
   }
 
-  const typename Pair::first_type& operator()(const Pair& __x) const {
-    return __x.first;
+  const typename Pair::first_type& operator()(const Pair& p) const {
+    return p.first;
   }
 };
 
@@ -198,35 +198,35 @@ class map {
    *
    *  Lookup requires logarithmic time.
    */
-  mapped_type& operator[](const key_type& __k) {
-    iterator __i = lower_bound(__k);
+  mapped_type& operator[](const key_type& key) {
+    iterator i = lower_bound(key);
     // __i->first is greater than or equivalent to __k.
-    if (__i == end() || key_comp()(__k, (*__i).first)) {
-      __i = insert(__i, value_type(__k, mapped_type()));
+    if (i == end() || key_comp()(key, (*i).first)) {
+      i = insert(i, value_type(key, mapped_type()));
     }
-    return (*__i).second;
+    return (*i).second;
   }
 
   // DR 464. Suggestion for new member functions in standard containers.
   /**
    *  @brief  Access to %map data.
-   *  @param  __k  The key for which data should be retrieved.
-   *  @return  A reference to the data whose key is equivalent to @a __k, if
+   *  @param  key  The key for which data should be retrieved.
+   *  @return  A reference to the data whose key is equivalent to @a key, if
    *           such a data is present in the %map.
    *  @throw  std::out_of_range  If no such data is present.
    */
-  mapped_type& at(const key_type& __k) {
-    iterator __i = lower_bound(__k);
-    if (__i == end() || key_comp()(__k, (*__i).first))
+  mapped_type& at(const key_type& key) {
+    iterator i = lower_bound(key);
+    if (i == end() || key_comp()(key, (*i).first))
       __throw_out_of_range(__N("map::at"));
-    return (*__i).second;
+    return (*i).second;
   }
 
-  const mapped_type& at(const key_type& __k) const {
-    const_iterator __i = lower_bound(__k);
-    if (__i == end() || key_comp()(__k, (*__i).first))
+  const mapped_type& at(const key_type& key) const {
+    const_iterator i = lower_bound(key);
+    if (i == end() || key_comp()(key, (*i).first))
       __throw_out_of_range(__N("map::at"));
-    return (*__i).second;
+    return (*i).second;
   }
 
   /* Modifiers */
@@ -247,8 +247,8 @@ class map {
    *  Insertion requires logarithmic time.
    *  @{
    */
-  std::pair<iterator, bool> insert(const value_type& __x) {
-    return _M_t._M_insert_unique(__x);
+  std::pair<iterator, bool> insert(const value_type& value) {
+    return rbtree_.insert_unique(value);
   }
 
   /**
@@ -274,8 +274,8 @@ class map {
    *  Insertion requires logarithmic time (if the hint is not taken).
    *  @{
    */
-  iterator insert(iterator __position, const value_type& __x) {
-    return _M_t._M_insert_unique_(__position, __x);
+  iterator insert(iterator position, const value_type& value) {
+    return rbtree_.insert_unique_(position, value);
   }
 
   /**
@@ -286,14 +286,14 @@ class map {
    *
    *  Complexity similar to that of the range constructor.
    */
-  template <typename _InputIterator>
-  void insert(_InputIterator __first, _InputIterator __last) {
-    _M_t._M_insert_range_unique(__first, __last);
+  template <typename InputIterator>
+  void insert(InputIterator first, InputIterator last) {
+    rbtree_.insert_range_unique(first, last);
   }
 
   /**
    *  @brief Erases elements according to the provided key.
-   *  @param  __x  Key of element to be erased.
+   *  @param  key  Key of element to be erased.
    *  @return  The number of elements erased.
    *
    *  This function erases all the elements located by the given key from
@@ -302,15 +302,15 @@ class map {
    *  the element is itself a pointer, the pointed-to memory is not touched
    *  in any way.  Managing the pointer is the user's responsibility.
    */
-  size_type erase(const key_type& __x) {
-    return _M_t.erase(__x);
+  size_type erase(const key_type& key) {
+    return rbtree_.erase(key);
   }
 
   /**
-   *  @brief Erases a [__first,__last) range of elements from a %map.
-   *  @param  __first  Iterator pointing to the start of the range to be
+   *  @brief Erases a [first,last) range of elements from a %map.
+   *  @param  first  Iterator pointing to the start of the range to be
    *                   erased.
-   *  @param __last Iterator pointing to the end of the range to
+   *  @param last Iterator pointing to the end of the range to
    *                be erased.
    *
    *  This function erases a sequence of elements from a %map.
@@ -318,8 +318,8 @@ class map {
    *  the element is itself a pointer, the pointed-to memory is not touched
    *  in any way.  Managing the pointer is the user's responsibility.
    */
-  void erase(iterator __first, iterator __last) {
-    _M_t.erase(__first, __last);
+  void erase(iterator first, iterator last) {
+    rbtree_.erase(first, last);
   }
 
   /**
@@ -335,9 +335,8 @@ class map {
    *
    *  Whether the allocators are swapped depends on the allocator traits.
    */
-  void swap(map& __x)
-      _GLIBCXX_NOEXCEPT_IF(__is_nothrow_swappable<_Compare>::value) {
-    _M_t.swap(__x._M_t);
+  void swap(map& other){
+    rbtree_.swap(other.rbtree_);
   }
 
   /**
@@ -346,8 +345,8 @@ class map {
    *  pointers, the pointed-to memory is not touched in any way.
    *  Managing the pointer is the user's responsibility.
    */
-  void clear() _GLIBCXX_NOEXCEPT {
-    _M_t.clear();
+  void clear() {
+    rbtree_.clear();
   }
 
   /* Observers */
@@ -356,7 +355,7 @@ class map {
    *  constructed.
    */
   key_compare key_comp() const {
-    return _M_t.key_comp();
+    return rbtree_.key_comp();
   }
 
   /**
@@ -364,7 +363,7 @@ class map {
    *  object out of which the %map was constructed.
    */
   value_compare value_comp() const {
-    return value_compare(_M_t.key_comp());
+    return value_compare(rbtree_.key_comp());
   }
 
   // [23.3.1.3] map operations
@@ -372,7 +371,7 @@ class map {
   //@{
   /**
    *  @brief Tries to locate an element in a %map.
-   *  @param  __x  Key of (key, value) %pair to be located.
+   *  @param  key  Key of (key, value) %pair to be located.
    *  @return  Iterator pointing to sought-after element, or end() if not
    *           found.
    *
@@ -382,14 +381,14 @@ class map {
    *  past-the-end ( @c end() ) iterator.
    */
 
-  iterator find(const key_type& __x) {
-    return _M_t.find(__x);
+  iterator find(const key_type& key) {
+    return rbtree_.find(key);
   }
 
   //@{
   /**
    *  @brief Tries to locate an element in a %map.
-   *  @param  __x  Key of (key, value) %pair to be located.
+   *  @param  key  Key of (key, value) %pair to be located.
    *  @return  Read-only (constant) iterator pointing to sought-after
    *           element, or end() if not found.
    *
@@ -399,26 +398,26 @@ class map {
    *  returns the past-the-end ( @c end() ) iterator.
    */
 
-  const_iterator find(const key_type& __x) const {
-    return _M_t.find(__x);
+  const_iterator find(const key_type& key) const {
+    return rbtree_.find(key);
   }
 
   //@{
   /**
    *  @brief  Finds the number of elements with given key.
-   *  @param  __x  Key of (key, value) pairs to be located.
+   *  @param  key  Key of (key, value) pairs to be located.
    *  @return  Number of elements with specified key.
    *
    *  This function only makes sense for multimaps; for map the result will
    *  either be 0 (not present) or 1 (present).
    */
-  size_type count(const key_type& __x) const {
-    return _M_t.find(__x) == _M_t.end() ? 0 : 1;
+  size_type count(const key_type& key) const {
+    return rbtree_.find(key) == rbtree_.end() ? 0 : 1;
   }
 
   /**
    *  @brief Finds the beginning of a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pair to be located.
+   *  @param  key  Key of (key, value) pair to be located.
    *  @return  Iterator pointing to first element equal to or greater
    *           than key, or end().
    *
@@ -427,13 +426,13 @@ class map {
    *  pointing to the first element that has a greater value than given key
    *  or end() if no such element exists.
    */
-  iterator lower_bound(const key_type& __x) {
-    return _M_t.lower_bound(__x);
+  iterator  (const key_type& key) {
+    return rbtree_.lower_bound(key);
   }
 
   /**
    *  @brief Finds the beginning of a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pair to be located.
+   *  @param  key  Key of (key, value) pair to be located.
    *  @return  Read-only (constant) iterator pointing to first element
    *           equal to or greater than key, or end().
    *
@@ -442,33 +441,33 @@ class map {
    *  pointing to the first element that has a greater value than given key
    *  or end() if no such element exists.
    */
-  const_iterator lower_bound(const key_type& __x) const {
-    return _M_t.lower_bound(__x);
+  const_iterator lower_bound(const key_type& key) const {
+    return rbtree_.lower_bound(key);
   }
 
   /**
    *  @brief Finds the end of a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pair to be located.
+   *  @param  key  Key of (key, value) pair to be located.
    *  @return Iterator pointing to the first element
    *          greater than key, or end().
    */
-  iterator upper_bound(const key_type& __x) {
-    return _M_t.upper_bound(__x);
+  iterator upper_bound(const key_type& key) {
+    return rbtree_.upper_bound(key);
   }
 
   /**
    *  @brief Finds the end of a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pair to be located.
+   *  @param  key  Key of (key, value) pair to be located.
    *  @return  Read-only (constant) iterator pointing to first iterator
    *           greater than key, or end().
    */
-  const_iterator upper_bound(const key_type& __x) const {
-    return _M_t.upper_bound(__x);
+  const_iterator upper_bound(const key_type& key) const {
+    return rbtree_.upper_bound(key);
   }
 
   /**
    *  @brief Finds a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pairs to be located.
+   *  @param  key  Key of (key, value) pairs to be located.
    *  @return  Pair of iterators that possibly points to the subsequence
    *           matching given key.
    *
@@ -481,14 +480,14 @@ class map {
    *
    *  This function probably only makes sense for multimaps.
    */
-  std::pair<iterator, iterator> equal_range(const key_type& __x) {
-    return _M_t.equal_range(__x);
+  std::pair<iterator, iterator> equal_range(const key_type& key) {
+    return rbtree_.equal_range(key);
   }
 
   //@{
   /**
    *  @brief Finds a subsequence matching given key.
-   *  @param  __x  Key of (key, value) pairs to be located.
+   *  @param  key  Key of (key, value) pairs to be located.
    *  @return  Pair of read-only (constant) iterators that possibly points
    *           to the subsequence matching given key.
    *
@@ -502,17 +501,17 @@ class map {
    *  This function probably only makes sense for multimaps.
    */
   std::pair<const_iterator, const_iterator> equal_range(
-      const key_type& __x) const {
-    return _M_t.equal_range(__x);
+      const key_type& key) const {
+    return rbtree_.equal_range(key);
   }
 
-  template <typename _K1, typename _T1, typename _C1, typename _A1>
-  friend bool operator==(const map<_K1, _T1, _C1, _A1>&,
-                         const map<_K1, _T1, _C1, _A1>&);
+  template <typename K1, typename T1, typename C1, typename A>
+  friend bool operator==(const map<K1, T1, C1, A>&,
+                         const map<K1, T1, C1, A>&);
 
-  template <typename _K1, typename _T1, typename _C1, typename _A1>
-  friend bool operator<(const map<_K1, _T1, _C1, _A1>&,
-                        const map<_K1, _T1, _C1, _A1>&);
+  template <typename K1, typename T1, typename C1, typename A>
+  friend bool operator<(const map<K1, T1, C1, A>&,
+                        const map<K1, T1, C1, A>&);
 
  private:
   // The actual tree structure.
@@ -521,24 +520,24 @@ class map {
 
 /**
  *  @brief  Map equality comparison.
- *  @param  __x  A %map.
- *  @param  __y  A %map of the same type as @a x.
+ *  @param  lhs  A %map.
+ *  @param  rhs  A %map of the same type as @a x.
  *  @return  True iff the size and elements of the maps are equal.
  *
  *  This is an equivalence relation.  It is linear in the size of the
  *  maps.  Maps are considered equivalent if their sizes are equal,
  *  and if corresponding elements compare equal.
  */
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                       const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return __x._M_t == __y._M_t;
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator==(const map<Key, Value, Compare, Alloc>& lhs,
+                       const map<Key, Value, Compare, Alloc>& rhs) {
+  return lhs.rbtree_ == rhs.rbtree_;
 }
 
 /**
  *  @brief  Map ordering relation.
- *  @param  __x  A %map.
- *  @param  __y  A %map of the same type as @a x.
+ *  @param  lhs  A %map.
+ *  @param  rhs  A %map of the same type as @a x.
  *  @return  True iff @a x is lexicographically less than @a y.
  *
  *  This is a total ordering relation.  It is linear in the size of the
@@ -546,38 +545,38 @@ inline bool operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
  *
  *  See std::lexicographical_compare() for how the determination is made.
  */
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator<(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                      const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return __x._M_t < __y._M_t;
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator<(const map<Key, Value, Compare, Alloc>& lhs,
+                      const map<Key, Value, Compare, Alloc>& rhs) {
+  return lhs.rbtree_ < rhs.rbtree_;
 }
 
 /// Based on operator==
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                       const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return !(__x == __y);
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator!=(const map<Key, Value, Compare, Alloc>& lhs,
+                       const map<Key, Value, Compare, Alloc>& rhs) {
+  return !(lhs == rhs);
 }
 
 /// Based on operator<
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator>(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                      const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return __y < __x;
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator>(const map<Key, Value, Compare, Alloc>& lhs,
+                      const map<Key, Value, Compare, Alloc>& rhs) {
+  return rhs < lhs;
 }
 
 /// Based on operator<
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator<=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                       const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return !(__y < __x);
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator<=(const map<Key, Value, Compare, Alloc>& lhs,
+                       const map<Key, Value, Compare, Alloc>& rhs) {
+  return !(rhs < lhs);
 }
 
 /// Based on operator<
-template <typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator>=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
-                       const map<_Key, _Tp, _Compare, _Alloc>& __y) {
-  return !(__x < __y);
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline bool operator>=(const map<Key, Value, Compare, Alloc>& lhs,
+                       const map<Key, Value, Compare, Alloc>& rhs) {
+  return !(lhs < rhs);
 }
 
 }  // namespace ft

@@ -8,7 +8,33 @@
 
 namespace ft {
 
-template <class Value> struct RBTNode {
+// template <class Value>
+// struct rbtree_iterator {
+//   typedef Value value_type;
+//   typedef Value& reference;
+//   typedef Value* pointer;
+
+//   typedef std::bidirectional_iterator_tag iterator_category;
+//   typedef std::ptrdiff_t			 difference_type;
+
+//   typedef RBTNode<Value> node_type;
+//   typedef node_type* node_pointer;
+  
+//   rbtree_iterator() : node_() {}
+
+//   explicit rbtree_iterator(node_pointer ptr) : node_(ptr) {}
+
+//   reference operator*() const 
+//       { return *static_cast<node_type>(_M_node)->_M_valptr(); }
+
+//   pointer operator->() const 
+//   { return static_cast<node_type> (_M_node)->_M_valptr(); }
+
+//   node_pointer node_;
+// };
+
+template <class Value>
+struct RBTNode {
   enum Color { BLACK = 0, RED = 1 };
 
   Value value_;
@@ -120,10 +146,12 @@ public:
     node_type *current = root_;
     while (current != nil_node_) {
       parent = current;
-      if (KeyOfValue(value) == KeyOfValue(current->value_)) {
+      if (KeysAreEqual(KeyOfValue()(value), KeyOfValue()(current->value_))) {
+        // TODO: value_.first は const key_type なので値の書き換えは出来ない
+        // InsertはInsertUniqueとし、挿入するか値を更新するか判断するのはmapなどの利用側の責務とする。
         current->value_ = value;
         return;
-      } else if (Compare(KeyOfValue(value), KeyOfValue(current->value_))) {
+      } else if (Compare()(KeyOfValue()(value), KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -133,7 +161,7 @@ public:
     new_node->parent_ = parent;
     if (parent == nil_node_) {
       root_ = new_node;
-    } else if (Compare(KeyOfValue(new_node->value_), KeyOfValue(parent->value_))) {
+    } else if (Compare()(KeyOfValue()(new_node->value_), KeyOfValue()(parent->value_))) {
       parent->left_ = new_node;
     } else {
       parent->right_ = new_node;
@@ -178,7 +206,7 @@ public:
         // currentより大きくなるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (next_node != nil_node_ && Compare(KeyOfValue(next_node->value_), KeyOfValue(current->value_))) {
+        while (next_node != nil_node_ && Compare()(KeyOfValue()(next_node->value_), KeyOfValue()(current->value_))) {
           next_node = next_node->parent_;
         }
         if (next_node == nil_node_) {
@@ -206,7 +234,7 @@ public:
         // currentより小さくなるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (next_node != nil_node_ && !Compare(KeyOfValue(next_node->value_), KeyOfValue(current->value_))) {
+        while (next_node != nil_node_ && !Compare()(KeyOfValue()(next_node->value_), KeyOfValue()(current->value_))) {
           next_node = next_node->parent_;
         }
         if (next_node == nil_node_) {
@@ -222,7 +250,21 @@ public:
     }
   }
 
-  // Debug methods
+  node_type *Search(const Key &key) const {
+    node_type *current = root_;
+    while (current != nil_node_ && KeyOfValue()(current->value_) != key) {
+      if (Compare()(key, KeyOfValue()(current->value_))) {
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return current;
+  }
+
+  /******************************************************************
+   Debug methods
+  *******************************************************************/
 
   void PrintTree2D() const {
     PrintTree2DUtil(root_);
@@ -241,7 +283,7 @@ public:
     std::cout << std::endl;
     for (int i = 10; i < space; i++)
       std::cout << " ";
-    std::cout << KeyOfValue(root->value_) << (root->color_ == node_type::RED ? "(R)" : "(B)")
+    std::cout << KeyOfValue()(root->value_) << (root->color_ == node_type::RED ? "(R)" : "(B)")
               << std::endl;
 
     // print left
@@ -262,23 +304,11 @@ public:
   }
 
   void PrintNodeInfo(node_type *node) {
-    std::cout << "Key: " << KeyOfValue(node->value_) << "\n\tValue: " << node->value_
+    std::cout << "Key: " << KeyOfValue()(node->value_) << "\n\tValue: " << node->value_
               << "\n\tColor: " << node->color_
-              << "\n\tParent: " << KeyOfValue(node->parent_->value_)
-              << "\n\tLeft: " << KeyOfValue(node->left_->value_)
-              << "\n\tRight: " << KeyOfValue(node->right_->value_) << std::endl;
-  }
-
-  node_type *Search(const Key &key) const {
-    node_type *current = root_;
-    while (current != nil_node_ && KeyOfValue(current->value_) != key) {
-      if (Compare(key, KeyOfValue(current->value_))) {
-        current = current->left_;
-      } else {
-        current = current->right_;
-      }
-    }
-    return current;
+              << "\n\tParent: " << KeyOfValue()(node->parent_->value_)
+              << "\n\tLeft: " << KeyOfValue()(node->left_->value_)
+              << "\n\tRight: " << KeyOfValue()(node->right_->value_) << std::endl;
   }
 
   // Fix tree
@@ -795,6 +825,10 @@ public:
       current = current->right_;
     }
     return const_cast<node_type *>(current);
+  }
+
+  bool KeysAreEqual(const key_type &key1, const key_type &key2) {
+    return !Compare()(key1, key2) && !Compare()(key2, key1);
   }
 
   // Members

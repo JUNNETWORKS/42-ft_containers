@@ -788,6 +788,9 @@ class RedBlackTree {
   }
 
   void DeleteNode(node_type *z) {
+    if (z == nil_node_) {
+      return;
+    }
     node_allocator allocator = node_allocator();
     allocator.destroy(z);
     allocator.deallocate(z, 1);

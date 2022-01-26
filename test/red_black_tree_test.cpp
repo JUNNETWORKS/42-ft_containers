@@ -1,4 +1,5 @@
 #include "red_black_tree.hpp"
+
 #include "pair.hpp"
 
 // KeyOfValueを使うためにinclude
@@ -25,15 +26,15 @@ struct Select1st {
   /// @c result_type is the return type
   typedef typename Pair::first_type result_type;
 
-  typename Pair::first_type& operator()(Pair& p) const {
+  typename Pair::first_type &operator()(Pair &p) const {
     return p.first;
   }
 
-  const typename Pair::first_type& operator()(const Pair& p) const {
+  const typename Pair::first_type &operator()(const Pair &p) const {
     return p.first;
   }
 };
-}
+}  // namespace ft
 
 namespace {
 template <class key_type, class Compare>
@@ -42,14 +43,18 @@ bool KeysAreEqual(const key_type &key1, const key_type &key2) {
 }
 
 // テスト用の関数. 色の修正や木の回転などを行わない挿入.
-template <class Key, class Value, typename KeyOfValue, typename Compare = std::less<Key> >
+template <class Key, class Value, typename KeyOfValue,
+          typename Compare = std::less<Key> >
 typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
 insertNodeWithoutFixup(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type **root,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *new_node) {
-  typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
+        *root,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *new_node) {
+  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+      node_type;
 
   if (*root == nil_node) {
     *root = new_node;
@@ -62,9 +67,11 @@ insertNodeWithoutFixup(
   node_type *parent = nil_node;
   node_type *node = *root;
   while (node != nil_node) {
-    if (KeysAreEqual<Key, Compare>(KeyOfValue()(new_node->value_), KeyOfValue()(node->value_))) {
+    if (KeysAreEqual<Key, Compare>(KeyOfValue()(new_node->value_),
+                                   KeyOfValue()(node->value_))) {
       exit(1);
-    } else if (Compare()(KeyOfValue()(new_node->value_), KeyOfValue()(node->value_))) {
+    } else if (Compare()(KeyOfValue()(new_node->value_),
+                         KeyOfValue()(node->value_))) {
       parent = node;
       node = node->left_;
     } else {
@@ -83,29 +90,37 @@ insertNodeWithoutFixup(
   return new_node;
 }
 
-template <class Key, class Value, typename KeyOfValue, typename Compare = std::less<Key> >
+template <class Key, class Value, typename KeyOfValue,
+          typename Compare = std::less<Key> >
 typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
 insertNodeWithoutFixup(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type **root,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
+        *root,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node,
     Value value,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type::Color color) {
-  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type::Color
+        color) {
+  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+      node_type;
   node_type *new_node = new node_type(value);
   new_node->color_ = color;
-  insertNodeWithoutFixup<Key, Value, KeyOfValue, Compare>(root, nil_node, new_node);
+  insertNodeWithoutFixup<Key, Value, KeyOfValue, Compare>(root, nil_node,
+                                                          new_node);
   return new_node;
 }
 
 template <class Key, class Value, typename KeyOfValue, typename Compare>
 void expectAllRedNodeHasTwoBlackChild(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node);
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node);
 
 template <class Key, class Value, typename KeyOfValue, typename Compare>
 int expectAllPathesAreSameBlackNodeCount(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node,
     int black_count = 0);
 
 // テスト用の関数. 赤黒木のルールを守っているか確かめる.
@@ -124,8 +139,8 @@ int expectAllPathesAreSameBlackNodeCount(
 template <class Key, class Value, class KeyOfValue, class Compare>
 void expectRedBlackTreeKeepRules(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare> &rb_tree) {
-  typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
+  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+      node_type;
 
   // 2. 根は黒である. (たまにこの条件は省かれる)
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);
@@ -135,8 +150,8 @@ void expectRedBlackTreeKeepRules(
   EXPECT_EQ(rb_tree.root_->color_, rb_tree.nil_node_->color_);
 
   // 4. 赤のノードは黒ノードを2つ子に持つ.
-  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(rb_tree.root_,
-                                               rb_tree.nil_node_);
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(
+      rb_tree.root_, rb_tree.nil_node_);
 
   // 5. 任意のノードについて,
   //    そのノードから子孫の葉までの道に含まれる黒ノードの数は,
@@ -144,16 +159,17 @@ void expectRedBlackTreeKeepRules(
   //    (この条件は,
   //    「根から葉までの道に含まれる黒いノードの数は、葉によらず一定である」
   //    と言い換えることができる)
-  expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(rb_tree.root_,
-                                                   rb_tree.nil_node_);
+  expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
+      rb_tree.root_, rb_tree.nil_node_);
 }
 
 template <class Key, class Value, class KeyOfValue, typename Compare>
 void expectAllRedNodeHasTwoBlackChild(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node) {
-  typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node) {
+  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+      node_type;
 
   if (node == nil_node) {
     return;
@@ -162,17 +178,20 @@ void expectAllRedNodeHasTwoBlackChild(
     EXPECT_EQ(node->left_->color_, node_type::BLACK);
     EXPECT_EQ(node->right_->color_, node_type::BLACK);
   }
-  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(node->left_, nil_node);
-  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(node->right_, nil_node);
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(node->left_,
+                                                                    nil_node);
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(
+      node->right_, nil_node);
 }
 
 template <class Key, class Value, typename KeyOfValue, typename Compare>
 int expectAllPathesAreSameBlackNodeCount(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+        *nil_node,
     int black_count) {
-  typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
+  typedef typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type
+      node_type;
 
   if (node == nil_node) {
     return black_count;
@@ -180,10 +199,12 @@ int expectAllPathesAreSameBlackNodeCount(
   if (node->color_ == node_type::BLACK) {
     black_count++;
   }
-  int left_count = expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
-      node->left_, nil_node, black_count);
-  int right_count = expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
-      node->right_, nil_node, black_count);
+  int left_count =
+      expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
+          node->left_, nil_node, black_count);
+  int right_count =
+      expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
+          node->right_, nil_node, black_count);
   EXPECT_EQ(left_count, right_count);
   return left_count;
 }
@@ -194,7 +215,8 @@ TEST(RedBlackTree, BasicOperations) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   tree_type rb_tree;
   rb_tree.InsertUnique(pair_type("c", 1));
   rb_tree.InsertUnique(pair_type("b", 2));
@@ -222,7 +244,8 @@ TEST(Modifier, ModifyExistNode) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   tree_type rb_tree;
 
   rb_tree.InsertUnique(pair_type("a", 1));
@@ -236,7 +259,8 @@ TEST(Modifier, DeleteAndAccessItShouldThrowException) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   tree_type rb_tree;
 
   rb_tree.InsertUnique(pair_type("a", 1));
@@ -250,7 +274,8 @@ TEST(TreeSuccessor, Random1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
   typedef std::set<int> set_type;
 
@@ -283,7 +308,8 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
@@ -310,7 +336,8 @@ TEST(TreePredecessor, Random1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
   typedef std::set<int> set_type;
   const int loop_num = 1000;
@@ -342,9 +369,9 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
-
 
   tree_type rb_tree;
 
@@ -369,7 +396,8 @@ TEST(RedBlackTree, CopyConstructor) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   srand(time(NULL));
   const int loop_num = 10;
@@ -432,7 +460,8 @@ TEST(InsertUnique, Random1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef std::set<int> set_type;
 
   tree_type rb_tree;
@@ -443,7 +472,8 @@ TEST(InsertUnique, Random1000) {
   for (int i = 0; i < 1000; ++i) {
     s.insert(rand());
   }
-  for (set_type::iterator it = s.begin(), it_end = s.end(); it != it_end; ++it) {
+  for (set_type::iterator it = s.begin(), it_end = s.end(); it != it_end;
+       ++it) {
     rb_tree.InsertUnique(pair_type(*it, 0));
   }
   expectRedBlackTreeKeepRules(rb_tree);
@@ -453,7 +483,8 @@ TEST(InsertUnique, Sorted1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
 
@@ -474,20 +505,23 @@ TEST(InsertUnique, UncleIsRedLeft) {
    * これをこのまま構築すると, 根は黒というルールによって根が黒になるので,
    * 根の左部分木としてこの木を構築する.
    */
-typedef int key_type;
+  typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(4, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(4, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 10);
@@ -529,17 +563,20 @@ TEST(InsertUnique, UncleIsRedRight) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(12, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 5);
@@ -587,18 +624,20 @@ TEST(InsertUnique, UncleIsBlackAndNewNodeIsLeftLeft) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 10);
@@ -646,18 +685,20 @@ TEST(InsertUnique, UncleIsBlackAndNewNodeIsRightRight) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 1);
@@ -704,18 +745,20 @@ TEST(InsertUnique, UncleIsBlackAndNewNodeIsLeftRight) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_,  pair_type(10, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 10);
@@ -762,19 +805,20 @@ TEST(InsertUnique, UncleIsBlackAndNewNodeIsRightleft) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0),
-                         node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
   ASSERT_EQ(rb_tree.root_->value_.first, 1);
@@ -806,7 +850,8 @@ TEST(Search, BasicOperations) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
 
@@ -829,7 +874,8 @@ TEST(Delete, TargetNodeHasOnlyRightChild) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
 
@@ -857,7 +903,8 @@ TEST(Delete, TargetNodeHasOnlyLeftChild) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
 
@@ -887,7 +934,8 @@ TEST(Delete, TargetNodeHasTwoChildAndRightChildIsNextNode) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
   rb_tree.InsertUnique(pair_type(2, 2));
@@ -927,7 +975,8 @@ TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
 
   tree_type rb_tree;
   rb_tree.InsertUnique(pair_type(1, 1));
@@ -967,7 +1016,8 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*               10B
@@ -979,26 +1029,26 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
    *                 12B  17B  22B   30B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(17, 17),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(17, 17), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
   rb_tree.Delete(5);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1017,7 +1067,8 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*               5B
@@ -1027,18 +1078,18 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
    *           4B      6B        8B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(3, 3),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(4, 4),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 3), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(4, 4), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::BLACK);
 
   rb_tree.Delete(3);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1066,7 +1117,8 @@ TEST(DeleteLeft,
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*               10B
@@ -1078,22 +1130,22 @@ TEST(DeleteLeft,
    *               12B      18B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
 
   rb_tree.Delete(5);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1116,7 +1168,8 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*
@@ -1131,32 +1184,34 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
    *              18R    25R       35R    45R
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(13, 13),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(45, 45),
-                         node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(13, 13), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(45, 45), node_type::RED);
 
   rb_tree.Delete(5);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1181,7 +1236,8 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*
@@ -1195,26 +1251,26 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35), node_type::BLACK);
 
   rb_tree.Delete(75);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1233,7 +1289,8 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*
@@ -1245,18 +1302,18 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
   rb_tree.Delete(75);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1284,7 +1341,8 @@ TEST(DeleteRight,
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*
@@ -1297,22 +1355,22 @@ TEST(DeleteRight,
    *            27B  40B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40),
-                         node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40), node_type::BLACK);
 
   rb_tree.Delete(60);
   expectRedBlackTreeKeepRules(rb_tree);
@@ -1335,7 +1393,8 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
-  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
   typedef typename tree_type::node_type node_type;
 
   /*
@@ -1351,33 +1410,34 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(52, 52),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(57, 57),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22),
-                         node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(21, 21),
-                         node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(&rb_tree.root_, rb_tree.nil_node_, pair_type(23, 23),
-                         node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(52, 52), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(57, 57), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(21, 21), node_type::RED);
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+      &rb_tree.root_, rb_tree.nil_node_, pair_type(23, 23), node_type::RED);
 
   rb_tree.Delete(60);
   expectRedBlackTreeKeepRules(rb_tree);

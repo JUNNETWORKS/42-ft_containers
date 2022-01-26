@@ -36,6 +36,11 @@ struct Select1st {
 }
 
 namespace {
+template <class key_type, class Compare>
+bool KeysAreEqual(const key_type &key1, const key_type &key2) {
+  return !Compare()(key1, key2) && !Compare()(key2, key1);
+}
+
 // テスト用の関数. 色の修正や木の回転などを行わない挿入.
 template <class Key, class Value, typename KeyOfValue, typename Compare = std::less<Key> >
 typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
@@ -57,9 +62,9 @@ insertNodeWithoutFixup(
   node_type *parent = nil_node;
   node_type *node = *root;
   while (node != nil_node) {
-    if (KeyOfValue(new_node->value_) == KeyOfValue(node->value_)) {
+    if (KeysAreEqual<Key, Compare>(KeyOfValue()(new_node->value_), KeyOfValue()(node->value_))) {
       exit(1);
-    } else if (Compare(KeyOfValue(new_node->value_), KeyOfValue(node->value_))) {
+    } else if (Compare()(KeyOfValue()(new_node->value_), KeyOfValue()(node->value_))) {
       parent = node;
       node = node->left_;
     } else {
@@ -70,7 +75,7 @@ insertNodeWithoutFixup(
   new_node->parent_ = parent;
   new_node->left_ = nil_node;
   new_node->right_ = nil_node;
-  if (Compare(KeyOfValue(new_node->value_), KeyOfValue(parent->value_))) {
+  if (Compare()(KeyOfValue()(new_node->value_), KeyOfValue()(parent->value_))) {
     parent->left_ = new_node;
   } else {
     parent->right_ = new_node;
@@ -92,15 +97,15 @@ insertNodeWithoutFixup(
   return new_node;
 }
 
-template <class Key, class Value, typename KeyOfValue>
+template <class Key, class Value, typename KeyOfValue, typename Compare>
 void expectAllRedNodeHasTwoBlackChild(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *nil_node);
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node);
 
-template <class Key, class Value, typename KeyOfValue>
+template <class Key, class Value, typename KeyOfValue, typename Compare>
 int expectAllPathesAreSameBlackNodeCount(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
     int black_count = 0);
 
 // テスト用の関数. 赤黒木のルールを守っているか確かめる.
@@ -116,11 +121,11 @@ int expectAllPathesAreSameBlackNodeCount(
 //    (この条件は,
 //    「根から葉までの道に含まれる黒いノードの数は、葉によらず一定である」
 //    と言い換えることができる)
-template <class Key, class Value, class KeyOfValue>
+template <class Key, class Value, class KeyOfValue, class Compare>
 void expectRedBlackTreeKeepRules(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue> &rb_tree) {
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare> &rb_tree) {
   typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type node_type;
+      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
 
   // 2. 根は黒である. (たまにこの条件は省かれる)
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);
@@ -130,7 +135,7 @@ void expectRedBlackTreeKeepRules(
   EXPECT_EQ(rb_tree.root_->color_, rb_tree.nil_node_->color_);
 
   // 4. 赤のノードは黒ノードを2つ子に持つ.
-  expectAllRedNodeHasTwoBlackChild<Key, Value>(rb_tree.root_,
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(rb_tree.root_,
                                                rb_tree.nil_node_);
 
   // 5. 任意のノードについて,
@@ -139,16 +144,16 @@ void expectRedBlackTreeKeepRules(
   //    (この条件は,
   //    「根から葉までの道に含まれる黒いノードの数は、葉によらず一定である」
   //    と言い換えることができる)
-  expectAllPathesAreSameBlackNodeCount<Key, Value>(rb_tree.root_,
+  expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(rb_tree.root_,
                                                    rb_tree.nil_node_);
 }
 
-template <class Key, class Value, class KeyOfValue>
+template <class Key, class Value, class KeyOfValue, typename Compare>
 void expectAllRedNodeHasTwoBlackChild(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *nil_node) {
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node) {
   typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type node_type;
+      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
 
   if (node == nil_node) {
     return;
@@ -157,17 +162,17 @@ void expectAllRedNodeHasTwoBlackChild(
     EXPECT_EQ(node->left_->color_, node_type::BLACK);
     EXPECT_EQ(node->right_->color_, node_type::BLACK);
   }
-  expectAllRedNodeHasTwoBlackChild<Key, Value>(node->left_, nil_node);
-  expectAllRedNodeHasTwoBlackChild<Key, Value>(node->right_, nil_node);
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(node->left_, nil_node);
+  expectAllRedNodeHasTwoBlackChild<Key, Value, KeyOfValue, Compare>(node->right_, nil_node);
 }
 
-template <class Key, class Value, typename KeyOfValue>
+template <class Key, class Value, typename KeyOfValue, typename Compare>
 int expectAllPathesAreSameBlackNodeCount(
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *node,
-    typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type *nil_node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *node,
+    typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *nil_node,
     int black_count) {
   typedef
-      typename ft::RedBlackTree<Key, Value, KeyOfValue>::node_type node_type;
+      typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type node_type;
 
   if (node == nil_node) {
     return black_count;
@@ -175,9 +180,9 @@ int expectAllPathesAreSameBlackNodeCount(
   if (node->color_ == node_type::BLACK) {
     black_count++;
   }
-  int left_count = expectAllPathesAreSameBlackNodeCount<Key, Value>(
+  int left_count = expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
       node->left_, nil_node, black_count);
-  int right_count = expectAllPathesAreSameBlackNodeCount<Key, Value>(
+  int right_count = expectAllPathesAreSameBlackNodeCount<Key, Value, KeyOfValue, Compare>(
       node->right_, nil_node, black_count);
   EXPECT_EQ(left_count, right_count);
   return left_count;
@@ -191,9 +196,9 @@ TEST(RedBlackTree, BasicOperations) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
   tree_type rb_tree;
-  rb_tree.Insert(pair_type("c", 1));
-  rb_tree.Insert(pair_type("b", 2));
-  rb_tree.Insert(pair_type("a", 3));
+  rb_tree.InsertUnique(pair_type("c", 1));
+  rb_tree.InsertUnique(pair_type("b", 2));
+  rb_tree.InsertUnique(pair_type("a", 3));
 
   std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
   rb_tree.PrintTree2D();
@@ -220,9 +225,9 @@ TEST(Modifier, ModifyExistNode) {
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
   tree_type rb_tree;
 
-  rb_tree.Insert(pair_type("a", 1));
+  rb_tree.InsertUnique(pair_type("a", 1));
   EXPECT_EQ(rb_tree["a"], pair_type("a", 1));
-  rb_tree.Insert(pair_type("a", 2));
+  rb_tree["a"].second = 2;
   EXPECT_EQ(rb_tree["a"], pair_type("a", 2));
   rb_tree.Delete("a");
 }
@@ -234,8 +239,8 @@ TEST(Modifier, DeleteAndAccessItShouldThrowException) {
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
   tree_type rb_tree;
 
-  rb_tree.Insert(pair_type("a", 1));
-  EXPECT_EQ(rb_tree["a"], 1);
+  rb_tree.InsertUnique(pair_type("a", 1));
+  EXPECT_EQ(rb_tree["a"], pair_type("a", 1));
   rb_tree.Delete("a");
   EXPECT_THROW(rb_tree["a"], std::out_of_range);
 }
@@ -260,7 +265,7 @@ TEST(TreeSuccessor, Random1000) {
   }
   for (set_type::iterator it = s.begin(); it != s.end(); ++it) {
     int num = *it;
-    rb_tree.Insert(pair_type(num, num));
+    rb_tree.InsertUnique(pair_type(num, num));
   }
 
   const node_type *node = NULL;
@@ -284,7 +289,7 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
   tree_type rb_tree;
 
   for (int i = 0; i < 5; ++i) {
-    rb_tree.Insert(pair_type(i, i));
+    rb_tree.InsertUnique(pair_type(i, i));
   }
   const node_type *node = rb_tree.TreeSuccessor(NULL);
   int i = 0;
@@ -319,7 +324,7 @@ TEST(TreePredecessor, Random1000) {
   }
   for (set_type::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit) {
     int num = *rit;
-    rb_tree.Insert(pair_type(num, num));
+    rb_tree.InsertUnique(pair_type(num, num));
   }
 
   const node_type *node = NULL;
@@ -344,7 +349,7 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
   tree_type rb_tree;
 
   for (int i = 0; i < 5; ++i) {
-    rb_tree.Insert(pair_type(i, i));
+    rb_tree.InsertUnique(pair_type(i, i));
   }
   const node_type *node = rb_tree.TreePredecessor(NULL);
   int i = 4;
@@ -371,11 +376,11 @@ TEST(RedBlackTree, CopyConstructor) {
 
   tree_type t1;
 
-  for (int i = 0; i < loop_num; ++i) {
-    t1.Insert(pair_type(rand(), rand()));
+  for (int i = 1; i < loop_num; ++i) {
+    t1.InsertUnique(pair_type(i, rand()));
   }
 
-  t1.Insert(pair_type(0, 1));
+  t1.InsertUnique(pair_type(0, 1));
 
   tree_type t2 = t1;
   tree_type t3(t1);
@@ -386,10 +391,10 @@ TEST(RedBlackTree, CopyConstructor) {
   t2[0].second = 2;
   t3[0].second = 3;
   t4[0].second = 4;
-  EXPECT_EQ(t1[0], 1);
-  EXPECT_EQ(t2[0], 2);
-  EXPECT_EQ(t3[0], 3);
-  EXPECT_EQ(t4[0], 4);
+  EXPECT_EQ(t1[0].second, 1);
+  EXPECT_EQ(t2[0].second, 2);
+  EXPECT_EQ(t3[0].second, 3);
+  EXPECT_EQ(t4[0].second, 4);
 
   t1.Delete(0);
   t2.Delete(0);
@@ -421,25 +426,30 @@ TEST(RedBlackTree, CopyConstructor) {
   EXPECT_EQ(n1, n4);
 }
 
-// Insert
+// InsertUnique
 
-TEST(Insert, Random1000) {
+TEST(InsertUnique, Random1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
+  typedef std::set<int> set_type;
 
   tree_type rb_tree;
+  set_type s;
 
   srand(time(NULL));
 
   for (int i = 0; i < 1000; ++i) {
-    rb_tree.Insert(pair_type(rand(), 0));
+    s.insert(rand());
+  }
+  for (set_type::iterator it = s.begin(), it_end = s.end(); it != it_end; ++it) {
+    rb_tree.InsertUnique(pair_type(*it, 0));
   }
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(Insert, Sorted1000) {
+TEST(InsertUnique, Sorted1000) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
@@ -448,12 +458,12 @@ TEST(Insert, Sorted1000) {
   tree_type rb_tree;
 
   for (int i = 0; i < 1000; ++i) {
-    rb_tree.Insert(pair_type(i, 0));
+    rb_tree.InsertUnique(pair_type(i, 0));
   }
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(Insert, UncleIsRedLeft) {
+TEST(InsertUnique, UncleIsRedLeft) {
   /* 修正パターン1: 叔父ノードが赤色.
    *              g_B                                          g_R
    *             /   \                                        /   \
@@ -490,7 +500,7 @@ typedef int key_type;
   ASSERT_EQ(left_subtree->left_->value_.first, 4);
   ASSERT_EQ(left_subtree->left_->color_, node_type::RED);
 
-  rb_tree.Insert(pair_type(3, 0));
+  rb_tree.InsertUnique(pair_type(3, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 10);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -505,7 +515,7 @@ typedef int key_type;
   EXPECT_EQ(left_subtree->left_->left_->color_, node_type::RED);
 }
 
-TEST(Insert, UncleIsRedRight) {
+TEST(InsertUnique, UncleIsRedRight) {
   /* 修正パターン1: 叔父ノードが赤色.
    *              g_B                                        g_R
    *             /   \                                      /   \
@@ -542,7 +552,7 @@ TEST(Insert, UncleIsRedRight) {
   ASSERT_EQ(right_subtree->right_->value_.first, 12);
   ASSERT_EQ(right_subtree->right_->color_, node_type::RED);
 
-  rb_tree.Insert(pair_type(15, 0));
+  rb_tree.InsertUnique(pair_type(15, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 5);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -557,7 +567,7 @@ TEST(Insert, UncleIsRedRight) {
   EXPECT_EQ(right_subtree->right_->right_->color_, node_type::RED);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsLeftLeft) {
+TEST(InsertUnique, UncleIsBlackAndNewNodeIsLeftLeft) {
   /* 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
    *              g_B                                     p_R
    *             /   \                                   /   \
@@ -601,7 +611,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsLeftLeft) {
   ASSERT_EQ(left_subtree->right_->value_.first, 7);
   ASSERT_EQ(left_subtree->right_->color_, node_type::BLACK);
 
-  rb_tree.Insert(pair_type(1, 0));
+  rb_tree.InsertUnique(pair_type(1, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 10);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -616,7 +626,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsLeftLeft) {
   EXPECT_EQ(left_subtree->right_->right_->color_, node_type::BLACK);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsRightRight) {
+TEST(InsertUnique, UncleIsBlackAndNewNodeIsRightRight) {
   /* 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
    *              g_B                                     p_R
    *             /   \                                   /   \
@@ -660,7 +670,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsRightRight) {
   ASSERT_EQ(right_subtree->right_->value_.first, 7);
   ASSERT_EQ(right_subtree->right_->color_, node_type::RED);
 
-  rb_tree.Insert(pair_type(10, 0));
+  rb_tree.InsertUnique(pair_type(10, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 1);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -675,7 +685,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsRightRight) {
   EXPECT_EQ(right_subtree->left_->left_->color_, node_type::BLACK);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsLeftRight) {
+TEST(InsertUnique, UncleIsBlackAndNewNodeIsLeftRight) {
   /* 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
    *              g_B                                       g_B
    *             /   \                                     /   \
@@ -718,7 +728,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsLeftRight) {
   ASSERT_EQ(left_subtree->right_->value_.first, 7);
   ASSERT_EQ(left_subtree->right_->color_, node_type::BLACK);
 
-  rb_tree.Insert(pair_type(4, 0));
+  rb_tree.InsertUnique(pair_type(4, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 10);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -733,7 +743,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsLeftRight) {
   EXPECT_EQ(left_subtree->right_->right_->color_, node_type::BLACK);
 }
 
-TEST(Insert, UncleIsBlackAndNewNodeIsRightleft) {
+TEST(InsertUnique, UncleIsBlackAndNewNodeIsRightleft) {
   /* 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の左の子
    *              g_B                                     g_B
    *             /   \                                   /   \
@@ -777,7 +787,7 @@ TEST(Insert, UncleIsBlackAndNewNodeIsRightleft) {
   ASSERT_EQ(right_subtree->right_->value_.first, 7);
   ASSERT_EQ(right_subtree->right_->color_, node_type::RED);
 
-  rb_tree.Insert(pair_type(6, 0));
+  rb_tree.InsertUnique(pair_type(6, 0));
 
   EXPECT_EQ(rb_tree.root_->value_.first, 1);
   EXPECT_EQ(rb_tree.root_->color_, node_type::BLACK);  // 根は黒
@@ -801,7 +811,7 @@ TEST(Search, BasicOperations) {
   tree_type rb_tree;
 
   for (int i = 0; i < 1000; ++i) {
-    rb_tree.Insert(pair_type(i, i));
+    rb_tree.InsertUnique(pair_type(i, i));
   }
   for (int i = 0; i < 1000; ++i) {
     EXPECT_EQ(rb_tree[i].second, i);
@@ -823,10 +833,10 @@ TEST(Delete, TargetNodeHasOnlyRightChild) {
 
   tree_type rb_tree;
 
-  rb_tree.Insert(pair_type(5, 5));
-  rb_tree.Insert(pair_type(7, 7));
-  rb_tree.Insert(pair_type(9, 9));
-  rb_tree.Insert(pair_type(11, 11));
+  rb_tree.InsertUnique(pair_type(5, 5));
+  rb_tree.InsertUnique(pair_type(7, 7));
+  rb_tree.InsertUnique(pair_type(9, 9));
+  rb_tree.InsertUnique(pair_type(11, 11));
 
   rb_tree.Delete(9);
 
@@ -851,10 +861,10 @@ TEST(Delete, TargetNodeHasOnlyLeftChild) {
 
   tree_type rb_tree;
 
-  rb_tree.Insert(pair_type(5, 5));
-  rb_tree.Insert(pair_type(4, 4));
-  rb_tree.Insert(pair_type(3, 3));
-  rb_tree.Insert(pair_type(2, 2));
+  rb_tree.InsertUnique(pair_type(5, 5));
+  rb_tree.InsertUnique(pair_type(4, 4));
+  rb_tree.InsertUnique(pair_type(3, 3));
+  rb_tree.InsertUnique(pair_type(2, 2));
 
   rb_tree.Delete(3);
 
@@ -880,10 +890,10 @@ TEST(Delete, TargetNodeHasTwoChildAndRightChildIsNextNode) {
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
 
   tree_type rb_tree;
-  rb_tree.Insert(pair_type(2, 2));
-  rb_tree.Insert(pair_type(1, 1));
-  rb_tree.Insert(pair_type(3, 3));
-  rb_tree.Insert(pair_type(4, 4));
+  rb_tree.InsertUnique(pair_type(2, 2));
+  rb_tree.InsertUnique(pair_type(1, 1));
+  rb_tree.InsertUnique(pair_type(3, 3));
+  rb_tree.InsertUnique(pair_type(4, 4));
 
   rb_tree.Delete(2);
 
@@ -920,13 +930,13 @@ TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> > tree_type;
 
   tree_type rb_tree;
-  rb_tree.Insert(pair_type(1, 1));
-  rb_tree.Insert(pair_type(5, 5));
-  rb_tree.Insert(pair_type(0, 0));
-  rb_tree.Insert(pair_type(3, 3));
-  rb_tree.Insert(pair_type(10, 10));
-  rb_tree.Insert(pair_type(6, 6));
-  rb_tree.Insert(pair_type(7, 7));
+  rb_tree.InsertUnique(pair_type(1, 1));
+  rb_tree.InsertUnique(pair_type(5, 5));
+  rb_tree.InsertUnique(pair_type(0, 0));
+  rb_tree.InsertUnique(pair_type(3, 3));
+  rb_tree.InsertUnique(pair_type(10, 10));
+  rb_tree.InsertUnique(pair_type(6, 6));
+  rb_tree.InsertUnique(pair_type(7, 7));
 
   rb_tree.Delete(1);
 

@@ -46,22 +46,19 @@ struct RBTNode {
   RBTNode(Value value = Value())
       : value_(value), parent_(), left_(), right_(), color_(BLACK) {}
 
-  RBTNode(const RBTNode &other) {
-    operator=(other);
-  }
-
-  RBTNode &operator=(const RBTNode &rhs) {
-    if (&rhs != this) {
-      value_ = rhs.value_;
-      parent_ = rhs.parent_;
-      left_ = rhs.left_;
-      right_ = rhs.right_;
-      color_ = rhs.color_;
-    }
-    return *this;
+  RBTNode(const RBTNode &other) : value_(other.value_), 
+  parent_(other.parent_), 
+  left_(other.left_),
+  right_(other.right_),
+  color_(other.color_) {
   }
 
   ~RBTNode() {}
+
+  private:
+    // Assignment operator is forbidden.
+    // Because node may have const type in value_ as key.
+    RBTNode &operator=(const RBTNode &rhs) {}
 };
 
 // Red Black Tree
@@ -141,17 +138,15 @@ public:
   }
 
   // Tree operations
-  void Insert(const Value &value) {
+  // InsertUniqueは現在木に挿入しようとしているkeyが木に無いという前提で動作する。
+  // keyが既に木にあるか、value挿入するかそれとも既存のノードの値を更新するか
+  // 判断するのはmapなどの利用側の責務とする。
+  void InsertUnique(const Value &value) {
     node_type *parent = nil_node_;
     node_type *current = root_;
     while (current != nil_node_) {
       parent = current;
-      if (KeysAreEqual(KeyOfValue()(value), KeyOfValue()(current->value_))) {
-        // TODO: value_.first は const key_type なので値の書き換えは出来ない
-        // InsertはInsertUniqueとし、挿入するか値を更新するか判断するのはmapなどの利用側の責務とする。
-        current->value_ = value;
-        return;
-      } else if (Compare()(KeyOfValue()(value), KeyOfValue()(current->value_))) {
+      if (Compare()(KeyOfValue()(value), KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -771,7 +766,7 @@ public:
   void DeleteNode(node_type *z) {
     node_allocator allocator = node_allocator();
     allocator.destroy(z);
-    allocator.deallocate(z);
+    allocator.deallocate(z, 1);
   }
 
   node_type *CopyTree(node_type *other_root, node_type *other_nil_node) {
@@ -791,6 +786,7 @@ public:
     node_allocator allocator = node_allocator();
     node_type *p = allocator.allocate(1);
     allocator.construct(p, value);
+    return p;
   }
 
   node_type *CopyNode(const node_type *z, const node_type *nil_node) {
@@ -799,7 +795,7 @@ public:
       return nil_node_;
     }
     node_type *new_node = allocator.allocate(1);
-    allocator.allocate(new_node, *z);
+    allocator.construct(new_node, *z);
     return new_node;
   }
 

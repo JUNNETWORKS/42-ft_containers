@@ -305,14 +305,6 @@ class RedBlackTree {
       DeleteNodeFromTree(target_node);
   }
 
-  Value &operator[](const Key &key) const {
-    node_type *node = Search(key);
-    if (node->is_nil_node_) {
-      throw std::out_of_range("key isn't in the tree.");
-    }
-    return node->value_;
-  }
-
   node_type *Search(const Key &key) const {
     node_type *current = root_;
     while (!current->is_nil_node_ &&
@@ -326,6 +318,88 @@ class RedBlackTree {
     return current;
   }
 
+  Value &operator[](const Key &key) const {
+    node_type *node = Search(key);
+    if (node->is_nil_node_) {
+      throw std::out_of_range("key isn't in the tree.");
+    }
+    return node->value_;
+  }
+
+  allocator_type get_allocator() const {
+    return allocator_type(node_allocator());
+  }
+
+  /********** Iterators **********/
+
+  iterator begin();
+
+  const_iterator begin() const;
+
+  iterator end();
+
+  const_iterator end() const;
+
+  reverse_iterator rbegin();
+
+  const_reverse_iterator rbegin() const;
+
+  reverse_iterator rend();
+
+  const_reverse_iterator rend() const;
+
+  /********** Capacity **********/
+
+  bool empty() const;
+
+  size_type size() const;
+
+  size_type max_size() const;
+
+  /********** Modifiers **********/
+
+  void clear();
+
+  ft::pair<iterator, bool> insert(const value_type &value);
+
+  iterator insert(iterator hint, const value_type &value);
+
+  template <class InputIt>
+  void insert(InputIt first, InputIt last);
+
+  void erase(iterator pos);
+
+  void erase(iterator first, iterator last);
+
+  size_type erase(const Key &key);
+
+  void swap(RedBlackTree &other);
+
+  /********** Lookup **********/
+
+  size_type count(const Key &key) const;
+
+  iterator find(const Key &key);
+
+  const_iterator find(const Key &key) const;
+
+  iterator lower_bound(const key_type &key);
+
+  const_iterator lower_bound(const key_type &key) const;
+
+  iterator upper_bound(const key_type &key);
+
+  const_iterator upper_bound(const key_type &key) const;
+
+  ft::pair<iterator, iterator> equal_range(const Key &key);
+
+  ft::pair<const_iterator, const_iterator> equal_range(const Key &key) const;
+
+  /********** Observers **********/
+
+  Compare key_comp() const {
+    return Compare();
+  }
 
 #ifdef DEBUG
  public:

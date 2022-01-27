@@ -224,12 +224,11 @@ class RedBlackTree {
         return current->parent_;
       } else {
         // currentが親の右の子で, なおかつ右に子を持たない
-        // currentより大きくなるまで親を遡る.
+        // currentが左の子になるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (!next_node->is_nil_node_ &&
-               Compare()(KeyOfValue()(next_node->value_),
-                         KeyOfValue()(current->value_))) {
+        while (!next_node->is_nil_node_ && current == next_node->right_) {
+          current = next_node;
           next_node = next_node->parent_;
         }
         if (next_node->is_nil_node_) {
@@ -254,12 +253,11 @@ class RedBlackTree {
     } else {
       if (current == current->parent_->left_) {
         // currentが親の左の子で, なおかつ左に子を持たない
-        // currentより小さくなるまで親を遡る.
+        // currentが右の子になるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (!next_node->is_nil_node_ &&
-               !Compare()(KeyOfValue()(next_node->value_),
-                          KeyOfValue()(current->value_))) {
+        while (!next_node->is_nil_node_ && current == next_node->left_) {
+          current = next_node;
           next_node = next_node->parent_;
         }
         if (next_node->is_nil_node_) {

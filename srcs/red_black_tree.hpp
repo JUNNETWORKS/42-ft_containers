@@ -224,6 +224,16 @@ class RedBlackTree {
   typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
+ private:
+  // Members
+  node_type nil_node_object_;  // NIL node isn't stored in heap area.
+  node_type *nil_node_;        // point to nil_node_object
+  node_type *root_;
+  // begin() と end() を O(1) でアクセスするためにメンバー変数にもたせておく
+  node_type *begin_node;
+  node_type *end_node;
+
+ public:
   // Constructor, Descructor
 
   RedBlackTree()
@@ -864,11 +874,6 @@ class RedBlackTree {
   bool KeysAreEqual(const key_type &key1, const key_type &key2) const {
     return !Compare()(key1, key2) && !Compare()(key2, key1);
   }
-
-  // Members
-  node_type nil_node_object_;  // NIL node isn't stored in heap area.
-  node_type *nil_node_;        // point to nil_node_object
-  node_type *root_;
 };
 
 template <class Value>

@@ -275,7 +275,8 @@ class RedBlackTree {
 
   node_type *Search(const Key &key) const {
     node_type *current = root_;
-    while (!current->is_nil_node_ && KeyOfValue()(current->value_) != key) {
+    while (!current->is_nil_node_ &&
+           !KeysAreEqual(KeyOfValue()(current->value_), key)) {
       if (Compare()(key, KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
@@ -854,7 +855,7 @@ class RedBlackTree {
     return const_cast<node_type *>(current);
   }
 
-  bool KeysAreEqual(const key_type &key1, const key_type &key2) {
+  bool KeysAreEqual(const key_type &key1, const key_type &key2) const {
     return !Compare()(key1, key2) && !Compare()(key2, key1);
   }
 

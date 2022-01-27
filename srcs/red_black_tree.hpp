@@ -326,9 +326,14 @@ class RedBlackTree {
     return current;
   }
 
-  /******************************************************************
-   Debug methods
-  *******************************************************************/
+
+#ifdef DEBUG
+ public:
+#else
+ private:
+#endif
+
+  /********** Debug **********/
 
   void PrintTree2D() const {
     PrintTree2DUtil(root_);

@@ -60,16 +60,23 @@ struct RBTNode {
   RBTNode *left_;
   RBTNode *right_;
   Color color_;
+  const bool is_nil_node_;
 
-  RBTNode(Value value = Value())
-      : value_(value), parent_(), left_(), right_(), color_(BLACK) {}
+  RBTNode(Value value = Value(), bool is_nil_node = false)
+      : value_(value),
+        parent_(),
+        left_(),
+        right_(),
+        color_(BLACK),
+        is_nil_node_(is_nil_node) {}
 
   RBTNode(const RBTNode &other)
       : value_(other.value_),
         parent_(other.parent_),
         left_(other.left_),
         right_(other.right_),
-        color_(other.color_) {}
+        color_(other.color_),
+        is_nil_node_(other.is_nil_node_) {}
 
   ~RBTNode() {}
 
@@ -99,9 +106,8 @@ struct RBTNode {
 // Key: キー
 // Val: ノードに格納するデータ? mapだとpair, setだと_Key.
 // KeyOfValue: _Val型のデータからキーを取り出す
-template <typename Key, typename Value, typename KeyOfValue,
-          typename Compare = std::less<Key>,
-          typename Alloc = std::allocator<Value> >
+template <class Key, class Value, class KeyOfValue,
+          class Compare = std::less<Key>, class Alloc = std::allocator<Value> >
 class RedBlackTree {
  public:
   typedef RBTNode<Value> node_type;
@@ -126,7 +132,7 @@ class RedBlackTree {
   // Constructor, Descructor
 
   RedBlackTree()
-      : nil_node_object_(Value()),
+      : nil_node_object_(Value(), true),
         nil_node_(&nil_node_object_),
         root_(nil_node_) {
     nil_node_->parent_ = nil_node_;
@@ -136,7 +142,7 @@ class RedBlackTree {
   }
 
   RedBlackTree(const RedBlackTree &other)
-      : nil_node_object_(Value()),
+      : nil_node_object_(Value(), true),
         nil_node_(&nil_node_object_),
         root_(nil_node_) {
     operator=(other);
@@ -162,7 +168,7 @@ class RedBlackTree {
   void InsertUnique(const Value &value) {
     node_type *parent = nil_node_;
     node_type *current = root_;
-    while (current != nil_node_) {
+    while (!current->is_nil_node_) {
       parent = current;
       if (Compare()(KeyOfValue()(value), KeyOfValue()(current->value_))) {
         current = current->left_;
@@ -172,7 +178,7 @@ class RedBlackTree {
     }
     node_type *new_node = AllocNewNode(value);
     new_node->parent_ = parent;
-    if (parent == nil_node_) {
+    if (parent->is_nil_node_) {
       root_ = new_node;
     } else if (Compare()(KeyOfValue()(new_node->value_),
                          KeyOfValue()(parent->value_))) {
@@ -190,13 +196,13 @@ class RedBlackTree {
   void Delete(Key key) {
     // Search(key) の結果が nil_node だった場合には何もしない
     node_type *target_node = Search(key);
-    if (target_node != nil_node_)
+    if (!target_node->is_nil_node_)
       DeleteNodeFromTree(target_node);
   }
 
   Value &operator[](const Key &key) const {
     node_type *node = Search(key);
-    if (node == nil_node_) {
+    if (node->is_nil_node_) {
       throw std::out_of_range("key isn't in the tree.");
     }
     return node->value_;
@@ -205,10 +211,10 @@ class RedBlackTree {
   // 中間順木巡回の順序での次の節点のポインタを返す
   // current == NULL の時は中間順木巡回の最初のポインタを返す
   const node_type *TreeSuccessor(const node_type *current = NULL) const {
-    if (!current || current == nil_node_) {
+    if (!current || current->is_nil_node_) {
       return TreeMinimum(root_);
     }
-    if (current->right_ != nil_node_) {
+    if (!current->right_->is_nil_node_) {
       // currentが右の子を持っている時は右の子の中の最小が次のノード
       return TreeMinimum(current->right_);
     } else {
@@ -221,12 +227,12 @@ class RedBlackTree {
         // currentより大きくなるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (next_node != nil_node_ &&
+        while (!next_node->is_nil_node_ &&
                Compare()(KeyOfValue()(next_node->value_),
                          KeyOfValue()(current->value_))) {
           next_node = next_node->parent_;
         }
-        if (next_node == nil_node_) {
+        if (next_node->is_nil_node_) {
           // currentは最後のノードだった
           return NULL;
         }
@@ -238,10 +244,10 @@ class RedBlackTree {
   // 中間順木巡回の逆順序での前の節点のポインタを返す
   // current == NULL の時は中間順木巡回の最後のポインタを返す
   const node_type *TreePredecessor(const node_type *current = NULL) const {
-    if (!current || current == nil_node_) {
+    if (!current || current->is_nil_node_) {
       return TreeMaximum(root_);
     }
-    if (current->left_ != nil_node_) {
+    if (!current->left_->is_nil_node_) {
       // currentが左の子を持つ場合は左部分木の中の最大値
       // currentの次に小さい値
       return TreeMaximum(current->left_);
@@ -251,12 +257,12 @@ class RedBlackTree {
         // currentより小さくなるまで親を遡る.
         // NIL_Nodeまで達したのならcurrentは最後のノード
         const node_type *next_node = current->parent_;
-        while (next_node != nil_node_ &&
+        while (!next_node->is_nil_node_ &&
                !Compare()(KeyOfValue()(next_node->value_),
                           KeyOfValue()(current->value_))) {
           next_node = next_node->parent_;
         }
-        if (next_node == nil_node_) {
+        if (next_node->is_nil_node_) {
           // currentは最後のノードだった
           return NULL;
         }
@@ -271,7 +277,7 @@ class RedBlackTree {
 
   node_type *Search(const Key &key) const {
     node_type *current = root_;
-    while (current != nil_node_ && KeyOfValue()(current->value_) != key) {
+    while (!current->is_nil_node_ && KeyOfValue()(current->value_) != key) {
       if (Compare()(key, KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
@@ -290,7 +296,7 @@ class RedBlackTree {
   }
 
   void PrintTree2DUtil(node_type *root, int space = 0) const {
-    if (root == nil_node_)
+    if (root->is_nil_node_)
       return;
 
     space += 10;
@@ -313,7 +319,7 @@ class RedBlackTree {
   }
 
   int GetHeight(node_type *current, int count = 0) {
-    if (current == nil_node_) {
+    if (current->is_nil_node_) {
       return count;
     }
     int left_count = GetHeight(current->left_, count + 1);
@@ -350,13 +356,13 @@ class RedBlackTree {
   void RotateLeft(node_type *x) {
     node_type *y = x->right_;  // y を x の右の子とする.
     x->right_ = y->left_;  // y の左部分木を x の右部分木にする.
-    if (y->left_ != nil_node_) {
+    if (!y->left_->is_nil_node_) {
       // yの左の子の親が左回転後のxになるようにする
       y->left_->parent_ = x;
     }
     y->parent_ = x->parent_;  // xの親をyにする
     // xの親の左右どちらにyを付けるか
-    if (x->parent_ == nil_node_) {
+    if (x->parent_->is_nil_node_) {
       // xが根だった場合
       root_ = y;
     } else if (x == x->parent_->left_) {
@@ -386,13 +392,13 @@ class RedBlackTree {
   void RotateRight(node_type *x) {
     node_type *y = x->left_;  // y を x の左の子とする.
     x->left_ = y->right_;  // y の右部分木を x の左部分木にする.
-    if (y->right_ != nil_node_) {
+    if (!y->right_->is_nil_node_) {
       // yの右の子の親が右回転後のxになるようにする
       y->right_->parent_ = x;
     }
     y->parent_ = x->parent_;  // xの親をyにする
     // xの親の左右どちらにyを付けるか
-    if (x->parent_ == nil_node_) {
+    if (x->parent_->is_nil_node_) {
       // xが根だった場合
       root_ = y;
     } else if (x == x->parent_->right_) {
@@ -574,10 +580,10 @@ class RedBlackTree {
     // yの代入直後のyの色を覚えておく.
     typename node_type::Color y_original_color = y->color_;
 
-    if (z->left_ == nil_node_) {
+    if (z->left_->is_nil_node_) {
       x = z->right_;
       DeleteTransplant(z, z->right_);
-    } else if (z->right_ == nil_node_) {
+    } else if (z->right_->is_nil_node_) {
       x = z->left_;
       DeleteTransplant(z, z->left_);
     } else {
@@ -628,7 +634,7 @@ class RedBlackTree {
   // v.left_, v.right_ に対しては変更を行わないので注意.
   // ノードを削除する際に使う
   void DeleteTransplant(node_type *u, node_type *v) {
-    if (u->parent_ == nil_node_) {
+    if (u->parent_->is_nil_node_) {
       // uが根のとき
       root_ = v;
     } else if (u == u->parent_->left_) {
@@ -779,7 +785,7 @@ class RedBlackTree {
   void DeleteTree(node_type *deleting_target) {
     // 木の全てのノードを削除する.
     // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
-    if (deleting_target == nil_node_) {
+    if (deleting_target->is_nil_node_) {
       return;
     }
     DeleteTree(deleting_target->left_);
@@ -788,7 +794,7 @@ class RedBlackTree {
   }
 
   void DeleteNode(node_type *z) {
-    if (z == nil_node_) {
+    if (z->is_nil_node_) {
       return;
     }
     node_allocator allocator = node_allocator();
@@ -832,7 +838,7 @@ class RedBlackTree {
     }
 
     const node_type *current = root;
-    while (current->left_ != nil_node_) {
+    while (!current->left_->is_nil_node_) {
       current = current->left_;
     }
     return const_cast<node_type *>(current);
@@ -844,7 +850,7 @@ class RedBlackTree {
     }
 
     const node_type *current = root;
-    while (current->right_ != nil_node_) {
+    while (!current->right_->is_nil_node_) {
       current = current->right_;
     }
     return const_cast<node_type *>(current);

@@ -208,71 +208,6 @@ class RedBlackTree {
     return node->value_;
   }
 
-  // 中間順木巡回の順序での次の節点のポインタを返す
-  // current == NULL の時は中間順木巡回の最初のポインタを返す
-  const node_type *TreeSuccessor(const node_type *current = NULL) const {
-    if (!current || current->is_nil_node_) {
-      return TreeMinimum(root_);
-    }
-    if (!current->right_->is_nil_node_) {
-      // currentが右の子を持っている時は右の子の中の最小が次のノード
-      return TreeMinimum(current->right_);
-    } else {
-      if (current == current->parent_->left_) {
-        // currentが親の左の子で, なおかつ右に子を持っていない場合,
-        // 次のノードは親である
-        return current->parent_;
-      } else {
-        // currentが親の右の子で, なおかつ右に子を持たない
-        // currentが左の子になるまで親を遡る.
-        // NIL_Nodeまで達したのならcurrentは最後のノード
-        const node_type *next_node = current->parent_;
-        while (!next_node->is_nil_node_ && current == next_node->right_) {
-          current = next_node;
-          next_node = next_node->parent_;
-        }
-        if (next_node->is_nil_node_) {
-          // currentは最後のノードだった
-          return NULL;
-        }
-        return next_node;
-      }
-    }
-  }
-
-  // 中間順木巡回の逆順序での前の節点のポインタを返す
-  // current == NULL の時は中間順木巡回の最後のポインタを返す
-  const node_type *TreePredecessor(const node_type *current = NULL) const {
-    if (!current || current->is_nil_node_) {
-      return TreeMaximum(root_);
-    }
-    if (!current->left_->is_nil_node_) {
-      // currentが左の子を持つ場合は左部分木の中の最大値
-      // currentの次に小さい値
-      return TreeMaximum(current->left_);
-    } else {
-      if (current == current->parent_->left_) {
-        // currentが親の左の子で, なおかつ左に子を持たない
-        // currentが右の子になるまで親を遡る.
-        // NIL_Nodeまで達したのならcurrentは最後のノード
-        const node_type *next_node = current->parent_;
-        while (!next_node->is_nil_node_ && current == next_node->left_) {
-          current = next_node;
-          next_node = next_node->parent_;
-        }
-        if (next_node->is_nil_node_) {
-          // currentは最後のノードだった
-          return NULL;
-        }
-        return next_node;
-      } else {
-        // currentが親の右のノードで, currentが左の子を持たない場合,
-        // 次のノードはcurrentの親
-        return current->parent_;
-      }
-    }
-  }
-
   node_type *Search(const Key &key) const {
     node_type *current = root_;
     while (!current->is_nil_node_ &&
@@ -831,30 +766,6 @@ class RedBlackTree {
     return new_node;
   }
 
-  node_type *TreeMinimum(const node_type *root) const {
-    if (!root) {
-      return nil_node_;
-    }
-
-    const node_type *current = root;
-    while (!current->left_->is_nil_node_) {
-      current = current->left_;
-    }
-    return const_cast<node_type *>(current);
-  }
-
-  node_type *TreeMaximum(const node_type *root) const {
-    if (!root) {
-      return nil_node_;
-    }
-
-    const node_type *current = root;
-    while (!current->right_->is_nil_node_) {
-      current = current->right_;
-    }
-    return const_cast<node_type *>(current);
-  }
-
   bool KeysAreEqual(const key_type &key1, const key_type &key2) const {
     return !Compare()(key1, key2) && !Compare()(key2, key1);
   }
@@ -864,6 +775,91 @@ class RedBlackTree {
   node_type *nil_node_;        // point to nil_node_object
   node_type *root_;
 };
+
+template <class Value>
+RBTNode<Value> *TreeMinimum(const RBTNode<Value> *root) {
+  if (!root) {
+    return NULL;
+  }
+
+  const RBTNode<Value> *current = root;
+  while (!current->left_->is_nil_node_) {
+    current = current->left_;
+  }
+  return const_cast<RBTNode<Value> *>(current);
+}
+
+template <class Value>
+RBTNode<Value> *TreeMaximum(const RBTNode<Value> *root) {
+  if (!root) {
+    return NULL;
+  }
+
+  const RBTNode<Value> *current = root;
+  while (!current->right_->is_nil_node_) {
+    current = current->right_;
+  }
+  return const_cast<RBTNode<Value> *>(current);
+}
+
+// 中間順木巡回の順序での次の節点のポインタを返す
+template <class Value>
+const RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
+  if (!current->right_->is_nil_node_) {
+    // currentが右の子を持っている時は右の子の中の最小が次のノード
+    return TreeMinimum(current->right_);
+  } else {
+    if (current == current->parent_->left_) {
+      // currentが親の左の子で, なおかつ右に子を持っていない場合,
+      // 次のノードは親である
+      return current->parent_;
+    } else {
+      // currentが親の右の子で, なおかつ右に子を持たない
+      // currentが左の子になるまで親を遡る.
+      // NIL_Nodeまで達したのならcurrentは最後のノード
+      const RBTNode<Value> *next_node = current->parent_;
+      while (!next_node->is_nil_node_ && current == next_node->right_) {
+        current = next_node;
+        next_node = next_node->parent_;
+      }
+      if (next_node->is_nil_node_) {
+        // currentは最後のノードだった
+        return NULL;
+      }
+      return next_node;
+    }
+  }
+}
+
+// 中間順木巡回の逆順序での前の節点のポインタを返す
+template <class Value>
+const RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current) {
+  if (!current->left_->is_nil_node_) {
+    // currentが左の子を持つ場合は左部分木の中の最大値
+    // currentの次に小さい値
+    return TreeMaximum(current->left_);
+  } else {
+    if (current == current->parent_->left_) {
+      // currentが親の左の子で, なおかつ左に子を持たない
+      // currentが右の子になるまで親を遡る.
+      // NIL_Nodeまで達したのならcurrentは最後のノード
+      const RBTNode<Value> *next_node = current->parent_;
+      while (!next_node->is_nil_node_ && current == next_node->left_) {
+        current = next_node;
+        next_node = next_node->parent_;
+      }
+      if (next_node->is_nil_node_) {
+        // currentは最後のノードだった
+        return NULL;
+      }
+      return next_node;
+    } else {
+      // currentが親の右のノードで, currentが左の子を持たない場合,
+      // 次のノードはcurrentの親
+      return current->parent_;
+    }
+  }
+}
 
 }  // namespace ft
 

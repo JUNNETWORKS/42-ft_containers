@@ -293,13 +293,12 @@ TEST(TreeSuccessor, Random1000) {
     rb_tree.InsertUnique(pair_type(num, num));
   }
 
-  const node_type *node = NULL;
+  const node_type *node = ft::TreeMinimum(rb_tree.root_);  // begin
   for (set_type::iterator it = s.begin(); it != s.end(); ++it) {
-    node = rb_tree.TreeSuccessor(node);
     EXPECT_EQ(node->value_.first, *it);
     EXPECT_EQ(node->value_.second, *it);
+    node = ft::TreeSuccessor(node);
   }
-  node = rb_tree.TreeSuccessor(node);
   // 最後はNULLが返ってくる
   EXPECT_TRUE(node == NULL);
 }
@@ -317,7 +316,7 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
   for (int i = 0; i < 5; ++i) {
     rb_tree.InsertUnique(pair_type(i, i));
   }
-  const node_type *node = rb_tree.TreeSuccessor(NULL);
+  const node_type *node = ft::TreeMinimum(rb_tree.root_);  // begin
   int i = 0;
   while (node) {
     EXPECT_EQ(node->value_.first, i);
@@ -326,7 +325,7 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
       ++i;
       rb_tree.Delete(i);
     }
-    node = rb_tree.TreeSuccessor(node);
+    node = ft::TreeSuccessor(node);
     ++i;
   }
 }
@@ -354,13 +353,12 @@ TEST(TreePredecessor, Random1000) {
     rb_tree.InsertUnique(pair_type(num, num));
   }
 
-  const node_type *node = NULL;
+  const node_type *node = ft::TreeMaximum(rb_tree.root_);  // rbegin
   for (set_type::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit) {
-    node = rb_tree.TreePredecessor(node);
     EXPECT_EQ(node->value_.first, *rit);
     EXPECT_EQ(node->value_.second, *rit);
+    node = ft::TreePredecessor(node);
   }
-  node = rb_tree.TreePredecessor(node);
   // 最後はNULLが返ってくる
   EXPECT_TRUE(node == NULL);
 }
@@ -378,7 +376,7 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
   for (int i = 0; i < 5; ++i) {
     rb_tree.InsertUnique(pair_type(i, i));
   }
-  const node_type *node = rb_tree.TreePredecessor(NULL);
+  const node_type *node = ft::TreeMaximum(rb_tree.root_);  // rbegin
   int i = 4;
   while (node) {
     EXPECT_EQ(node->value_.first, i);
@@ -387,7 +385,7 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
       --i;
       rb_tree.Delete(i);
     }
-    node = rb_tree.TreePredecessor(node);
+    node = ft::TreePredecessor(node);
     --i;
   }
 }
@@ -429,10 +427,10 @@ TEST(RedBlackTree, CopyConstructor) {
   t3.Delete(0);
   t4.Delete(0);
 
-  const tree_type::node_type *n1 = t1.TreeSuccessor();
-  const tree_type::node_type *n2 = t2.TreeSuccessor();
-  const tree_type::node_type *n3 = t3.TreeSuccessor();
-  const tree_type::node_type *n4 = t4.TreeSuccessor();
+  const tree_type::node_type *n1 = ft::TreeMinimum(t1.root_);
+  const tree_type::node_type *n2 = ft::TreeMinimum(t2.root_);
+  const tree_type::node_type *n3 = ft::TreeMinimum(t3.root_);
+  const tree_type::node_type *n4 = ft::TreeMinimum(t4.root_);
   while (n1) {
     EXPECT_EQ(n1->value_.first, n2->value_.first);
     EXPECT_EQ(n1->value_.second, n2->value_.second);
@@ -443,10 +441,10 @@ TEST(RedBlackTree, CopyConstructor) {
     EXPECT_EQ(n1->value_.first, n4->value_.first);
     EXPECT_EQ(n1->value_.second, n4->value_.second);
     EXPECT_NE(n1, n4);
-    n1 = t1.TreeSuccessor(n1);
-    n2 = t2.TreeSuccessor(n2);
-    n3 = t3.TreeSuccessor(n3);
-    n4 = t4.TreeSuccessor(n4);
+    n1 = ft::TreeSuccessor(n1);
+    n2 = ft::TreeSuccessor(n2);
+    n3 = ft::TreeSuccessor(n3);
+    n4 = ft::TreeSuccessor(n4);
   }
   // 最後はNULL
   EXPECT_EQ(n1, n2);

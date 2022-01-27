@@ -9,6 +9,9 @@
 namespace ft {
 
 template <class Value>
+struct RBTNode;
+
+template <class Value>
 struct rbtree_iterator {
   typedef Value value_type;
   typedef Value &reference;
@@ -25,27 +28,120 @@ struct rbtree_iterator {
 
   explicit rbtree_iterator(node_pointer ptr) : node_(ptr) {}
 
+  self_type &operator=(const self_type &other) {
+    if (this != &other) {
+      node_ = other.node_;
+    }
+    return *this;
+  }
+
   reference operator*() const {
-    return (node_);
+    return node_;
   }
 
   pointer operator->() const {
-    return (node_);
+    return node_;
   }
 
-  self_type operator++() {}
-
-  self_type operator++(int) {}
-
-  self_type operator--() {}
-  self_type operator--(int) {}
-
-  friend bool operator==(const self_type &lhs, const self_type &rhs) {
-    return lhs.node_ == rhs.node_;
+  self_type &operator++() {
+    node_ = TreeSuccessor(node_);
+    return node_;
   }
 
-  friend bool operator!=(const self_type &lhs, const self_type &rhs) {
-    return lhs.node_ != rhs.node_;
+  self_type operator++(int) {
+    self_type tmp = *this;
+    node_ = TreeSuccessor(node_);
+    return tmp;
+  }
+
+  self_type &operator--() {
+    node_ = TreeSuccessor(node_);
+    return node_;
+  }
+
+  self_type operator--(int) {
+    self_type tmp = *this;
+    node_ = TreeSuccessor(node_);
+    return tmp;
+  }
+
+  bool operator==(const self_type &rhs) const {
+    return node_ == rhs.node_;
+  }
+
+  bool operator!=(const self_type &rhs) const {
+    return node_ != rhs.node_;
+  }
+
+  node_pointer node_;
+};
+
+template <class Value>
+struct rbtree_const_iterator {
+  typedef Value value_type;
+  typedef const Value &reference;
+  typedef const Value *pointer;
+
+  typedef rbtree_iterator<Value> iterator;
+
+  typedef std::bidirectional_iterator_tag iterator_category;
+  typedef std::ptrdiff_t difference_type;
+
+  typedef rbtree_const_iterator<Value> self_type;
+  typedef RBTNode<Value> node_type;
+  typedef const node_type *node_pointer;
+
+  rbtree_const_iterator() : node_() {}
+
+  explicit rbtree_const_iterator(node_pointer ptr) : node_(ptr) {}
+
+  self_type &operator=(const self_type &other) {
+    if (this != &other) {
+      node_ = other.node_;
+    }
+    return *this;
+  }
+
+  iterator cast_nonconst() const {
+    return iterator(const_cast<iterator::node_pointer>(node_));
+  }
+
+  reference operator*() const {
+    return node_;
+  }
+
+  pointer operator->() const {
+    return node_;
+  }
+
+  self_type &operator++() {
+    node_ = TreeSuccessor(node_);
+    return node_;
+  }
+
+  self_type operator++(int) {
+    self_type tmp = *this;
+    node_ = TreeSuccessor(node_);
+    return tmp;
+  }
+
+  self_type &operator--() {
+    node_ = TreeSuccessor(node_);
+    return node_;
+  }
+
+  self_type operator--(int) {
+    self_type tmp = *this;
+    node_ = TreeSuccessor(node_);
+    return tmp;
+  }
+
+  bool operator==(const self_type &rhs) const {
+    return node_ == rhs.node_;
+  }
+
+  bool operator!=(const self_type &rhs) const {
+    return node_ != rhs.node_;
   }
 
   node_pointer node_;
@@ -123,11 +219,10 @@ class RedBlackTree {
   typedef ptrdiff_t difference_type;
   typedef Alloc allocator_type;
 
-  // TODO: RBTree_iterator を作る
-  // typedef RBTree_iterator<value_type> iterator;
-  // typedef RBTree_const_iterator<value_type> const_iterator;
-  // typedef std::reverse_iterator<iterator> reverse_iterator;
-  // typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+  typedef rbtree_iterator<value_type> iterator;
+  typedef rbtree_const_iterator<value_type> const_iterator;
+  typedef ft::reverse_iterator<iterator> reverse_iterator;
+  typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
   // Constructor, Descructor
 

@@ -12,6 +12,18 @@ template <class Value>
 struct RBTNode;
 
 template <class Value>
+RBTNode<Value> *TreeMinimum(const RBTNode<Value> *root);
+
+template <class Value>
+RBTNode<Value> *TreeMaximum(const RBTNode<Value> *root);
+
+template <class Value>
+RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current);
+
+template <class Value>
+RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current);
+
+template <class Value>
 struct rbtree_iterator {
   typedef Value value_type;
   typedef Value &reference;
@@ -23,6 +35,8 @@ struct rbtree_iterator {
   typedef rbtree_iterator<Value> self_type;
   typedef RBTNode<Value> node_type;
   typedef node_type *node_pointer;
+
+  node_pointer node_;
 
   rbtree_iterator() : node_() {}
 
@@ -36,32 +50,32 @@ struct rbtree_iterator {
   }
 
   reference operator*() const {
-    return node_;
+    return node_->value_;
   }
 
   pointer operator->() const {
-    return node_;
+    return &node_->value_;
   }
 
   self_type &operator++() {
-    node_ = TreeSuccessor(node_);
-    return node_;
+    node_ = TreeSuccessor<Value>(node_);
+    return *this;
   }
 
   self_type operator++(int) {
     self_type tmp = *this;
-    node_ = TreeSuccessor(node_);
+    node_ = TreeSuccessor<Value>(node_);
     return tmp;
   }
 
   self_type &operator--() {
-    node_ = TreeSuccessor(node_);
-    return node_;
+    node_ = TreeSuccessor<Value>(node_);
+    return *this;
   }
 
   self_type operator--(int) {
     self_type tmp = *this;
-    node_ = TreeSuccessor(node_);
+    node_ = TreeSuccessor<Value>(node_);
     return tmp;
   }
 
@@ -72,8 +86,6 @@ struct rbtree_iterator {
   bool operator!=(const self_type &rhs) const {
     return node_ != rhs.node_;
   }
-
-  node_pointer node_;
 };
 
 template <class Value>
@@ -103,36 +115,36 @@ struct rbtree_const_iterator {
   }
 
   iterator cast_nonconst() const {
-    return iterator(const_cast<iterator::node_pointer>(node_));
+    return iterator(const_cast<typename iterator::node_pointer>(node_));
   }
 
   reference operator*() const {
-    return node_;
+    return node_->value_;
   }
 
   pointer operator->() const {
-    return node_;
+    return &node_->value_;
   }
 
   self_type &operator++() {
-    node_ = TreeSuccessor(node_);
-    return node_;
+    node_ = TreePredecessor<Value>(node_);
+    return *this;
   }
 
   self_type operator++(int) {
     self_type tmp = *this;
-    node_ = TreeSuccessor(node_);
+    node_ = TreePredecessor<Value>(node_);
     return tmp;
   }
 
   self_type &operator--() {
-    node_ = TreeSuccessor(node_);
-    return node_;
+    node_ = TreePredecessor<Value>(node_);
+    return *this;
   }
 
   self_type operator--(int) {
     self_type tmp = *this;
-    node_ = TreeSuccessor(node_);
+    node_ = TreePredecessor<Value>(node_);
     return tmp;
   }
 

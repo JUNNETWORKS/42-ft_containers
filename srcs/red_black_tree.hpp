@@ -1038,7 +1038,7 @@ RBTNode<Value> *TreeMaximum(const RBTNode<Value> *root) {
 
 // 中間順木巡回の順序での次の節点のポインタを返す
 template <class Value>
-const RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
+RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
   if (!current->right_->is_nil_node_) {
     // currentが右の子を持っている時は右の子の中の最小が次のノード
     return TreeMinimum(current->right_);
@@ -1060,14 +1060,14 @@ const RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
         // currentは最後のノードだった
         return NULL;
       }
-      return next_node;
+      return const_cast<RBTNode<Value> *>(next_node);
     }
   }
 }
 
 // 中間順木巡回の逆順序での前の節点のポインタを返す
 template <class Value>
-const RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current) {
+RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current) {
   if (!current->left_->is_nil_node_) {
     // currentが左の子を持つ場合は左部分木の中の最大値
     // currentの次に小さい値
@@ -1086,11 +1086,11 @@ const RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current) {
         // currentは最後のノードだった
         return NULL;
       }
-      return next_node;
+      return const_cast<RBTNode<Value> *>(next_node);
     } else {
       // currentが親の右のノードで, currentが左の子を持たない場合,
       // 次のノードはcurrentの親
-      return current->parent_;
+      return const_cast<RBTNode<Value> *>(current->parent_);
     }
   }
 }

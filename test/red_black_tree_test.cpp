@@ -1440,3 +1440,51 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   rb_tree.Delete(60);
   expectRedBlackTreeKeepRules(rb_tree);
 }
+
+TEST(SizeAndCapacity, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree.empty(), true);
+  EXPECT_EQ(rb_tree.max_size(), tree_type::node_allocator().max_size());
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(1));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(2));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(3));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(4));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.InsertUnique(pair_type("DD", 5));
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(5));
+  EXPECT_EQ(rb_tree.empty(), false);
+
+  rb_tree.Delete("A");
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(4));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.Delete("AB");
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(3));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.Delete("AA");
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(2));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.Delete("CC");
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(1));
+  EXPECT_EQ(rb_tree.empty(), false);
+  rb_tree.Delete("DD");
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree.empty(), true);
+}
+
+}

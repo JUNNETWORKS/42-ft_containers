@@ -236,14 +236,23 @@ class RedBlackTree {
   typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
+#ifdef DEBUG
+ public:
+#else
  private:
+#endif
   // Members
   node_type nil_node_object_;  // NIL node isn't stored in heap area.
   node_type *nil_node_;        // point to nil_node_object
   node_type *root_;
+  size_type node_count_;
   // begin() と end() を O(1) でアクセスするためにメンバー変数にもたせておく
-  node_type *begin_node;
-  node_type *end_node;
+  // beginは常に最小のノードを示す。
+  // beginは常に最大のノードを示す。
+  // endは左の子としてroot_を持つ。
+  node_type *begin_node_;
+  node_type end_node_object_;
+  node_type *end_node_;
 
  public:
   // Constructor, Descructor
@@ -251,17 +260,28 @@ class RedBlackTree {
   RedBlackTree()
       : nil_node_object_(Value(), true),
         nil_node_(&nil_node_object_),
-        root_(nil_node_) {
+        root_(nil_node_),
+        node_count_(0),
+        begin_node_(nil_node_),
+        end_node_object_(Value(), true),
+        end_node_(nil_node_) {
     nil_node_->parent_ = nil_node_;
     nil_node_->left_ = nil_node_;
     nil_node_->right_ = nil_node_;
     nil_node_->color_ = node_type::BLACK;
+
+    begin_node_ = root_;
+    end_node_->left_ = root_;
   }
 
   RedBlackTree(const RedBlackTree &other)
       : nil_node_object_(Value(), true),
         nil_node_(&nil_node_object_),
-        root_(nil_node_) {
+        root_(nil_node_),
+        node_count_(0),
+        begin_node_(nil_node_),
+        end_node_object_(Value(), true),
+        end_node_(nil_node_) {
     operator=(other);
   }
 
@@ -269,6 +289,13 @@ class RedBlackTree {
     if (&rhs != this) {
       // ノードをディープコピー
       root_ = CopyTree(rhs.root_, rhs.nil_node_);
+
+      begin_node_ = TreeMinimum(root_);
+      if (!root_->is_nil_node_) {
+        root_->parent_ = end_node_;
+      }
+      end_node_->left_ = root_;
+      node_count_ = rhs.node_count_;
     }
     return *this;
   }
@@ -308,13 +335,28 @@ class RedBlackTree {
     new_node->color_ =
         node_type::RED;  // 新しいノードの色は最初は赤に設定される
     InsertFixup(new_node);
+    // begin_node_ の更新
+    if (begin_node_->is_nil_node_ ||
+        Compare()(KeyOfValue()(new_node->value_),
+                  KeyOfValue()(begin_node_->value_))) {
+      begin_node_ = new_node;
+    }
+    // end_node_ が新たなルートを指すようにする
+    root_->parent_ = end_node_;
+    end_node_->left_ = root_;
+    ++node_count_;
   }
 
   void Delete(Key key) {
     // Search(key) の結果が nil_node だった場合には何もしない
     node_type *target_node = Search(key);
+    if (target_node == begin_node_) {
+      begin_node_ = TreeSuccessor<Value>(target_node);
+    }
     if (!target_node->is_nil_node_)
       DeleteNodeFromTree(target_node);
+    root_->parent_ = end_node_;
+    end_node_->left_ = root_;
   }
 
   node_type *Search(const Key &key) const {
@@ -758,6 +800,7 @@ class RedBlackTree {
       //    に違反する.
       DeleteFixup(x);
     }
+    node_count_--;
   }
 
   // ある節点の子であるuを根とする部分木を別の節点の子のvを根とする部分木に置き換える.

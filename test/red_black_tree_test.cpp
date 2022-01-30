@@ -359,8 +359,8 @@ TEST(TreePredecessor, Random1000) {
     EXPECT_EQ(node->value_.second, *rit);
     node = ft::TreePredecessor(node);
   }
-  // 最後はNULLが返ってくる
-  EXPECT_TRUE(node == NULL);
+  // 最後は end_node が返ってくる
+  EXPECT_EQ(node, rb_tree.end_node_);
 }
 
 TEST(TreePredecessor, DeleteNodeDuringIteration) {
@@ -378,7 +378,7 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
   }
   const node_type *node = ft::TreeMaximum(rb_tree.root_);  // rbegin
   int i = 4;
-  while (node) {
+  while (!node->is_nil_node_) {
     EXPECT_EQ(node->value_.first, i);
     if (i == 2) {
       // 1をスキップする
@@ -388,6 +388,8 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
     node = ft::TreePredecessor(node);
     --i;
   }
+  // 最後のノードは end_node である
+  EXPECT_EQ(node, rb_tree.end_node_);
 }
 
 TEST(RedBlackTree, CopyConstructor) {

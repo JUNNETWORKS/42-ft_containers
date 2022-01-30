@@ -272,6 +272,7 @@ class RedBlackTree {
 
     begin_node_ = root_;
     end_node_->left_ = root_;
+    end_node_->right_ = root_;
   }
 
   RedBlackTree(const RedBlackTree &other)
@@ -296,6 +297,7 @@ class RedBlackTree {
         root_->parent_ = end_node_;
       }
       end_node_->left_ = root_;
+      end_node_->right_ = root_;
       node_count_ = rhs.node_count_;
     }
     return *this;
@@ -345,6 +347,7 @@ class RedBlackTree {
     // end_node_ が新たなルートを指すようにする
     root_->parent_ = end_node_;
     end_node_->left_ = root_;
+    end_node_->right_ = root_;
     ++node_count_;
   }
 
@@ -358,6 +361,7 @@ class RedBlackTree {
       DeleteNodeFromTree(target_node);
     root_->parent_ = end_node_;
     end_node_->left_ = root_;
+    end_node_->right_ = root_;
   }
 
   node_type *Search(const Key &key) const {
@@ -1073,7 +1077,6 @@ RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
     } else {
       // currentが親の右の子で, なおかつ右に子を持たない
       // currentが左の子になるまで親を遡る.
-      // NIL_Nodeまで達したのならcurrentは最後のノード
       const RBTNode<Value> *next_node = current->parent_;
       while (!next_node->is_nil_node_ && current == next_node->right_) {
         current = next_node;
@@ -1095,15 +1098,10 @@ RBTNode<Value> *TreePredecessor(const RBTNode<Value> *current) {
     if (current == current->parent_->left_) {
       // currentが親の左の子で, なおかつ左に子を持たない
       // currentが右の子になるまで親を遡る.
-      // NIL_Nodeまで達したのならcurrentは最後のノード
       const RBTNode<Value> *next_node = current->parent_;
       while (!next_node->is_nil_node_ && current == next_node->left_) {
         current = next_node;
         next_node = next_node->parent_;
-      }
-      if (next_node->is_nil_node_) {
-        // currentは最後のノードだった
-        return NULL;
       }
       return const_cast<RBTNode<Value> *>(next_node);
     } else {

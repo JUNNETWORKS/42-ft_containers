@@ -69,13 +69,13 @@ struct rbtree_iterator {
   }
 
   self_type &operator--() {
-    node_ = TreeSuccessor<Value>(node_);
+    node_ = TreePredecessor<Value>(node_);
     return *this;
   }
 
   self_type operator--(int) {
     self_type tmp = *this;
-    node_ = TreeSuccessor<Value>(node_);
+    node_ = TreePredecessor<Value>(node_);
     return tmp;
   }
 
@@ -127,13 +127,13 @@ struct rbtree_const_iterator {
   }
 
   self_type &operator++() {
-    node_ = TreePredecessor<Value>(node_);
+    node_ = TreeSuccessor<Value>(node_);
     return *this;
   }
 
   self_type operator++(int) {
     self_type tmp = *this;
-    node_ = TreePredecessor<Value>(node_);
+    node_ = TreeSuccessor<Value>(node_);
     return tmp;
   }
 

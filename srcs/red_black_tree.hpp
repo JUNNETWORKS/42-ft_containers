@@ -387,29 +387,51 @@ class RedBlackTree {
 
   /********** Iterators **********/
 
-  iterator begin();
+  iterator begin() {
+    return iterator(begin_node_);
+  }
 
-  const_iterator begin() const;
+  const_iterator begin() const {
+    return const_iterator(begin_node_);
+  }
 
-  iterator end();
+  iterator end() {
+    return iterator(end_node_);
+  }
 
-  const_iterator end() const;
+  const_iterator end() const {
+    return const_iterator(end_node_);
+  }
 
-  reverse_iterator rbegin();
+  reverse_iterator rbegin() {
+    return reverse_iterator(end());
+  }
 
-  const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const {
+    return const_reverse_iterator(end());
+  }
 
-  reverse_iterator rend();
+  reverse_iterator rend() {
+    return reverse_iterator(begin());
+  }
 
-  const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const {
+    return const_reverse_iterator(begin());
+  }
 
   /********** Capacity **********/
 
-  bool empty() const;
+  bool empty() const {
+    return node_count_ == 0;
+  }
 
-  size_type size() const;
+  size_type size() const {
+    return node_count_;
+  }
 
-  size_type max_size() const;
+  size_type max_size() const {
+    return node_allocator().max_size();
+  }
 
   /********** Modifiers **********/
 

@@ -1497,4 +1497,36 @@ TEST(SizeAndCapacity, Normal) {
   EXPECT_EQ(rb_tree.empty(), true);
 }
 
+TEST(ForwardIterator, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  rb_tree.PrintTree2D();
+
+  tree_iterator it = rb_tree.begin();
+
+  // check value that is pointed by iterator
+  EXPECT_EQ(*it, pair_type("A", 1));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  it++;
+  EXPECT_EQ(*it++, pair_type("AB", 2));
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  EXPECT_EQ(*(++it), pair_type("DD", 5));
+  it++;
+  EXPECT_EQ(it, rb_tree.end());
+}
+
 }

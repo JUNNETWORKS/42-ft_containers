@@ -1515,8 +1515,6 @@ TEST(ForwardIterator, Normal) {
   rb_tree.InsertUnique(pair_type("CC", 4));
   rb_tree.InsertUnique(pair_type("DD", 5));
 
-  rb_tree.PrintTree2D();
-
   tree_iterator it = rb_tree.begin();
 
   // check value that is pointed by iterator
@@ -1529,6 +1527,90 @@ TEST(ForwardIterator, Normal) {
   EXPECT_EQ(*(++it), pair_type("DD", 5));
   it++;
   EXPECT_EQ(it, rb_tree.end());
+}
+
+TEST(ForwardIterator, IteratorCanIncrementAndDecrement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  tree_iterator it = rb_tree.begin();
+
+  // check value that is pointed by iterator
+  EXPECT_EQ(*it, pair_type("A", 1));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AB", 2));
+  ++it;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  ++it;
+  EXPECT_EQ(*it, pair_type("DD", 5));
+  ++it;
+  EXPECT_EQ(it, rb_tree.end());
+  --it;
+  EXPECT_EQ(*it, pair_type("DD", 5));
+  --it;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  --it;
+  EXPECT_EQ(*it, pair_type("AB", 2));
+  --it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  --it;
+  EXPECT_EQ(*it, pair_type("A", 1));
+}
+
+TEST(ForwardIterator, DeleteNodeDuringIteration) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  tree_iterator it = rb_tree.begin();
+
+  // check value that is pointed by iterator
+  EXPECT_EQ(*it, pair_type("A", 1));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  rb_tree.Delete("AB");
+  it++;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  EXPECT_EQ(*(++it), pair_type("DD", 5));
+  it++;
+  EXPECT_EQ(it, rb_tree.end());
+}
+
+TEST(ForwardIterator, TreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  EXPECT_EQ(rb_tree.begin(), rb_tree.end());
 }
 
 TEST(ReverseIterator, Normal) {
@@ -1547,8 +1629,6 @@ TEST(ReverseIterator, Normal) {
   rb_tree.InsertUnique(pair_type("CC", 4));
   rb_tree.InsertUnique(pair_type("DD", 5));
 
-  rb_tree.PrintTree2D();
-
   tree_reverse_iterator it = rb_tree.rbegin();
 
   // check value that is pointed by reverse_iterator
@@ -1561,4 +1641,88 @@ TEST(ReverseIterator, Normal) {
   EXPECT_EQ(*(++it), pair_type("A", 1));
   it++;
   EXPECT_EQ(it, rb_tree.rend());
+}
+
+TEST(ReverseIterator, IteratorCanIncrementAndDecrement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::reverse_iterator tree_reverse_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  tree_reverse_iterator it = rb_tree.rbegin();
+
+  // check value that is pointed by reverse_iterator
+  EXPECT_EQ(*it, pair_type("DD", 5));
+  ++it;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AB", 2));
+  ++it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  ++it;
+  EXPECT_EQ(*it, pair_type("A", 1));
+  ++it;
+  EXPECT_EQ(it, rb_tree.rend());
+  --it;
+  EXPECT_EQ(*it, pair_type("A", 1));
+  --it;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  --it;
+  EXPECT_EQ(*it, pair_type("AB", 2));
+  --it;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  --it;
+  EXPECT_EQ(*it, pair_type("DD", 5));
+}
+
+TEST(ReverseIterator, DeleteNodeDuringIteration) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::reverse_iterator tree_reverse_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  tree_reverse_iterator it = rb_tree.rbegin();
+
+  // check value that is pointed by reverse_iterator
+  EXPECT_EQ(*it, pair_type("DD", 5));
+  ++it;
+  EXPECT_EQ(*it, pair_type("CC", 4));
+  rb_tree.Delete("AB");
+  it++;
+  EXPECT_EQ(*it, pair_type("AA", 3));
+  EXPECT_EQ(*(++it), pair_type("A", 1));
+  it++;
+  EXPECT_EQ(it, rb_tree.rend());
+}
+
+TEST(ReverseIterator, TreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  EXPECT_EQ(rb_tree.rbegin(), rb_tree.rend());
 }

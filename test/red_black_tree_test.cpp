@@ -299,8 +299,8 @@ TEST(TreeSuccessor, Random1000) {
     EXPECT_EQ(node->value_.second, *it);
     node = ft::TreeSuccessor(node);
   }
-  // 最後はNULLが返ってくる
-  EXPECT_TRUE(node == NULL);
+  // 最後は end_node_ が返ってくる
+  EXPECT_TRUE(node == rb_tree.end_node_);
 }
 
 TEST(TreeSuccessor, DeleteNodeDuringIteration) {
@@ -318,7 +318,7 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
   }
   const node_type *node = ft::TreeMinimum(rb_tree.root_);  // begin
   int i = 0;
-  while (node) {
+  while (!node->is_nil_node_) {
     EXPECT_EQ(node->value_.first, i);
     if (i == 1) {
       // 2をスキップする
@@ -411,6 +411,9 @@ TEST(RedBlackTree, CopyConstructor) {
   tree_type t2 = t1;
   tree_type t3(t1);
   tree_type t4;
+  // t4の木は代入演算子内で削除されるはずである。
+  t4.InsertUnique(pair_type(-1, -1));
+  t4.InsertUnique(pair_type(-2, -2));
   t4 = t1;
 
   // Deep Copy Check
@@ -427,11 +430,13 @@ TEST(RedBlackTree, CopyConstructor) {
   t3.Delete(0);
   t4.Delete(0);
 
+  t1.PrintTree2D();
+
   const tree_type::node_type *n1 = ft::TreeMinimum(t1.root_);
   const tree_type::node_type *n2 = ft::TreeMinimum(t2.root_);
   const tree_type::node_type *n3 = ft::TreeMinimum(t3.root_);
   const tree_type::node_type *n4 = ft::TreeMinimum(t4.root_);
-  while (n1) {
+  while (!n1->is_nil_node_) {
     EXPECT_EQ(n1->value_.first, n2->value_.first);
     EXPECT_EQ(n1->value_.second, n2->value_.second);
     EXPECT_NE(n1, n2);
@@ -441,15 +446,20 @@ TEST(RedBlackTree, CopyConstructor) {
     EXPECT_EQ(n1->value_.first, n4->value_.first);
     EXPECT_EQ(n1->value_.second, n4->value_.second);
     EXPECT_NE(n1, n4);
+
+    printf("n1: %d, n2, %d, n3: %d, n4: %d\n", n1->value_.first,
+           n2->value_.first, n3->value_.first, n4->value_.first);
+
     n1 = ft::TreeSuccessor(n1);
     n2 = ft::TreeSuccessor(n2);
     n3 = ft::TreeSuccessor(n3);
     n4 = ft::TreeSuccessor(n4);
   }
-  // 最後はNULL
-  EXPECT_EQ(n1, n2);
-  EXPECT_EQ(n1, n3);
-  EXPECT_EQ(n1, n4);
+  // 最後は end_node_
+  EXPECT_EQ(n1, t1.end_node_);
+  EXPECT_EQ(n2, t2.end_node_);
+  EXPECT_EQ(n3, t3.end_node_);
+  EXPECT_EQ(n4, t4.end_node_);
 }
 
 // InsertUnique

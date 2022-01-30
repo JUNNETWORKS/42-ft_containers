@@ -263,7 +263,7 @@ class RedBlackTree {
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_object_(Value(), true),
+        end_node_object_(Value(), false),
         end_node_(nil_node_) {
     nil_node_->parent_ = nil_node_;
     nil_node_->left_ = nil_node_;
@@ -280,13 +280,14 @@ class RedBlackTree {
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_object_(Value(), true),
+        end_node_object_(Value(), false),
         end_node_(nil_node_) {
     operator=(other);
   }
 
   RedBlackTree &operator=(const RedBlackTree &rhs) {
     if (&rhs != this) {
+      DeleteTree(root_);
       // ノードをディープコピー
       root_ = CopyTree(rhs.root_, rhs.nil_node_);
 
@@ -1055,10 +1056,6 @@ RBTNode<Value> *TreeSuccessor(const RBTNode<Value> *current) {
       while (!next_node->is_nil_node_ && current == next_node->right_) {
         current = next_node;
         next_node = next_node->parent_;
-      }
-      if (next_node->is_nil_node_) {
-        // currentは最後のノードだった
-        return NULL;
       }
       return const_cast<RBTNode<Value> *>(next_node);
     }

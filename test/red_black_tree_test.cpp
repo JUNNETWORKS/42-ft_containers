@@ -1726,3 +1726,87 @@ TEST(ReverseIterator, TreeHasNoElement) {
 
   EXPECT_EQ(rb_tree.rbegin(), rb_tree.rend());
 }
+
+TEST(Clear, TreeHasNoNode) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+
+  rb_tree.clear();
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+}
+
+TEST(Clear, TreeHasOneNode) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(1));
+
+  rb_tree.clear();
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+}
+
+TEST(Clear, TreeHasManyNode) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(5));
+
+  tree_iterator it = rb_tree.end();
+
+  rb_tree.clear();
+
+  // After call clear(), size() returns zero.
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+  // Any past-the-end iterator remains valid.
+  EXPECT_EQ(it, rb_tree.end());
+}
+
+TEST(Clear, InsertNewValueAfterClearCall) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.InsertUnique(pair_type("A", 1));
+  rb_tree.InsertUnique(pair_type("AB", 2));
+  rb_tree.InsertUnique(pair_type("AA", 3));
+
+  rb_tree.clear();
+
+  rb_tree.InsertUnique(pair_type("CC", 4));
+  rb_tree.InsertUnique(pair_type("DD", 5));
+
+  // begin_node_ は新しい要素を指しているはずである。
+  EXPECT_EQ(*(rb_tree.begin()), pair_type("CC", 4));
+}

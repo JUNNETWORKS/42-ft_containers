@@ -439,7 +439,12 @@ class RedBlackTree {
 
   /********** Modifiers **********/
 
-  void clear();
+  void clear() {
+    DeleteTree(root_);
+    root_ = nil_node_;
+    begin_node_ = root_;
+    node_count_ = 0;
+  }
 
   ft::pair<iterator, bool> insert(const value_type &value);
 
@@ -982,15 +987,18 @@ class RedBlackTree {
     x->color_ = node_type::BLACK;
   }
 
-  void DeleteTree(node_type *deleting_target) {
-    // 木の全てのノードを削除する.
+  /* 木の全てのノードを削除する.
+   *
+   * 注意: root_, node_count, begin_node_ などのメンバー変数は更新されない.
+   */
+  void DeleteTree(node_type *root) {
     // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
-    if (deleting_target->is_nil_node_) {
+    if (root->is_nil_node_) {
       return;
     }
-    DeleteTree(deleting_target->left_);
-    DeleteTree(deleting_target->right_);
-    DeleteNode(deleting_target);
+    DeleteTree(root->left_);
+    DeleteTree(root->right_);
+    DeleteNode(root);
   }
 
   void DeleteNode(node_type *z) {

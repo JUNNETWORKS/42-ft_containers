@@ -4,7 +4,9 @@
 #include <cstddef>
 #include <iostream>
 
-#include "stack.hpp"
+#include "iterator_traits.hpp"
+#include "pair.hpp"
+#include "reverse_iterator.hpp"
 
 namespace ft {
 
@@ -312,12 +314,15 @@ class RedBlackTree {
   // InsertUniqueは現在木に挿入しようとしているkeyが木に無いという前提で動作する。
   // keyが既に木にあるか、value挿入するかそれとも既存のノードの値を更新するか
   // 判断するのはmapなどの利用側の責務とする。
-  void InsertUnique(const Value &value) {
+  ft::pair<iterator, bool> InsertUnique(const Value &value) {
     node_type *parent = nil_node_;
     node_type *current = root_;
     while (!current->is_nil_node_) {
       parent = current;
-      if (Compare()(KeyOfValue()(value), KeyOfValue()(current->value_))) {
+      if (KeysAreEqual(KeyOfValue()(value), KeyOfValue()(current->value_))) {
+        return ft::pair<iterator, bool>(iterator(current), false);
+      } else if (Compare()(KeyOfValue()(value),
+                           KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -349,6 +354,8 @@ class RedBlackTree {
     end_node_->left_ = root_;
     end_node_->right_ = root_;
     ++node_count_;
+
+    return ft::pair<iterator, bool>(iterator(new_node), true);
   }
 
   void Delete(Key key) {
@@ -446,40 +453,39 @@ class RedBlackTree {
     node_count_ = 0;
   }
 
-  ft::pair<iterator, bool> insert(const value_type &value);
+  // void erase(iterator pos);
 
-  iterator insert(iterator hint, const value_type &value);
+  // void erase(iterator first, iterator last);
 
-  template <class InputIt>
-  void insert(InputIt first, InputIt last);
+  // size_type erase(const Key &key);
 
-  void erase(iterator pos);
+  // void swap(RedBlackTree &other);
 
-  void erase(iterator first, iterator last);
+  // /********** Lookup **********/
 
-  size_type erase(const Key &key);
+  // size_type count(const Key &key) const;
 
-  void swap(RedBlackTree &other);
+  // iterator find(const Key &key);
 
-  /********** Lookup **********/
+  // const_iterator find(const Key &key) const;
 
-  size_type count(const Key &key) const;
+  // /* Returns an iterator pointing to the first element that is not less than
+  //  * (i.e. greater or equal to) key.
+  //  */
+  // iterator lower_bound(const key_type &key);
 
-  iterator find(const Key &key);
+  // const_iterator lower_bound(const key_type &key) const;
 
-  const_iterator find(const Key &key) const;
+  // /* Returns an iterator pointing to the first element that is greater than
+  // key.
+  //  */
+  // iterator upper_bound(const key_type &key);
 
-  iterator lower_bound(const key_type &key);
+  // const_iterator upper_bound(const key_type &key) const;
 
-  const_iterator lower_bound(const key_type &key) const;
+  // ft::pair<iterator, iterator> equal_range(const Key &key);
 
-  iterator upper_bound(const key_type &key);
-
-  const_iterator upper_bound(const key_type &key) const;
-
-  ft::pair<iterator, iterator> equal_range(const Key &key);
-
-  ft::pair<const_iterator, const_iterator> equal_range(const Key &key) const;
+  // ft::pair<const_iterator, const_iterator> equal_range(const Key &key) const;
 
   /********** Observers **********/
 

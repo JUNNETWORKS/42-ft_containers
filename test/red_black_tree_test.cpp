@@ -1810,3 +1810,33 @@ TEST(Clear, InsertNewValueAfterClearCall) {
   // begin_node_ は新しい要素を指しているはずである。
   EXPECT_EQ(*(rb_tree.begin()), pair_type("CC", 4));
 }
+
+TEST(InsertUnique, ReturnIteratorAndWhetherInsertIsSuccess) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  ft::pair<tree_iterator, bool> result;
+  // 挿入対象のキーがまだ存在しない場合はその値がそのまま挿入される
+  result = rb_tree.InsertUnique(pair_type("A", 1));
+  EXPECT_EQ(*(result.first), pair_type("A", 1));
+  EXPECT_EQ(result.second, true);
+  result = rb_tree.InsertUnique(pair_type("AB", 2));
+  EXPECT_EQ(*(result.first), pair_type("AB", 2));
+  EXPECT_EQ(result.second, true);
+  result = rb_tree.InsertUnique(pair_type("AA", 3));
+  EXPECT_EQ(*(result.first), pair_type("AA", 3));
+  EXPECT_EQ(result.second, true);
+  result = rb_tree.InsertUnique(pair_type("CC", 4));
+  EXPECT_EQ(*(result.first), pair_type("CC", 4));
+  EXPECT_EQ(result.second, true);
+  // 挿入対象のキーが既にある場合は何も行わない(値は更新されない)
+  result = rb_tree.InsertUnique(pair_type("CC", 5));
+  EXPECT_EQ(*(result.first), pair_type("CC", 4));
+  EXPECT_EQ(result.second, false);
+}

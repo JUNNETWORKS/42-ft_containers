@@ -343,17 +343,7 @@ class RedBlackTree {
     new_node->color_ =
         node_type::RED;  // 新しいノードの色は最初は赤に設定される
     InsertFixup(new_node);
-    // begin_node_ の更新
-    if (begin_node_->is_nil_node_ ||
-        Compare()(KeyOfValue()(new_node->value_),
-                  KeyOfValue()(begin_node_->value_))) {
-      begin_node_ = new_node;
-    }
-    // end_node_ が新たなルートを指すようにする
-    root_->parent_ = end_node_;
-    end_node_->left_ = root_;
-    end_node_->right_ = root_;
-    ++node_count_;
+    _update_tree_info_based_on_new_node(new_node);
 
     return ft::pair<iterator, bool>(iterator(new_node), true);
   }
@@ -1048,6 +1038,20 @@ class RedBlackTree {
 
   bool KeysAreEqual(const key_type &key1, const key_type &key2) const {
     return !Compare()(key1, key2) && !Compare()(key2, key1);
+  }
+
+  void _update_tree_info_based_on_new_node(node_type *new_node) {
+    // begin_node_ の更新
+    if (begin_node_->is_nil_node_ ||
+        Compare()(KeyOfValue()(new_node->value_),
+                  KeyOfValue()(begin_node_->value_))) {
+      begin_node_ = new_node;
+    }
+    // end_node_ が新たなルートを指すようにする
+    root_->parent_ = end_node_;
+    end_node_->left_ = root_;
+    end_node_->right_ = root_;
+    ++node_count_;
   }
 };
 

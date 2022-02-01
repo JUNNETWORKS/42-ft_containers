@@ -290,9 +290,9 @@ class RedBlackTree {
 
   RedBlackTree &operator=(const RedBlackTree &rhs) {
     if (&rhs != this) {
-      _delete_tree(root_);
+      __delete_tree(root_);
       // ノードをディープコピー
-      root_ = _copy_tree(rhs.root_, rhs.nil_node_);
+      root_ = __copy_tree(rhs.root_, rhs.nil_node_);
 
       begin_node_ = find_minimum_node(root_);
       if (!root_->is_nil_node_) {
@@ -307,19 +307,20 @@ class RedBlackTree {
 
   ~RedBlackTree() {
     // 全てのノードをdeleteする
-    _delete_tree(root_);
+    __delete_tree(root_);
   }
 
   // Tree operations
-  // InsertUniqueは現在木に挿入しようとしているkeyが木に無いという前提で動作する。
+  // insert_uniqueは現在木に挿入しようとしているkeyが木に無いという前提で動作する。
   // keyが既に木にあるか、value挿入するかそれとも既存のノードの値を更新するか
   // 判断するのはmapなどの利用側の責務とする。
-  ft::pair<iterator, bool> InsertUnique(const Value &value) {
+  ft::pair<iterator, bool> insert_unique(const Value &value) {
     node_type *parent = nil_node_;
     node_type *current = root_;
     while (!current->is_nil_node_) {
       parent = current;
-      if (_keys_are_equal(KeyOfValue()(value), KeyOfValue()(current->value_))) {
+      if (__are_keys_equal(KeyOfValue()(value),
+                           KeyOfValue()(current->value_))) {
         return ft::pair<iterator, bool>(iterator(current), false);
       } else if (Compare()(KeyOfValue()(value),
                            KeyOfValue()(current->value_))) {
@@ -328,7 +329,7 @@ class RedBlackTree {
         current = current->right_;
       }
     }
-    node_type *new_node = _alloc_new_node(value);
+    node_type *new_node = __alloc_new_node(value);
     new_node->parent_ = parent;
     if (parent->is_nil_node_) {
       root_ = new_node;
@@ -342,8 +343,8 @@ class RedBlackTree {
     new_node->right_ = nil_node_;
     new_node->color_ =
         node_type::RED;  // 新しいノードの色は最初は赤に設定される
-    _insert_fixup(new_node);
-    _update_tree_info_based_on_new_node(new_node);
+    __insert_fixup(new_node);
+    __update_tree_info_based_on_new_node(new_node);
 
     return ft::pair<iterator, bool>(iterator(new_node), true);
   }
@@ -355,7 +356,7 @@ class RedBlackTree {
       begin_node_ = get_next_node<Value>(target_node);
     }
     if (!target_node->is_nil_node_)
-      _delete_node_from_tree(target_node);
+      __delete_node_from_tree(target_node);
     root_->parent_ = end_node_;
     end_node_->left_ = root_;
     end_node_->right_ = root_;
@@ -364,7 +365,7 @@ class RedBlackTree {
   node_type *search_key_node(const Key &key) const {
     node_type *current = root_;
     while (!current->is_nil_node_ &&
-           !_keys_are_equal(KeyOfValue()(current->value_), key)) {
+           !__are_keys_equal(KeyOfValue()(current->value_), key)) {
       if (Compare()(key, KeyOfValue()(current->value_))) {
         current = current->left_;
       } else {
@@ -437,7 +438,7 @@ class RedBlackTree {
   /********** Modifiers **********/
 
   void clear() {
-    _delete_tree(root_);
+    __delete_tree(root_);
     root_ = nil_node_;
     begin_node_ = root_;
     node_count_ = 0;
@@ -485,7 +486,7 @@ class RedBlackTree {
 
   /********** Debug **********/
   void print_tree_2D() const {
-    _print_tree_2D_util(root_);
+    __print_tree_2D_util(root_);
   }
 
   int get_height() {
@@ -518,14 +519,14 @@ class RedBlackTree {
 
   /********** Debug **********/
 
-  void _print_tree_2D_util(node_type *root, int space = 0) const {
+  void __print_tree_2D_util(node_type *root, int space = 0) const {
     if (root->is_nil_node_)
       return;
 
     space += 10;
 
     // print right first
-    _print_tree_2D_util(root->right_, space);
+    __print_tree_2D_util(root->right_, space);
 
     // print current node after space
     std::cout << std::endl;
@@ -534,7 +535,7 @@ class RedBlackTree {
               << (root->color_ == node_type::RED ? "(R)" : "(B)") << std::endl;
 
     // print left
-    _print_tree_2D_util(root->left_, space);
+    __print_tree_2D_util(root->left_, space);
   }
 
   /********** Fix tree **********/
@@ -554,7 +555,7 @@ class RedBlackTree {
    *         /  \                           /  \
    *        14  19                         9   14
    */
-  void _rotate_left(node_type *x) {
+  void __rotate_left(node_type *x) {
     node_type *y = x->right_;  // y を x の右の子とする.
     x->right_ = y->left_;  // y の左部分木を x の右部分木にする.
     if (!y->left_->is_nil_node_) {
@@ -590,7 +591,7 @@ class RedBlackTree {
    *  /  \                                     / \
    * 2    5                                   5   8
    */
-  void _rotate_right(node_type *x) {
+  void __rotate_right(node_type *x) {
     node_type *y = x->left_;  // y を x の左の子とする.
     x->left_ = y->right_;  // y の右部分木を x の左部分木にする.
     if (!y->right_->is_nil_node_) {
@@ -662,7 +663,7 @@ class RedBlackTree {
    *                                              \
    *                                               u_B
    */
-  void _insert_fixup(node_type *new_node) {
+  void __insert_fixup(node_type *new_node) {
     // 新しいノードは赤色であり, 赤ノードは赤ノードを子に持つことは出来ない.
     while (new_node->parent_->color_ == node_type::RED) {
       if (new_node->parent_ == new_node->parent_->parent_->left_) {
@@ -682,12 +683,12 @@ class RedBlackTree {
           if (new_node == new_node->parent_->right_) {
             // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
             new_node = new_node->parent_;
-            _rotate_left(new_node);
+            __rotate_left(new_node);
           }
           // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
           new_node->parent_->color_ = node_type::BLACK;
           new_node->parent_->parent_->color_ = node_type::RED;
-          _rotate_right(new_node->parent_->parent_);
+          __rotate_right(new_node->parent_->parent_);
         }
       } else {
         // 新しいノードの親は祖父の右の子
@@ -706,12 +707,12 @@ class RedBlackTree {
           if (new_node == new_node->parent_->left_) {
             // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の左の子
             new_node = new_node->parent_;
-            _rotate_right(new_node);
+            __rotate_right(new_node);
           }
           // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
           new_node->parent_->color_ = node_type::BLACK;
           new_node->parent_->parent_->color_ = node_type::RED;
-          _rotate_left(new_node->parent_->parent_);
+          __rotate_left(new_node->parent_->parent_);
         }
       }
     }
@@ -771,7 +772,7 @@ class RedBlackTree {
    *                                       /
    *                                      3
    */
-  void _delete_node_from_tree(node_type *z) {
+  void __delete_node_from_tree(node_type *z) {
     // yがもともと置かれていた場所に移動する節点
     node_type *x;
     // 木からの削除あるいは木の中の移動が想定される節点.
@@ -783,10 +784,10 @@ class RedBlackTree {
 
     if (z->left_->is_nil_node_) {
       x = z->right_;
-      _delete_transplant(z, z->right_);
+      __delete_transplant(z, z->right_);
     } else if (z->right_->is_nil_node_) {
       x = z->left_;
-      _delete_transplant(z, z->left_);
+      __delete_transplant(z, z->left_);
     } else {
       // 削除ノードが2つ子を持つ場合
       y = find_minimum_node(z->right_);
@@ -796,16 +797,16 @@ class RedBlackTree {
         // 削除ノードの右の子が次節点の場合
         x->parent_ = y;
       } else {
-        _delete_transplant(y, y->right_);
+        __delete_transplant(y, y->right_);
         y->right_ = z->right_;
         y->right_->parent_ = y;
       }
-      _delete_transplant(z, y);
+      __delete_transplant(z, y);
       y->left_ = z->left_;
       y->left_->parent_ = y;
       y->color_ = z->color_;
     }
-    _delete_node(z);
+    __delete_node(z);
 
     if (y_original_color == node_type::BLACK) {
       // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
@@ -827,7 +828,7 @@ class RedBlackTree {
       //    元々yを含んでいた単純道の黒節点数が1減少する可能性がある.
       //    これは2色条件その5(任意のノードは子孫の葉までに含まれる黒節点数は一定である)
       //    に違反する.
-      _delete_fixup(x);
+      __delete_fixup(x);
     }
     node_count_--;
   }
@@ -835,7 +836,7 @@ class RedBlackTree {
   // ある節点の子であるuを根とする部分木を別の節点の子のvを根とする部分木に置き換える.
   // v.left_, v.right_ に対しては変更を行わないので注意.
   // ノードを削除する際に使う
-  void _delete_transplant(node_type *u, node_type *v) {
+  void __delete_transplant(node_type *u, node_type *v) {
     if (u->parent_->is_nil_node_) {
       // uが根のとき
       root_ = v;
@@ -917,7 +918,7 @@ class RedBlackTree {
    *                      /   \
    *                    x_B   l_B
    */
-  void _delete_fixup(node_type *x) {
+  void __delete_fixup(node_type *x) {
     while (x != root_ && x->color_ == node_type::BLACK) {
       if (x == x->parent_->left_) {
         // 兄弟ノード
@@ -926,7 +927,7 @@ class RedBlackTree {
           // 修正パターン1: 兄弟が赤
           w->color_ = node_type::BLACK;
           x->parent_->color_ = node_type::RED;
-          _rotate_left(x->parent_);
+          __rotate_left(x->parent_);
           w = x->parent_->right_;
         }
         if (w->left_->color_ == node_type::BLACK &&
@@ -939,14 +940,14 @@ class RedBlackTree {
             // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
             w->left_->color_ = node_type::BLACK;
             w->color_ = node_type::RED;
-            _rotate_right(w);
+            __rotate_right(w);
             w = x->parent_->right_;
           }
           // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
           w->color_ = x->parent_->color_;
           x->parent_->color_ = node_type::BLACK;
           w->right_->color_ = node_type::BLACK;
-          _rotate_left(x->parent_);
+          __rotate_left(x->parent_);
           x = root_;
         }
       } else {
@@ -956,7 +957,7 @@ class RedBlackTree {
           // 修正パターン1: 兄弟が赤
           w->color_ = node_type::BLACK;
           x->parent_->color_ = node_type::RED;
-          _rotate_right(x->parent_);
+          __rotate_right(x->parent_);
           w = x->parent_->left_;
         }
         if (w->right_->color_ == node_type::BLACK &&
@@ -969,14 +970,14 @@ class RedBlackTree {
             // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
             w->right_->color_ = node_type::BLACK;
             w->color_ = node_type::RED;
-            _rotate_left(w);
+            __rotate_left(w);
             w = x->parent_->left_;
           }
           // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
           w->color_ = x->parent_->color_;
           x->parent_->color_ = node_type::BLACK;
           w->left_->color_ = node_type::BLACK;
-          _rotate_right(x->parent_);
+          __rotate_right(x->parent_);
           x = root_;
         }
       }
@@ -988,17 +989,17 @@ class RedBlackTree {
    *
    * 注意: root_, node_count, begin_node_ などのメンバー変数は更新されない.
    */
-  void _delete_tree(node_type *root) {
+  void __delete_tree(node_type *root) {
     // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
     if (root->is_nil_node_) {
       return;
     }
-    _delete_tree(root->left_);
-    _delete_tree(root->right_);
-    _delete_node(root);
+    __delete_tree(root->left_);
+    __delete_tree(root->right_);
+    __delete_node(root);
   }
 
-  void _delete_node(node_type *z) {
+  void __delete_node(node_type *z) {
     if (z->is_nil_node_) {
       return;
     }
@@ -1007,27 +1008,27 @@ class RedBlackTree {
     allocator.deallocate(z, 1);
   }
 
-  node_type *_copy_tree(node_type *other_root, node_type *other_nil_node) {
+  node_type *__copy_tree(node_type *other_root, node_type *other_nil_node) {
     if (other_root == other_nil_node) {
       return nil_node_;
     }
-    node_type *copy_root = _copy_node(other_root, other_nil_node);
+    node_type *copy_root = __copy_node(other_root, other_nil_node);
     copy_root->parent_ = nil_node_;
-    copy_root->left_ = _copy_tree(other_root->left_, other_nil_node);
+    copy_root->left_ = __copy_tree(other_root->left_, other_nil_node);
     copy_root->left_->parent_ = copy_root;
-    copy_root->right_ = _copy_tree(other_root->right_, other_nil_node);
+    copy_root->right_ = __copy_tree(other_root->right_, other_nil_node);
     copy_root->right_->parent_ = copy_root;
     return copy_root;
   }
 
-  node_type *_alloc_new_node(value_type value) {
+  node_type *__alloc_new_node(value_type value) {
     node_allocator allocator = node_allocator();
     node_type *p = allocator.allocate(1);
     allocator.construct(p, value);
     return p;
   }
 
-  node_type *_copy_node(const node_type *z, const node_type *nil_node) {
+  node_type *__copy_node(const node_type *z, const node_type *nil_node) {
     node_allocator allocator = node_allocator();
     if (z == nil_node) {
       return nil_node_;
@@ -1037,11 +1038,11 @@ class RedBlackTree {
     return new_node;
   }
 
-  bool _keys_are_equal(const key_type &key1, const key_type &key2) const {
+  bool __are_keys_equal(const key_type &key1, const key_type &key2) const {
     return !Compare()(key1, key2) && !Compare()(key2, key1);
   }
 
-  void _update_tree_info_based_on_new_node(node_type *new_node) {
+  void __update_tree_info_based_on_new_node(node_type *new_node) {
     // begin_node_ の更新
     if (begin_node_->is_nil_node_ ||
         Compare()(KeyOfValue()(new_node->value_),

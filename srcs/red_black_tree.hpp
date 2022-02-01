@@ -593,545 +593,597 @@ class RedBlackTree {
 #endif
 
   /********** Debug **********/
+  void __print_tree_2D_util(node_type *root, int space = 0) const;
 
-  void __print_tree_2D_util(node_type *root, int space = 0) const {
-    if (root->is_nil_node_)
-      return;
+  /********** TreeOperation **********/
+  void __rotate_left(node_type *x);
+  void __rotate_right(node_type *x);
 
-    space += 10;
+  /********** Insert **********/
+  void __insert_fixup(node_type *new_node);
+  void __update_tree_info_based_on_new_node(node_type *new_node);
 
-    // print right first
-    __print_tree_2D_util(root->right_, space);
+  /********** Delete **********/
+  void __delete_transplant(node_type *u, node_type *v);
+  void __delete_fixup(node_type *x);
 
-    // print current node after space
-    std::cout << std::endl;
-    for (int i = 10; i < space; i++) std::cout << " ";
-    std::cout << KeyOfValue()(root->value_)
-              << (root->color_ == node_type::RED ? "(R)" : "(B)") << std::endl;
+  /********** Node operations **********/
+  void __delete_node_from_tree(node_type *z);
+  void __delete_tree(node_type *root);
+  void __delete_node(node_type *z);
+  node_type *__copy_tree(node_type *other_root, node_type *other_nil_node);
+  node_type *__alloc_new_node(value_type value);
+  node_type *__copy_node(const node_type *z, const node_type *nil_node);
 
-    // print left
-    __print_tree_2D_util(root->left_, space);
-  }
-
-  /********** Fix tree **********/
-
-  /*
-   * RotateLeft
-   *
-   * xを11とし, xを中心に左回転すると以下のようになる. この場合yは18となる.
-   *
-   *    root                               root
-   *     |                                  |
-   *     7                                  7
-   *   /   \                              /   \
-   *  4     11                           4     18
-   *       /  \     -- RotateLeft -->         /  \
-   *      9   18                             11   19
-   *         /  \                           /  \
-   *        14  19                         9   14
-   */
-  void __rotate_left(node_type *x) {
-    node_type *y = x->right_;  // y を x の右の子とする.
-    x->right_ = y->left_;  // y の左部分木を x の右部分木にする.
-    if (!y->left_->is_nil_node_) {
-      // yの左の子の親が左回転後のxになるようにする
-      y->left_->parent_ = x;
-    }
-    y->parent_ = x->parent_;  // xの親をyにする
-    // xの親の左右どちらにyを付けるか
-    if (x->parent_->is_nil_node_) {
-      // xが根だった場合
-      root_ = y;
-    } else if (x == x->parent_->left_) {
-      x->parent_->left_ = y;
-    } else {
-      x->parent_->right_ = y;
-    }
-    // xをyの左の子とする.
-    y->left_ = x;
-    x->parent_ = y;
-  }
-
-  /* RotateRight
-   *
-   * xを6とし, xを中心に右回転すると以下のようになる. この場合yは4となる.
-   *
-   *       root                                root
-   *        |                                   |
-   *        10                                  10
-   *      /   \                               /   \
-   *     6     12                            4     12
-   *    /  \         -- RotateRight -->     /  \
-   *   4    8                              2    6
-   *  /  \                                     / \
-   * 2    5                                   5   8
-   */
-  void __rotate_right(node_type *x) {
-    node_type *y = x->left_;  // y を x の左の子とする.
-    x->left_ = y->right_;  // y の右部分木を x の左部分木にする.
-    if (!y->right_->is_nil_node_) {
-      // yの右の子の親が右回転後のxになるようにする
-      y->right_->parent_ = x;
-    }
-    y->parent_ = x->parent_;  // xの親をyにする
-    // xの親の左右どちらにyを付けるか
-    if (x->parent_->is_nil_node_) {
-      // xが根だった場合
-      root_ = y;
-    } else if (x == x->parent_->right_) {
-      x->parent_->right_ = y;
-    } else {
-      x->parent_->left_ = y;
-    }
-    // xをyの右の子とする.
-    y->right_ = x;
-    x->parent_ = y;
-  }
-
-  /* 挿入時にRBTreeの2色条件を維持するための関数
-   *
-   * 修正パターンは3通り * 左右2通り で合計6通りある.
-   * 以下に左の修正パターン3つを示す. 右バージョンは左右逆にすれば良い.
-   *
-   * R: Red
-   * B: Black
-   *
-   * g: grant parent
-   * p: parent
-   * u: uncle
-   * n: new node
-   *
-   * 修正パターン1: 叔父ノードが赤色.
-   *              g_B                                          g_R
-   *             /   \                                        /   \
-   *           p_R    u_R     -- Change color g,p,u -->     p_B   u_B
-   *           /                                            /
-   *         n_R                                          n_R
-   *
-   *                 MEMO: gを赤に彩色することで, 2色条件の5番が保たれる
-   *
-   *         -- Recheck parents colors from g_R to root -->     ...
-   *
-   * 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
-   *              g_B                                     p_R
-   *             /   \                                   /   \
-   *           p_R    u_B     -- Rotate right g -->    n_R    g_B
-   *           /                                                \
-   *         n_R                                                u_B
-   *
-   *                                             p_B
-   *                                            /   \
-   *         -- Change color p,g -->          n_R   g_R
-   *                                                  \
-   *                                                  u_B
-   *
-   * 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
-   *              g_B                                       g_B
-   *             /   \                                     /   \
-   *           p_R    u_B     -- Rotate Left p -->       n_R    u_B
-   *             \                                       /
-   *             n_R                                   p_R
-   *
-   *                                         n_B
-   *                                        /   \
-   *         -- Apply pattern2 -->        p_R    g_R
-   *                                              \
-   *                                               u_B
-   */
-  void __insert_fixup(node_type *new_node) {
-    // 新しいノードは赤色であり, 赤ノードは赤ノードを子に持つことは出来ない.
-    while (new_node->parent_->color_ == node_type::RED) {
-      if (new_node->parent_ == new_node->parent_->parent_->left_) {
-        // 新しいノードの親は祖父の左の子
-        // 叔父ノード
-        node_type *uncle_node = new_node->parent_->parent_->right_;
-        if (uncle_node->color_ == node_type::RED) {
-          // 修正パターン1: 親と叔父ノードが赤色
-          // 親と叔父ノードを黒にし, 祖父を赤にする.
-          new_node->parent_->color_ = node_type::BLACK;
-          uncle_node->color_ = node_type::BLACK;
-          new_node->parent_->parent_->color_ = node_type::RED;
-          new_node = new_node->parent_->parent_;
-        } else {
-          // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
-
-          if (new_node == new_node->parent_->right_) {
-            // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
-            new_node = new_node->parent_;
-            __rotate_left(new_node);
-          }
-          // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
-          new_node->parent_->color_ = node_type::BLACK;
-          new_node->parent_->parent_->color_ = node_type::RED;
-          __rotate_right(new_node->parent_->parent_);
-        }
-      } else {
-        // 新しいノードの親は祖父の右の子
-        // 叔父ノード
-        node_type *uncle_node = new_node->parent_->parent_->left_;
-        if (uncle_node->color_ == node_type::RED) {
-          // 修正パターン1: 親と叔父ノードが赤色
-          // 親と叔父ノードを黒にし, 祖父を赤にする.
-          new_node->parent_->color_ = node_type::BLACK;
-          uncle_node->color_ = node_type::BLACK;
-          new_node->parent_->parent_->color_ = node_type::RED;
-          new_node = new_node->parent_->parent_;
-        } else {
-          // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
-
-          if (new_node == new_node->parent_->left_) {
-            // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の左の子
-            new_node = new_node->parent_;
-            __rotate_right(new_node);
-          }
-          // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
-          new_node->parent_->color_ = node_type::BLACK;
-          new_node->parent_->parent_->color_ = node_type::RED;
-          __rotate_left(new_node->parent_->parent_);
-        }
-      }
-    }
-    root_->color_ = node_type::BLACK;
-  }
-
-  /* ノードの削除
-   *
-   * q: 削除ノードの親ノード(左右は問わない)
-   * z: 削除ノード
-   * l: 削除ノードの左の子
-   * r: 削除ノードの右の子
-   * 1,2,3...: その他のノード
-   *
-   * パターン1: 削除ノードが左の子を持たない場合
-   *      q                     q
-   *      |                     |
-   *      z          -->        r
-   *       \
-   *        r
-   *
-   * パターン2: 削除ノードが右の子を持たない場合
-   *      q                     q
-   *      |                     |
-   *      z          -->        l
-   *     /
-   *    l
-   *
-   * パターン3: 削除ノードが2つの子を持ち,
-   *            削除ノードの右の子が次節点の場合
-   *      q                       q
-   *      |                       |
-   *      z          -->          r
-   *     / \                     / \
-   *    l   r                   l   1
-   *         \
-   *          1
-   *
-   * パターン4: 削除ノードが2つの子を持ち,
-   *            次節点が削除ノードの右の部分木内にある場合
-   *            (ただし削除ノードの右の子は次節点ではない)
-   *      q                                                 q
-   *      |                                                 |
-   *      z        -- y(2)の場所をx(3)で置き換える -->      z
-   *     / \         (次節点は左の子を持たない)            / \
-   *    l   r                                             l   r     2
-   *       /                                                 /
-   *      2                                                 3
-   *       \
-   *        3
-   *
-   *                                      q
-   *                                      |
-   *  -- zの部分をy(2)に置き換える -->    2
-   *                                     / \
-   *                                    l   r
-   *                                       /
-   *                                      3
-   */
-  void __delete_node_from_tree(node_type *z) {
-    // yがもともと置かれていた場所に移動する節点
-    node_type *x;
-    // 木からの削除あるいは木の中の移動が想定される節点.
-    // zの子が1つの場合は削除対象, zの子が2つの場合は移動対象.
-    node_type *y = z;
-    // 節点yを再彩色する可能性があるので元の色を保持する.
-    // yの代入直後のyの色を覚えておく.
-    typename node_type::Color y_original_color = y->color_;
-
-    if (z->left_->is_nil_node_) {
-      x = z->right_;
-      __delete_transplant(z, z->right_);
-    } else if (z->right_->is_nil_node_) {
-      x = z->left_;
-      __delete_transplant(z, z->left_);
-    } else {
-      // 削除ノードが2つ子を持つ場合
-      y = find_minimum_node(z->right_);
-      y_original_color = y->color_;
-      x = y->right_;
-      if (y->parent_ == z) {
-        // 削除ノードの右の子が次節点の場合
-        x->parent_ = y;
-      } else {
-        __delete_transplant(y, y->right_);
-        y->right_ = z->right_;
-        y->right_->parent_ = y;
-      }
-      __delete_transplant(z, y);
-      y->left_ = z->left_;
-      y->left_->parent_ = y;
-      y->color_ = z->color_;
-    }
-    __delete_node(z);
-
-    if (y_original_color == node_type::BLACK) {
-      // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
-      // x(もともとyがあった場所)から上に2色条件を違反していないか見ていく
-      //
-      // yが赤ならば以下の3つの理由によってyの削除あるいは移動は2色条件を維持する.
-      // 1. 木の黒高さは変化しない.
-      // 2. 2つの赤節点が連続することは無い.
-      //    なぜならyはzの色を継承した上でzの場所に移されるので,
-      //    yの木の新しい場所で2つの赤節点が連続することはない.
-      // 3. yが赤ならば, yが根であるはずはなく, 根は依然として黒である.
-      //
-      // yが黒ならば以下の3つの問題が発生する可能性がある.
-      // 1. 元々はyが根であって, yの赤の子が新しい根になった時,
-      //    2色条件その2(根は黒である)に違反する.
-      // 2. xとx.parentが共に赤の時,
-      //    2色条件その4(赤ノードは黒2つを子に持つ)に違反する.
-      // 3. 木の中をyが移動すると,
-      //    元々yを含んでいた単純道の黒節点数が1減少する可能性がある.
-      //    これは2色条件その5(任意のノードは子孫の葉までに含まれる黒節点数は一定である)
-      //    に違反する.
-      __delete_fixup(x);
-    }
-    node_count_--;
-  }
-
-  // ある節点の子であるuを根とする部分木を別の節点の子のvを根とする部分木に置き換える.
-  // v.left_, v.right_ に対しては変更を行わないので注意.
-  // ノードを削除する際に使う
-  void __delete_transplant(node_type *u, node_type *v) {
-    if (u->parent_->is_nil_node_) {
-      // uが根のとき
-      root_ = v;
-    } else if (u == u->parent_->left_) {
-      u->parent_->left_ = v;
-    } else {
-      u->parent_->right_ = v;
-    }
-    v->parent_ = u->parent_;
-  }
-
-  /* ノード削除によって2色条件が違反が発生したか調べ, 発生していたら修正する.
-   *
-   * R: 赤
-   * B: 黒
-   * p: 親
-   * x: 今見ているノード
-   * b: 兄弟
-   * l: 兄弟の左の子
-   * r: 兄弟の右の子
-   *
-   *
-   * 修正するパターンは兄弟の色と兄弟の子の色によって以下の4つに分けられる.
-   * (明示的に色指定されていないノードは何色でも良い(例えば親ノードとか))
-   * 基本的にxが親の左の子という想定で書いてる.
-   * 右バージョンは左右逆にすれば良い.
-   *
-   * 修正パターン1: 兄弟が赤
-   *       p_B                                             p_R
-   *      /   \                                           /   \
-   *    x_B   b_R        -- 親と兄弟の色を変える -->    x_B   b_B
-   *         /   \                                           /   \
-   *       l_B   r_B                                       l_B   r_B
-   *
-   *                              b_B
-   *                             /   \
-   *    -- 親を左回転 -->      p_R   r_B
-   *                          /   \
-   *                        x_B   l_B
-   *
-   *    -- 修正パターン2,3,4で修正する -->
-   *
-   * 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
-   *       p_B                                   p_B
-   *      /   \                                 /   \
-   *    x_B   b_B      -- 兄弟を赤にする -->  x_B   b_R
-   *         /   \                                 /   \
-   *       l_B   r_B                             l_B   r_B
-   *
-   *    -- xを親に設定し, ループを継続 -->
-   *
-   * 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
-   *       p_B                                                        p_B
-   *      /   \                                                      /   \
-   *    x_B   b_B      -- 兄弟と兄弟の左の子で色を交換する -->     x_B   b_R
-   *         /   \                                                      /   \
-   *       l_R   r_B                                                  l_B   r_B
-   *
-   *       p_B                                 p_B
-   *      /   \                               /   \
-   *    x_B   b_R      -- 兄弟を右回転 -->  x_B   l_B
-   *         /   \                                  \
-   *       l_B   r_B                                b_R
-   *                                                  \
-   *                                                  r_B
-   *
-   *    -- 修正パターン4で修正する -->
-   *
-   * 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤 (左の子は赤でも黒でもいい)
-   *       p_R                                                       p_B
-   *      /   \                                                     /   \
-   *    x_B   b_B     -- 親と兄弟の色を交換 & 兄弟の右を黒に -->  x_B   b_R
-   *         /   \                                                     /   \
-   *       l_B   r_R                                                 l_B   r_B
-   *
-   *                          b_R
-   *                         /   \
-   *    -- 親を左回転 -->  p_B   r_B
-   *                      /   \
-   *                    x_B   l_B
-   */
-  void __delete_fixup(node_type *x) {
-    while (x != root_ && x->color_ == node_type::BLACK) {
-      if (x == x->parent_->left_) {
-        // 兄弟ノード
-        node_type *w = x->parent_->right_;
-        if (w->color_ == node_type::RED) {
-          // 修正パターン1: 兄弟が赤
-          w->color_ = node_type::BLACK;
-          x->parent_->color_ = node_type::RED;
-          __rotate_left(x->parent_);
-          w = x->parent_->right_;
-        }
-        if (w->left_->color_ == node_type::BLACK &&
-            w->right_->color_ == node_type::BLACK) {
-          // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
-          w->color_ = node_type::RED;
-          x = x->parent_;
-        } else {
-          if (w->right_->color_ == node_type::BLACK) {
-            // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
-            w->left_->color_ = node_type::BLACK;
-            w->color_ = node_type::RED;
-            __rotate_right(w);
-            w = x->parent_->right_;
-          }
-          // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
-          w->color_ = x->parent_->color_;
-          x->parent_->color_ = node_type::BLACK;
-          w->right_->color_ = node_type::BLACK;
-          __rotate_left(x->parent_);
-          x = root_;
-        }
-      } else {
-        // 兄弟ノード
-        node_type *w = x->parent_->left_;
-        if (w->color_ == node_type::RED) {
-          // 修正パターン1: 兄弟が赤
-          w->color_ = node_type::BLACK;
-          x->parent_->color_ = node_type::RED;
-          __rotate_right(x->parent_);
-          w = x->parent_->left_;
-        }
-        if (w->right_->color_ == node_type::BLACK &&
-            w->left_->color_ == node_type::BLACK) {
-          // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
-          w->color_ = node_type::RED;
-          x = x->parent_;
-        } else {
-          if (w->left_->color_ == node_type::BLACK) {
-            // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
-            w->right_->color_ = node_type::BLACK;
-            w->color_ = node_type::RED;
-            __rotate_left(w);
-            w = x->parent_->left_;
-          }
-          // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
-          w->color_ = x->parent_->color_;
-          x->parent_->color_ = node_type::BLACK;
-          w->left_->color_ = node_type::BLACK;
-          __rotate_right(x->parent_);
-          x = root_;
-        }
-      }
-    }
-    x->color_ = node_type::BLACK;
-  }
-
-  /* 木の全てのノードを削除する.
-   *
-   * 注意: root_, node_count, begin_node_ などのメンバー変数は更新されない.
-   */
-  void __delete_tree(node_type *root) {
-    // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
-    if (root->is_nil_node_) {
-      return;
-    }
-    __delete_tree(root->left_);
-    __delete_tree(root->right_);
-    __delete_node(root);
-  }
-
-  void __delete_node(node_type *z) {
-    if (z->is_nil_node_) {
-      return;
-    }
-    node_allocator allocator = node_allocator();
-    allocator.destroy(z);
-    allocator.deallocate(z, 1);
-  }
-
-  node_type *__copy_tree(node_type *other_root, node_type *other_nil_node) {
-    if (other_root == other_nil_node) {
-      return nil_node_;
-    }
-    node_type *copy_root = __copy_node(other_root, other_nil_node);
-    copy_root->parent_ = nil_node_;
-    copy_root->left_ = __copy_tree(other_root->left_, other_nil_node);
-    copy_root->left_->parent_ = copy_root;
-    copy_root->right_ = __copy_tree(other_root->right_, other_nil_node);
-    copy_root->right_->parent_ = copy_root;
-    return copy_root;
-  }
-
-  node_type *__alloc_new_node(value_type value) {
-    node_allocator allocator = node_allocator();
-    node_type *p = allocator.allocate(1);
-    allocator.construct(p, value);
-    return p;
-  }
-
-  node_type *__copy_node(const node_type *z, const node_type *nil_node) {
-    node_allocator allocator = node_allocator();
-    if (z == nil_node) {
-      return nil_node_;
-    }
-    node_type *new_node = allocator.allocate(1);
-    allocator.construct(new_node, *z);
-    return new_node;
-  }
-
-  bool __are_keys_equal(const key_type &key1, const key_type &key2) const {
-    return !Compare()(key1, key2) && !Compare()(key2, key1);
-  }
-
-  void __update_tree_info_based_on_new_node(node_type *new_node) {
-    // begin_node_ の更新
-    if (begin_node_->is_nil_node_ ||
-        Compare()(KeyOfValue()(new_node->value_),
-                  KeyOfValue()(begin_node_->value_))) {
-      begin_node_ = new_node;
-    }
-    // end_node_ が新たなルートを指すようにする
-    root_->parent_ = end_node_;
-    end_node_->left_ = root_;
-    end_node_->right_ = root_;
-    ++node_count_;
-  }
+  /********** Utils **********/
+  bool __are_keys_equal(const key_type &key1, const key_type &key2) const;
 };
 
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__print_tree_2D_util(
+    node_type *root, int space) const {
+  if (root->is_nil_node_)
+    return;
+
+  space += 10;
+
+  // print right first
+  __print_tree_2D_util(root->right_, space);
+
+  // print current node after space
+  std::cout << std::endl;
+  for (int i = 10; i < space; i++) std::cout << " ";
+  std::cout << KeyOfValue()(root->value_)
+            << (root->color_ == node_type::RED ? "(R)" : "(B)") << std::endl;
+
+  // print left
+  __print_tree_2D_util(root->left_, space);
+}
+
+/*
+ * RotateLeft
+ *
+ * xを11とし, xを中心に左回転すると以下のようになる. この場合yは18となる.
+ *
+ *    root                               root
+ *     |                                  |
+ *     7                                  7
+ *   /   \                              /   \
+ *  4     11                           4     18
+ *       /  \     -- RotateLeft -->         /  \
+ *      9   18                             11   19
+ *         /  \                           /  \
+ *        14  19                         9   14
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__rotate_left(
+    node_type *x) {
+  node_type *y = x->right_;  // y を x の右の子とする.
+  x->right_ = y->left_;      // y の左部分木を x の右部分木にする.
+  if (!y->left_->is_nil_node_) {
+    // yの左の子の親が左回転後のxになるようにする
+    y->left_->parent_ = x;
+  }
+  y->parent_ = x->parent_;  // xの親をyにする
+  // xの親の左右どちらにyを付けるか
+  if (x->parent_->is_nil_node_) {
+    // xが根だった場合
+    root_ = y;
+  } else if (x == x->parent_->left_) {
+    x->parent_->left_ = y;
+  } else {
+    x->parent_->right_ = y;
+  }
+  // xをyの左の子とする.
+  y->left_ = x;
+  x->parent_ = y;
+}
+
+/* RotateRight
+ *
+ * xを6とし, xを中心に右回転すると以下のようになる. この場合yは4となる.
+ *
+ *       root                                root
+ *        |                                   |
+ *        10                                  10
+ *      /   \                               /   \
+ *     6     12                            4     12
+ *    /  \         -- RotateRight -->     /  \
+ *   4    8                              2    6
+ *  /  \                                     / \
+ * 2    5                                   5   8
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__rotate_right(
+    node_type *x) {
+  node_type *y = x->left_;  // y を x の左の子とする.
+  x->left_ = y->right_;     // y の右部分木を x の左部分木にする.
+  if (!y->right_->is_nil_node_) {
+    // yの右の子の親が右回転後のxになるようにする
+    y->right_->parent_ = x;
+  }
+  y->parent_ = x->parent_;  // xの親をyにする
+  // xの親の左右どちらにyを付けるか
+  if (x->parent_->is_nil_node_) {
+    // xが根だった場合
+    root_ = y;
+  } else if (x == x->parent_->right_) {
+    x->parent_->right_ = y;
+  } else {
+    x->parent_->left_ = y;
+  }
+  // xをyの右の子とする.
+  y->right_ = x;
+  x->parent_ = y;
+}
+
+/* 挿入時にRBTreeの2色条件を維持するための関数
+ *
+ * 修正パターンは3通り * 左右2通り で合計6通りある.
+ * 以下に左の修正パターン3つを示す. 右バージョンは左右逆にすれば良い.
+ *
+ * R: Red
+ * B: Black
+ *
+ * g: grant parent
+ * p: parent
+ * u: uncle
+ * n: new node
+ *
+ * 修正パターン1: 叔父ノードが赤色.
+ *              g_B                                          g_R
+ *             /   \                                        /   \
+ *           p_R    u_R     -- Change color g,p,u -->     p_B   u_B
+ *           /                                            /
+ *         n_R                                          n_R
+ *
+ *                 MEMO: gを赤に彩色することで, 2色条件の5番が保たれる
+ *
+ *         -- Recheck parents colors from g_R to root -->     ...
+ *
+ * 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
+ *              g_B                                     p_R
+ *             /   \                                   /   \
+ *           p_R    u_B     -- Rotate right g -->    n_R    g_B
+ *           /                                                \
+ *         n_R                                                u_B
+ *
+ *                                             p_B
+ *                                            /   \
+ *         -- Change color p,g -->          n_R   g_R
+ *                                                  \
+ *                                                  u_B
+ *
+ * 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
+ *              g_B                                       g_B
+ *             /   \                                     /   \
+ *           p_R    u_B     -- Rotate Left p -->       n_R    u_B
+ *             \                                       /
+ *             n_R                                   p_R
+ *
+ *                                         n_B
+ *                                        /   \
+ *         -- Apply pattern2 -->        p_R    g_R
+ *                                              \
+ *                                               u_B
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__insert_fixup(
+    node_type *new_node) {
+  // 新しいノードは赤色であり, 赤ノードは赤ノードを子に持つことは出来ない.
+  while (new_node->parent_->color_ == node_type::RED) {
+    if (new_node->parent_ == new_node->parent_->parent_->left_) {
+      // 新しいノードの親は祖父の左の子
+      // 叔父ノード
+      node_type *uncle_node = new_node->parent_->parent_->right_;
+      if (uncle_node->color_ == node_type::RED) {
+        // 修正パターン1: 親と叔父ノードが赤色
+        // 親と叔父ノードを黒にし, 祖父を赤にする.
+        new_node->parent_->color_ = node_type::BLACK;
+        uncle_node->color_ = node_type::BLACK;
+        new_node->parent_->parent_->color_ = node_type::RED;
+        new_node = new_node->parent_->parent_;
+      } else {
+        // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
+
+        if (new_node == new_node->parent_->right_) {
+          // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の右の子
+          new_node = new_node->parent_;
+          __rotate_left(new_node);
+        }
+        // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の左の子
+        new_node->parent_->color_ = node_type::BLACK;
+        new_node->parent_->parent_->color_ = node_type::RED;
+        __rotate_right(new_node->parent_->parent_);
+      }
+    } else {
+      // 新しいノードの親は祖父の右の子
+      // 叔父ノード
+      node_type *uncle_node = new_node->parent_->parent_->left_;
+      if (uncle_node->color_ == node_type::RED) {
+        // 修正パターン1: 親と叔父ノードが赤色
+        // 親と叔父ノードを黒にし, 祖父を赤にする.
+        new_node->parent_->color_ = node_type::BLACK;
+        uncle_node->color_ = node_type::BLACK;
+        new_node->parent_->parent_->color_ = node_type::RED;
+        new_node = new_node->parent_->parent_;
+      } else {
+        // 修正パターン3 の後半部分の処理は パターン2 と同じなのでまとめられる
+
+        if (new_node == new_node->parent_->left_) {
+          // 修正パターン3: 叔父ノードが黒色 + 挿入するノードが親の左の子
+          new_node = new_node->parent_;
+          __rotate_right(new_node);
+        }
+        // 修正パターン2: 叔父ノードが黒色 + 挿入するノードが親の右の子
+        new_node->parent_->color_ = node_type::BLACK;
+        new_node->parent_->parent_->color_ = node_type::RED;
+        __rotate_left(new_node->parent_->parent_);
+      }
+    }
+  }
+  root_->color_ = node_type::BLACK;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::
+    __update_tree_info_based_on_new_node(node_type *new_node) {
+  // begin_node_ の更新
+  if (begin_node_->is_nil_node_ ||
+      Compare()(KeyOfValue()(new_node->value_),
+                KeyOfValue()(begin_node_->value_))) {
+    begin_node_ = new_node;
+  }
+  // end_node_ が新たなルートを指すようにする
+  root_->parent_ = end_node_;
+  end_node_->left_ = root_;
+  end_node_->right_ = root_;
+  ++node_count_;
+}
+
+/* ノードの削除
+ *
+ * q: 削除ノードの親ノード(左右は問わない)
+ * z: 削除ノード
+ * l: 削除ノードの左の子
+ * r: 削除ノードの右の子
+ * 1,2,3...: その他のノード
+ *
+ * パターン1: 削除ノードが左の子を持たない場合
+ *      q                     q
+ *      |                     |
+ *      z          -->        r
+ *       \
+ *        r
+ *
+ * パターン2: 削除ノードが右の子を持たない場合
+ *      q                     q
+ *      |                     |
+ *      z          -->        l
+ *     /
+ *    l
+ *
+ * パターン3: 削除ノードが2つの子を持ち,
+ *            削除ノードの右の子が次節点の場合
+ *      q                       q
+ *      |                       |
+ *      z          -->          r
+ *     / \                     / \
+ *    l   r                   l   1
+ *         \
+ *          1
+ *
+ * パターン4: 削除ノードが2つの子を持ち,
+ *            次節点が削除ノードの右の部分木内にある場合
+ *            (ただし削除ノードの右の子は次節点ではない)
+ *      q                                                 q
+ *      |                                                 |
+ *      z        -- y(2)の場所をx(3)で置き換える -->      z
+ *     / \         (次節点は左の子を持たない)            / \
+ *    l   r                                             l   r     2
+ *       /                                                 /
+ *      2                                                 3
+ *       \
+ *        3
+ *
+ *                                      q
+ *                                      |
+ *  -- zの部分をy(2)に置き換える -->    2
+ *                                     / \
+ *                                    l   r
+ *                                       /
+ *                                      3
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare,
+                  Alloc>::__delete_node_from_tree(node_type *z) {
+  // yがもともと置かれていた場所に移動する節点
+  node_type *x;
+  // 木からの削除あるいは木の中の移動が想定される節点.
+  // zの子が1つの場合は削除対象, zの子が2つの場合は移動対象.
+  node_type *y = z;
+  // 節点yを再彩色する可能性があるので元の色を保持する.
+  // yの代入直後のyの色を覚えておく.
+  typename node_type::Color y_original_color = y->color_;
+
+  if (z->left_->is_nil_node_) {
+    x = z->right_;
+    __delete_transplant(z, z->right_);
+  } else if (z->right_->is_nil_node_) {
+    x = z->left_;
+    __delete_transplant(z, z->left_);
+  } else {
+    // 削除ノードが2つ子を持つ場合
+    y = find_minimum_node(z->right_);
+    y_original_color = y->color_;
+    x = y->right_;
+    if (y->parent_ == z) {
+      // 削除ノードの右の子が次節点の場合
+      x->parent_ = y;
+    } else {
+      __delete_transplant(y, y->right_);
+      y->right_ = z->right_;
+      y->right_->parent_ = y;
+    }
+    __delete_transplant(z, y);
+    y->left_ = z->left_;
+    y->left_->parent_ = y;
+    y->color_ = z->color_;
+  }
+  __delete_node(z);
+
+  if (y_original_color == node_type::BLACK) {
+    // yが黒ならば, Deleteの操作によって2色条件が崩れた可能性がある.
+    // x(もともとyがあった場所)から上に2色条件を違反していないか見ていく
+    //
+    // yが赤ならば以下の3つの理由によってyの削除あるいは移動は2色条件を維持する.
+    // 1. 木の黒高さは変化しない.
+    // 2. 2つの赤節点が連続することは無い.
+    //    なぜならyはzの色を継承した上でzの場所に移されるので,
+    //    yの木の新しい場所で2つの赤節点が連続することはない.
+    // 3. yが赤ならば, yが根であるはずはなく, 根は依然として黒である.
+    //
+    // yが黒ならば以下の3つの問題が発生する可能性がある.
+    // 1. 元々はyが根であって, yの赤の子が新しい根になった時,
+    //    2色条件その2(根は黒である)に違反する.
+    // 2. xとx.parentが共に赤の時,
+    //    2色条件その4(赤ノードは黒2つを子に持つ)に違反する.
+    // 3. 木の中をyが移動すると,
+    //    元々yを含んでいた単純道の黒節点数が1減少する可能性がある.
+    //    これは2色条件その5(任意のノードは子孫の葉までに含まれる黒節点数は一定である)
+    //    に違反する.
+    __delete_fixup(x);
+  }
+  node_count_--;
+}
+
+// ある節点の子であるuを根とする部分木を別の節点の子のvを根とする部分木に置き換える.
+// v.left_, v.right_ に対しては変更を行わないので注意.
+// ノードを削除する際に使う
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_transplant(
+    node_type *u, node_type *v) {
+  if (u->parent_->is_nil_node_) {
+    // uが根のとき
+    root_ = v;
+  } else if (u == u->parent_->left_) {
+    u->parent_->left_ = v;
+  } else {
+    u->parent_->right_ = v;
+  }
+  v->parent_ = u->parent_;
+}
+
+/* ノード削除によって2色条件が違反が発生したか調べ, 発生していたら修正する.
+ *
+ * R: 赤
+ * B: 黒
+ * p: 親
+ * x: 今見ているノード
+ * b: 兄弟
+ * l: 兄弟の左の子
+ * r: 兄弟の右の子
+ *
+ *
+ * 修正するパターンは兄弟の色と兄弟の子の色によって以下の4つに分けられる.
+ * (明示的に色指定されていないノードは何色でも良い(例えば親ノードとか))
+ * 基本的にxが親の左の子という想定で書いてる.
+ * 右バージョンは左右逆にすれば良い.
+ *
+ * 修正パターン1: 兄弟が赤
+ *       p_B                                             p_R
+ *      /   \                                           /   \
+ *    x_B   b_R        -- 親と兄弟の色を変える -->    x_B   b_B
+ *         /   \                                           /   \
+ *       l_B   r_B                                       l_B   r_B
+ *
+ *                              b_B
+ *                             /   \
+ *    -- 親を左回転 -->      p_R   r_B
+ *                          /   \
+ *                        x_B   l_B
+ *
+ *    -- 修正パターン2,3,4で修正する -->
+ *
+ * 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
+ *       p_B                                   p_B
+ *      /   \                                 /   \
+ *    x_B   b_B      -- 兄弟を赤にする -->  x_B   b_R
+ *         /   \                                 /   \
+ *       l_B   r_B                             l_B   r_B
+ *
+ *    -- xを親に設定し, ループを継続 -->
+ *
+ * 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
+ *       p_B                                                        p_B
+ *      /   \                                                      /   \
+ *    x_B   b_B      -- 兄弟と兄弟の左の子で色を交換する -->     x_B   b_R
+ *         /   \                                                      /   \
+ *       l_R   r_B                                                  l_B   r_B
+ *
+ *       p_B                                 p_B
+ *      /   \                               /   \
+ *    x_B   b_R      -- 兄弟を右回転 -->  x_B   l_B
+ *         /   \                                  \
+ *       l_B   r_B                                b_R
+ *                                                  \
+ *                                                  r_B
+ *
+ *    -- 修正パターン4で修正する -->
+ *
+ * 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤 (左の子は赤でも黒でもいい)
+ *       p_R                                                       p_B
+ *      /   \                                                     /   \
+ *    x_B   b_B     -- 親と兄弟の色を交換 & 兄弟の右を黒に -->  x_B   b_R
+ *         /   \                                                     /   \
+ *       l_B   r_R                                                 l_B   r_B
+ *
+ *                          b_R
+ *                         /   \
+ *    -- 親を左回転 -->  p_B   r_B
+ *                      /   \
+ *                    x_B   l_B
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_fixup(
+    node_type *x) {
+  while (x != root_ && x->color_ == node_type::BLACK) {
+    if (x == x->parent_->left_) {
+      // 兄弟ノード
+      node_type *w = x->parent_->right_;
+      if (w->color_ == node_type::RED) {
+        // 修正パターン1: 兄弟が赤
+        w->color_ = node_type::BLACK;
+        x->parent_->color_ = node_type::RED;
+        __rotate_left(x->parent_);
+        w = x->parent_->right_;
+      }
+      if (w->left_->color_ == node_type::BLACK &&
+          w->right_->color_ == node_type::BLACK) {
+        // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
+        w->color_ = node_type::RED;
+        x = x->parent_;
+      } else {
+        if (w->right_->color_ == node_type::BLACK) {
+          // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
+          w->left_->color_ = node_type::BLACK;
+          w->color_ = node_type::RED;
+          __rotate_right(w);
+          w = x->parent_->right_;
+        }
+        // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
+        w->color_ = x->parent_->color_;
+        x->parent_->color_ = node_type::BLACK;
+        w->right_->color_ = node_type::BLACK;
+        __rotate_left(x->parent_);
+        x = root_;
+      }
+    } else {
+      // 兄弟ノード
+      node_type *w = x->parent_->left_;
+      if (w->color_ == node_type::RED) {
+        // 修正パターン1: 兄弟が赤
+        w->color_ = node_type::BLACK;
+        x->parent_->color_ = node_type::RED;
+        __rotate_right(x->parent_);
+        w = x->parent_->left_;
+      }
+      if (w->right_->color_ == node_type::BLACK &&
+          w->left_->color_ == node_type::BLACK) {
+        // 修正パターン2: 兄弟が黒 + 兄弟の子が両方黒
+        w->color_ = node_type::RED;
+        x = x->parent_;
+      } else {
+        if (w->left_->color_ == node_type::BLACK) {
+          // 修正パターン3: 兄弟が黒 + 兄弟の左の子が赤, 右の子が黒
+          w->right_->color_ = node_type::BLACK;
+          w->color_ = node_type::RED;
+          __rotate_left(w);
+          w = x->parent_->left_;
+        }
+        // 修正パターン4: 兄弟が黒 + 兄弟の右の子が赤
+        w->color_ = x->parent_->color_;
+        x->parent_->color_ = node_type::BLACK;
+        w->left_->color_ = node_type::BLACK;
+        __rotate_right(x->parent_);
+        x = root_;
+      }
+    }
+  }
+  x->color_ = node_type::BLACK;
+}
+
+/* 木の全てのノードを削除する.
+ *
+ * 注意: root_, node_count, begin_node_ などのメンバー変数は更新されない.
+ */
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_tree(
+    node_type *root) {
+  // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
+  if (root->is_nil_node_) {
+    return;
+  }
+  __delete_tree(root->left_);
+  __delete_tree(root->right_);
+  __delete_node(root);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_node(
+    node_type *z) {
+  if (z->is_nil_node_) {
+    return;
+  }
+  node_allocator allocator = node_allocator();
+  allocator.destroy(z);
+  allocator.deallocate(z, 1);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
+RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__copy_tree(
+    node_type *other_root, node_type *other_nil_node) {
+  if (other_root == other_nil_node) {
+    return nil_node_;
+  }
+  node_type *copy_root = __copy_node(other_root, other_nil_node);
+  copy_root->parent_ = nil_node_;
+  copy_root->left_ = __copy_tree(other_root->left_, other_nil_node);
+  copy_root->left_->parent_ = copy_root;
+  copy_root->right_ = __copy_tree(other_root->right_, other_nil_node);
+  copy_root->right_->parent_ = copy_root;
+  return copy_root;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
+RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_new_node(
+    value_type value) {
+  node_allocator allocator = node_allocator();
+  node_type *p = allocator.allocate(1);
+  allocator.construct(p, value);
+  return p;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
+RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__copy_node(
+    const node_type *z, const node_type *nil_node) {
+  node_allocator allocator = node_allocator();
+  if (z == nil_node) {
+    return nil_node_;
+  }
+  node_type *new_node = allocator.allocate(1);
+  allocator.construct(new_node, *z);
+  return new_node;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__are_keys_equal(
+    const key_type &key1, const key_type &key2) const {
+  return !Compare()(key1, key2) && !Compare()(key2, key1);
+}
 }  // namespace ft
 
 #endif /* RED_BLACK_TREE_H_ */

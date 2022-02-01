@@ -38,7 +38,7 @@ struct Select1st {
 
 namespace {
 template <class key_type, class Compare>
-bool KeysAreEqual(const key_type &key1, const key_type &key2) {
+bool _keys_are_equal(const key_type &key1, const key_type &key2) {
   return !Compare()(key1, key2) && !Compare()(key2, key1);
 }
 
@@ -67,7 +67,7 @@ insertNodeWithoutFixup(
   node_type *parent = nil_node;
   node_type *node = *root;
   while (node != nil_node) {
-    if (KeysAreEqual<Key, Compare>(KeyOfValue()(new_node->value_),
+    if (_keys_are_equal<Key, Compare>(KeyOfValue()(new_node->value_),
                                    KeyOfValue()(node->value_))) {
       exit(1);
     } else if (Compare()(KeyOfValue()(new_node->value_),
@@ -222,8 +222,8 @@ TEST(RedBlackTree, BasicOperations) {
   rb_tree.InsertUnique(pair_type("b", 2));
   rb_tree.InsertUnique(pair_type("a", 3));
 
-  std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
-  rb_tree.PrintTree2D();
+  std::cout << "Height: " << rb_tree.get_height() << std::endl;
+  rb_tree.print_tree_2D();
 
   std::cout << "a: " << rb_tree["a"].second << std::endl;
   std::cout << "b: " << rb_tree["b"].second << std::endl;
@@ -233,11 +233,11 @@ TEST(RedBlackTree, BasicOperations) {
   EXPECT_EQ(rb_tree["b"], pair_type("b", 2));
   EXPECT_EQ(rb_tree["a"], pair_type("a", 3));
 
-  rb_tree.Delete("a");
-  rb_tree.Delete("b");
+  rb_tree.delete_key_node("a");
+  rb_tree.delete_key_node("b");
   std::cout << "after delete a and b" << std::endl;
-  std::cout << "Height: " << rb_tree.GetHeight() << std::endl;
-  rb_tree.PrintTree2D();
+  std::cout << "Height: " << rb_tree.get_height() << std::endl;
+  rb_tree.print_tree_2D();
 }
 
 TEST(Modifier, ModifyExistNode) {
@@ -252,7 +252,7 @@ TEST(Modifier, ModifyExistNode) {
   EXPECT_EQ(rb_tree["a"], pair_type("a", 1));
   rb_tree["a"].second = 2;
   EXPECT_EQ(rb_tree["a"], pair_type("a", 2));
-  rb_tree.Delete("a");
+  rb_tree.delete_key_node("a");
 }
 
 TEST(Modifier, DeleteAndAccessItShouldThrowException) {
@@ -265,11 +265,11 @@ TEST(Modifier, DeleteAndAccessItShouldThrowException) {
 
   rb_tree.InsertUnique(pair_type("a", 1));
   EXPECT_EQ(rb_tree["a"], pair_type("a", 1));
-  rb_tree.Delete("a");
+  rb_tree.delete_key_node("a");
   EXPECT_THROW(rb_tree["a"], std::out_of_range);
 }
 
-TEST(TreeSuccessor, Random1000) {
+TEST(get_next_node, Random1000) {
   srand(time(NULL));
   typedef int key_type;
   typedef int mapped_type;
@@ -293,17 +293,17 @@ TEST(TreeSuccessor, Random1000) {
     rb_tree.InsertUnique(pair_type(num, num));
   }
 
-  const node_type *node = ft::TreeMinimum(rb_tree.root_);  // begin
+  const node_type *node = ft::find_minimum_node(rb_tree.root_);  // begin
   for (set_type::iterator it = s.begin(); it != s.end(); ++it) {
     EXPECT_EQ(node->value_.first, *it);
     EXPECT_EQ(node->value_.second, *it);
-    node = ft::TreeSuccessor(node);
+    node = ft::get_next_node(node);
   }
   // 最後は end_node_ が返ってくる
   EXPECT_TRUE(node == rb_tree.end_node_);
 }
 
-TEST(TreeSuccessor, DeleteNodeDuringIteration) {
+TEST(get_next_node, DeleteNodeDuringIteration) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
@@ -316,21 +316,21 @@ TEST(TreeSuccessor, DeleteNodeDuringIteration) {
   for (int i = 0; i < 5; ++i) {
     rb_tree.InsertUnique(pair_type(i, i));
   }
-  const node_type *node = ft::TreeMinimum(rb_tree.root_);  // begin
+  const node_type *node = ft::find_minimum_node(rb_tree.root_);  // begin
   int i = 0;
   while (!node->is_nil_node_) {
     EXPECT_EQ(node->value_.first, i);
     if (i == 1) {
       // 2をスキップする
       ++i;
-      rb_tree.Delete(i);
+      rb_tree.delete_key_node(i);
     }
-    node = ft::TreeSuccessor(node);
+    node = ft::get_next_node(node);
     ++i;
   }
 }
 
-TEST(TreePredecessor, Random1000) {
+TEST(get_prev_node, Random1000) {
   srand(time(NULL));
   typedef int key_type;
   typedef int mapped_type;
@@ -353,17 +353,17 @@ TEST(TreePredecessor, Random1000) {
     rb_tree.InsertUnique(pair_type(num, num));
   }
 
-  const node_type *node = ft::TreeMaximum(rb_tree.root_);  // rbegin
+  const node_type *node = ft::find_maximum_node(rb_tree.root_);  // rbegin
   for (set_type::reverse_iterator rit = s.rbegin(); rit != s.rend(); ++rit) {
     EXPECT_EQ(node->value_.first, *rit);
     EXPECT_EQ(node->value_.second, *rit);
-    node = ft::TreePredecessor(node);
+    node = ft::get_prev_node(node);
   }
   // 最後は end_node が返ってくる
   EXPECT_EQ(node, rb_tree.end_node_);
 }
 
-TEST(TreePredecessor, DeleteNodeDuringIteration) {
+TEST(get_prev_node, DeleteNodeDuringIteration) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
@@ -376,16 +376,16 @@ TEST(TreePredecessor, DeleteNodeDuringIteration) {
   for (int i = 0; i < 5; ++i) {
     rb_tree.InsertUnique(pair_type(i, i));
   }
-  const node_type *node = ft::TreeMaximum(rb_tree.root_);  // rbegin
+  const node_type *node = ft::find_maximum_node(rb_tree.root_);  // rbegin
   int i = 4;
   while (!node->is_nil_node_) {
     EXPECT_EQ(node->value_.first, i);
     if (i == 2) {
       // 1をスキップする
       --i;
-      rb_tree.Delete(i);
+      rb_tree.delete_key_node(i);
     }
-    node = ft::TreePredecessor(node);
+    node = ft::get_prev_node(node);
     --i;
   }
   // 最後のノードは end_node である
@@ -427,17 +427,17 @@ TEST(RedBlackTree, CopyConstructor) {
   EXPECT_EQ(t3[0].second, 3);
   EXPECT_EQ(t4[0].second, 4);
 
-  t1.Delete(0);
-  t2.Delete(0);
-  t3.Delete(0);
-  t4.Delete(0);
+  t1.delete_key_node(0);
+  t2.delete_key_node(0);
+  t3.delete_key_node(0);
+  t4.delete_key_node(0);
 
-  t1.PrintTree2D();
+  t1.print_tree_2D();
 
-  const tree_type::node_type *n1 = ft::TreeMinimum(t1.root_);
-  const tree_type::node_type *n2 = ft::TreeMinimum(t2.root_);
-  const tree_type::node_type *n3 = ft::TreeMinimum(t3.root_);
-  const tree_type::node_type *n4 = ft::TreeMinimum(t4.root_);
+  const tree_type::node_type *n1 = ft::find_minimum_node(t1.root_);
+  const tree_type::node_type *n2 = ft::find_minimum_node(t2.root_);
+  const tree_type::node_type *n3 = ft::find_minimum_node(t3.root_);
+  const tree_type::node_type *n4 = ft::find_minimum_node(t4.root_);
   while (!n1->is_nil_node_) {
     EXPECT_EQ(n1->value_.first, n2->value_.first);
     EXPECT_EQ(n1->value_.second, n2->value_.second);
@@ -452,10 +452,10 @@ TEST(RedBlackTree, CopyConstructor) {
     printf("n1: %d, n2, %d, n3: %d, n4: %d\n", n1->value_.first,
            n2->value_.first, n3->value_.first, n4->value_.first);
 
-    n1 = ft::TreeSuccessor(n1);
-    n2 = ft::TreeSuccessor(n2);
-    n3 = ft::TreeSuccessor(n3);
-    n4 = ft::TreeSuccessor(n4);
+    n1 = ft::get_next_node(n1);
+    n2 = ft::get_next_node(n2);
+    n3 = ft::get_next_node(n3);
+    n4 = ft::get_next_node(n4);
   }
   // 最後は end_node_
   EXPECT_EQ(n1, t1.end_node_);
@@ -856,7 +856,7 @@ TEST(InsertUnique, UncleIsBlackAndNewNodeIsRightleft) {
   EXPECT_EQ(right_subtree->left_->left_->color_, node_type::BLACK);
 }
 
-TEST(Search, BasicOperations) {
+TEST(search_key_node, BasicOperations) {
   typedef int key_type;
   typedef int mapped_type;
   typedef ft::pair<const key_type, mapped_type> pair_type;
@@ -873,7 +873,7 @@ TEST(Search, BasicOperations) {
   }
 }
 
-TEST(Delete, TargetNodeHasOnlyRightChild) {
+TEST(delete_key_node, TargetNodeHasOnlyRightChild) {
   /* パターン1: 削除ノードが左の子を持たない場合
    *      q                     q
    *      |                     |
@@ -894,7 +894,7 @@ TEST(Delete, TargetNodeHasOnlyRightChild) {
   rb_tree.InsertUnique(pair_type(9, 9));
   rb_tree.InsertUnique(pair_type(11, 11));
 
-  rb_tree.Delete(9);
+  rb_tree.delete_key_node(9);
 
   EXPECT_EQ(rb_tree[5].second, 5);
   EXPECT_EQ(rb_tree[7].second, 7);
@@ -902,7 +902,7 @@ TEST(Delete, TargetNodeHasOnlyRightChild) {
   // TODO: ノードが削除されたかテストする
 }
 
-TEST(Delete, TargetNodeHasOnlyLeftChild) {
+TEST(delete_key_node, TargetNodeHasOnlyLeftChild) {
   /* パターン2: 削除ノードが右の子を持たない場合
    *      q                     q
    *      |                     |
@@ -923,14 +923,14 @@ TEST(Delete, TargetNodeHasOnlyLeftChild) {
   rb_tree.InsertUnique(pair_type(3, 3));
   rb_tree.InsertUnique(pair_type(2, 2));
 
-  rb_tree.Delete(3);
+  rb_tree.delete_key_node(3);
 
   EXPECT_EQ(rb_tree[5].second, 5);
   EXPECT_EQ(rb_tree[4].second, 4);
   EXPECT_EQ(rb_tree[2].second, 2);
 }
 
-TEST(Delete, TargetNodeHasTwoChildAndRightChildIsNextNode) {
+TEST(delete_key_node, TargetNodeHasTwoChildAndRightChildIsNextNode) {
   /* パターン3: 削除ノードが2つの子を持ち,
    *            削除ノードの右の子が次節点の場合
    *      q                       q
@@ -953,14 +953,14 @@ TEST(Delete, TargetNodeHasTwoChildAndRightChildIsNextNode) {
   rb_tree.InsertUnique(pair_type(3, 3));
   rb_tree.InsertUnique(pair_type(4, 4));
 
-  rb_tree.Delete(2);
+  rb_tree.delete_key_node(2);
 
   EXPECT_EQ(rb_tree[1].second, 1);
   EXPECT_EQ(rb_tree[3].second, 3);
   EXPECT_EQ(rb_tree[4].second, 4);
 }
 
-TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
+TEST(delete_key_node, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
   /* パターン4: 削除ノードが2つの子を持ち,
    *            次節点が削除ノードの右の部分木内にある場合
    *            (ただし削除ノードの右の子は次節点ではない)
@@ -997,7 +997,7 @@ TEST(Delete, TargetNodeHasTwoChildAndNextNodeIsInRightSubtree) {
   rb_tree.InsertUnique(pair_type(6, 6));
   rb_tree.InsertUnique(pair_type(7, 7));
 
-  rb_tree.Delete(1);
+  rb_tree.delete_key_node(1);
 
   EXPECT_EQ(rb_tree[5].second, 5);
   EXPECT_EQ(rb_tree[0].second, 0);
@@ -1060,7 +1060,7 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
-  rb_tree.Delete(5);
+  rb_tree.delete_key_node(5);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1101,7 +1101,7 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::BLACK);
 
-  rb_tree.Delete(3);
+  rb_tree.delete_key_node(3);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1157,7 +1157,7 @@ TEST(DeleteLeft,
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
 
-  rb_tree.Delete(5);
+  rb_tree.delete_key_node(5);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1223,7 +1223,7 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(45, 45), node_type::RED);
 
-  rb_tree.Delete(5);
+  rb_tree.delete_key_node(5);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1282,7 +1282,7 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35), node_type::BLACK);
 
-  rb_tree.Delete(75);
+  rb_tree.delete_key_node(75);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1325,7 +1325,7 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
-  rb_tree.Delete(75);
+  rb_tree.delete_key_node(75);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1382,7 +1382,7 @@ TEST(DeleteRight,
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40), node_type::BLACK);
 
-  rb_tree.Delete(60);
+  rb_tree.delete_key_node(60);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1449,7 +1449,7 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(23, 23), node_type::RED);
 
-  rb_tree.Delete(60);
+  rb_tree.delete_key_node(60);
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
@@ -1482,19 +1482,19 @@ TEST(SizeAndCapacity, Normal) {
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(5));
   EXPECT_EQ(rb_tree.empty(), false);
 
-  rb_tree.Delete("A");
+  rb_tree.delete_key_node("A");
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(4));
   EXPECT_EQ(rb_tree.empty(), false);
-  rb_tree.Delete("AB");
+  rb_tree.delete_key_node("AB");
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(3));
   EXPECT_EQ(rb_tree.empty(), false);
-  rb_tree.Delete("AA");
+  rb_tree.delete_key_node("AA");
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(2));
   EXPECT_EQ(rb_tree.empty(), false);
-  rb_tree.Delete("CC");
+  rb_tree.delete_key_node("CC");
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(1));
   EXPECT_EQ(rb_tree.empty(), false);
-  rb_tree.Delete("DD");
+  rb_tree.delete_key_node("DD");
   EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
   EXPECT_EQ(rb_tree.empty(), true);
 }
@@ -1593,7 +1593,7 @@ TEST(ForwardIterator, DeleteNodeDuringIteration) {
   EXPECT_EQ(*it, pair_type("A", 1));
   ++it;
   EXPECT_EQ(*it, pair_type("AA", 3));
-  rb_tree.Delete("AB");
+  rb_tree.delete_key_node("AB");
   it++;
   EXPECT_EQ(*it, pair_type("CC", 4));
   EXPECT_EQ(*(++it), pair_type("DD", 5));
@@ -1707,7 +1707,7 @@ TEST(ReverseIterator, DeleteNodeDuringIteration) {
   EXPECT_EQ(*it, pair_type("DD", 5));
   ++it;
   EXPECT_EQ(*it, pair_type("CC", 4));
-  rb_tree.Delete("AB");
+  rb_tree.delete_key_node("AB");
   it++;
   EXPECT_EQ(*it, pair_type("AA", 3));
   EXPECT_EQ(*(++it), pair_type("A", 1));
@@ -1840,3 +1840,21 @@ TEST(InsertUnique, ReturnIteratorAndWhetherInsertIsSuccess) {
   EXPECT_EQ(*(result.first), pair_type("CC", 4));
   EXPECT_EQ(result.second, false);
 }
+
+TEST(InsertOneValueWithHint, NeedToThinkAboutWhatTestDo) {}
+
+TEST(InsertRange, NeedToThinkAboutWhatTestDo) {}
+
+TEST(Erase, NeedToThinkAboutWhatTestDo) {}
+
+TEST(Swap, NeedToThinkAboutWhatTestDo) {}
+
+TEST(Count, NeedToThinkAboutWhatTestDo) {}
+
+TEST(Find, NeedToThinkAboutWhatTestDo) {}
+
+TEST(LowerBound, NeedToThinkAboutWhatTestDo) {}
+
+TEST(UpperBound, NeedToThinkAboutWhatTestDo) {}
+
+TEST(EqualRange, NeedToThinkAboutWhatTestDo) {}

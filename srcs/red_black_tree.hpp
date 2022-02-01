@@ -196,6 +196,81 @@ struct RBTNode {
   RBTNode &operator=(const RBTNode &rhs) {}
 };
 
+template <class Value>
+RBTNode<Value> *find_minimum_node(const RBTNode<Value> *root) {
+  if (!root) {
+    return NULL;
+  }
+
+  const RBTNode<Value> *current = root;
+  while (!current->left_->is_nil_node_) {
+    current = current->left_;
+  }
+  return const_cast<RBTNode<Value> *>(current);
+}
+
+template <class Value>
+RBTNode<Value> *find_maximum_node(const RBTNode<Value> *root) {
+  if (!root) {
+    return NULL;
+  }
+
+  const RBTNode<Value> *current = root;
+  while (!current->right_->is_nil_node_) {
+    current = current->right_;
+  }
+  return const_cast<RBTNode<Value> *>(current);
+}
+
+// 中間順木巡回の順序での次の節点のポインタを返す
+template <class Value>
+RBTNode<Value> *get_next_node(const RBTNode<Value> *current) {
+  if (!current->right_->is_nil_node_) {
+    // currentが右の子を持っている時は右の子の中の最小が次のノード
+    return find_minimum_node(current->right_);
+  } else {
+    if (current == current->parent_->left_) {
+      // currentが親の左の子で, なおかつ右に子を持っていない場合,
+      // 次のノードは親である
+      return current->parent_;
+    } else {
+      // currentが親の右の子で, なおかつ右に子を持たない
+      // currentが左の子になるまで親を遡る.
+      const RBTNode<Value> *next_node = current->parent_;
+      while (!next_node->is_nil_node_ && current == next_node->right_) {
+        current = next_node;
+        next_node = next_node->parent_;
+      }
+      return const_cast<RBTNode<Value> *>(next_node);
+    }
+  }
+}
+
+// 中間順木巡回の逆順序での前の節点のポインタを返す
+template <class Value>
+RBTNode<Value> *get_prev_node(const RBTNode<Value> *current) {
+  if (!current->left_->is_nil_node_) {
+    // currentが左の子を持つ場合は左部分木の中の最大値
+    // currentの次に小さい値
+    return find_maximum_node(current->left_);
+  } else {
+    if (current == current->parent_->left_) {
+      // currentが親の左の子で, なおかつ左に子を持たない
+      // currentが右の子になるまで親を遡る.
+      const RBTNode<Value> *next_node = current->parent_;
+      while (!next_node->is_nil_node_ && current == next_node->left_) {
+        current = next_node;
+        next_node = next_node->parent_;
+      }
+      return const_cast<RBTNode<Value> *>(next_node);
+    } else {
+      // currentが親の右のノードで, currentが左の子を持たない場合,
+      // 次のノードはcurrentの親
+      return const_cast<RBTNode<Value> *>(current->parent_);
+    }
+  }
+}
+
 // Red Black Tree
 //
 // ノードを辿るルールは left < key <= right である.
@@ -1056,81 +1131,6 @@ class RedBlackTree {
     ++node_count_;
   }
 };
-
-template <class Value>
-RBTNode<Value> *find_minimum_node(const RBTNode<Value> *root) {
-  if (!root) {
-    return NULL;
-  }
-
-  const RBTNode<Value> *current = root;
-  while (!current->left_->is_nil_node_) {
-    current = current->left_;
-  }
-  return const_cast<RBTNode<Value> *>(current);
-}
-
-template <class Value>
-RBTNode<Value> *find_maximum_node(const RBTNode<Value> *root) {
-  if (!root) {
-    return NULL;
-  }
-
-  const RBTNode<Value> *current = root;
-  while (!current->right_->is_nil_node_) {
-    current = current->right_;
-  }
-  return const_cast<RBTNode<Value> *>(current);
-}
-
-// 中間順木巡回の順序での次の節点のポインタを返す
-template <class Value>
-RBTNode<Value> *get_next_node(const RBTNode<Value> *current) {
-  if (!current->right_->is_nil_node_) {
-    // currentが右の子を持っている時は右の子の中の最小が次のノード
-    return find_minimum_node(current->right_);
-  } else {
-    if (current == current->parent_->left_) {
-      // currentが親の左の子で, なおかつ右に子を持っていない場合,
-      // 次のノードは親である
-      return current->parent_;
-    } else {
-      // currentが親の右の子で, なおかつ右に子を持たない
-      // currentが左の子になるまで親を遡る.
-      const RBTNode<Value> *next_node = current->parent_;
-      while (!next_node->is_nil_node_ && current == next_node->right_) {
-        current = next_node;
-        next_node = next_node->parent_;
-      }
-      return const_cast<RBTNode<Value> *>(next_node);
-    }
-  }
-}
-
-// 中間順木巡回の逆順序での前の節点のポインタを返す
-template <class Value>
-RBTNode<Value> *get_prev_node(const RBTNode<Value> *current) {
-  if (!current->left_->is_nil_node_) {
-    // currentが左の子を持つ場合は左部分木の中の最大値
-    // currentの次に小さい値
-    return find_maximum_node(current->left_);
-  } else {
-    if (current == current->parent_->left_) {
-      // currentが親の左の子で, なおかつ左に子を持たない
-      // currentが右の子になるまで親を遡る.
-      const RBTNode<Value> *next_node = current->parent_;
-      while (!next_node->is_nil_node_ && current == next_node->left_) {
-        current = next_node;
-        next_node = next_node->parent_;
-      }
-      return const_cast<RBTNode<Value> *>(next_node);
-    } else {
-      // currentが親の右のノードで, currentが左の子を持たない場合,
-      // 次のノードはcurrentの親
-      return const_cast<RBTNode<Value> *>(current->parent_);
-    }
-  }
-}
 
 }  // namespace ft
 

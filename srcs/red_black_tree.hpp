@@ -44,6 +44,10 @@ struct rbtree_iterator {
 
   explicit rbtree_iterator(node_pointer ptr) : node_(ptr) {}
 
+  node_type *get_node_ptr() {
+    return node_;
+  }
+
   self_type &operator=(const self_type &other) {
     if (this != &other) {
       node_ = other.node_;
@@ -554,9 +558,19 @@ class RedBlackTree {
     node_count_ = 0;
   }
 
-  void erase(iterator pos);
+  void erase(iterator pos) {
+    __delete_node_from_tree(pos.get_node_ptr());
+  }
 
-  void erase(iterator first, iterator last);
+  void erase(iterator first, iterator last) {
+    iterator it = first;
+    for (; it != last;) {
+      iterator next_it = it;
+      ++next_it;
+      erase(it);
+      it = next_it;
+    }
+  }
 
   size_type erase(const Key &key) {
     // Search(key) の結果が nil_node だった場合には何もしない

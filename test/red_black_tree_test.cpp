@@ -2225,9 +2225,104 @@ TEST(InsertRange, TreeHasElements) {
   expectRedBlackTreeKeepRules(rb_tree);
 }
 
-TEST(ErasePosition, NeedToThinkAboutWhatTestDo) {}
+TEST(ErasePosition, EraseOneElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
 
-TEST(EraseRange, NeedToThinkAboutWhatTestDo) {}
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator it;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  rb_tree.erase(it);
+  it = rb_tree.begin();
+  EXPECT_EQ(*it++, pair_type("A", 0));
+  EXPECT_EQ(*it++, pair_type("C", 0));
+  EXPECT_EQ(*it++, pair_type("G", 0));
+  EXPECT_EQ(*it++, pair_type("I", 0));
+  EXPECT_EQ(it, rb_tree.end());
+}
+
+TEST(ErasePosition, EraseAllElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator it;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  rb_tree.insert_unique(pair_type("E", 0));
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  for (it = rb_tree.begin(); it != rb_tree.end();) {
+    rb_tree.erase(it++);
+  }
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+}
+
+TEST(EraseRange, DeleteElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator it;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  rb_tree.erase(it, rb_tree.end());
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(2));
+
+  it = rb_tree.begin();
+  EXPECT_EQ(*it++, pair_type("A", 0));
+  EXPECT_EQ(*it++, pair_type("C", 0));
+  EXPECT_EQ(it, rb_tree.end());
+}
+
+TEST(EraseRange, DeleteAllElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  rb_tree.insert_unique(pair_type("E", 0));
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  rb_tree.erase(rb_tree.begin(), rb_tree.end());
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+}
 
 TEST(EraseKey, TreeHasTargetKeyNode) {
   typedef std::string key_type;

@@ -385,10 +385,8 @@ class RedBlackTree {
     __delete_tree(root_);
   }
 
-  // Tree operations
-  // insert_uniqueは現在木に挿入しようとしているkeyが木に無いという前提で動作する。
-  // keyが既に木にあるか、value挿入するかそれとも既存のノードの値を更新するか
-  // 判断するのはmapなどの利用側の責務とする。
+  /********** Iterators **********/
+
   ft::pair<iterator, bool> insert_unique(const Value &value) {
     node_type *parent = nil_node_;
     node_type *current = root_;
@@ -472,18 +470,7 @@ class RedBlackTree {
     }
   }
 
-  void delete_key_node(Key key) {
-    // Search(key) の結果が nil_node だった場合には何もしない
-    node_type *target_node = search_key_node(key);
-    if (target_node == begin_node_) {
-      begin_node_ = get_next_node<Value>(target_node);
-    }
-    if (!target_node->is_nil_node_)
-      __delete_node_from_tree(target_node);
-    root_->parent_ = end_node_;
-    end_node_->left_ = root_;
-    end_node_->right_ = root_;
-  }
+  /********** Search **********/
 
   node_type *search_key_node(const Key &key) const {
     node_type *current = root_;
@@ -567,11 +554,25 @@ class RedBlackTree {
     node_count_ = 0;
   }
 
-  // void erase(iterator pos);
+  void erase(iterator pos);
 
-  // void erase(iterator first, iterator last);
+  void erase(iterator first, iterator last);
 
-  // size_type erase(const Key &key);
+  size_type erase(const Key &key) {
+    // Search(key) の結果が nil_node だった場合には何もしない
+    node_type *target_node = search_key_node(key);
+    if (target_node->is_nil_node_) {
+      return 0;
+    }
+    if (target_node == begin_node_) {
+      begin_node_ = get_next_node<Value>(target_node);
+    }
+    __delete_node_from_tree(target_node);
+    root_->parent_ = end_node_;
+    end_node_->left_ = root_;
+    end_node_->right_ = root_;
+    return 1;
+  }
 
   // void swap(RedBlackTree &other);
 

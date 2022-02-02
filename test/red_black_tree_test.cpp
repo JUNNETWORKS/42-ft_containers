@@ -68,7 +68,7 @@ insertNodeWithoutFixup(
   node_type *node = *root;
   while (node != nil_node) {
     if (__are_keys_equal<Key, Compare>(KeyOfValue()(new_node->value_),
-                                   KeyOfValue()(node->value_))) {
+                                       KeyOfValue()(node->value_))) {
       exit(1);
     } else if (Compare()(KeyOfValue()(new_node->value_),
                          KeyOfValue()(node->value_))) {
@@ -1841,7 +1841,313 @@ TEST(insert_unique, ReturnIteratorAndWhetherInsertIsSuccess) {
   EXPECT_EQ(result.second, false);
 }
 
-TEST(InsertOneValueWithHint, NeedToThinkAboutWhatTestDo) {}
+TEST(InsertWithHint, NewValueNextToTheHint) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値はヒントの次に入る。
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("F", 0));
+  EXPECT_EQ(*it, pair_type("F", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(InsertWithHint, NewValuePreviousToTheHint) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値はヒントの前に入る。
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("D", 0));
+  EXPECT_EQ(*it, pair_type("D", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(InsertWithHint, NewValueNextNextToTheHint) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値はヒントの次の次に入る。
+  // この場合は普通にルートから辿る
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("H", 0));
+  EXPECT_EQ(*it, pair_type("H", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(InsertWithHint, NewValuePreviousPreviousToTheHint) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値はヒントの前の前に入る。
+  // この場合は普通にルートから辿る
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("B", 0));
+  EXPECT_EQ(*it, pair_type("B", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(InsertWithHint, NewValueIsTheSameAsTheHint) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値がヒントと同じキー
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("E", 2));
+  EXPECT_EQ(*it, pair_type("E", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+
+  // 値は更新されない
+  EXPECT_EQ(rb_tree.search_key_node("E")->value_.second, 0);
+}
+
+TEST(InsertWithHint, NewValueIsTheSameAsTheNext) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値がヒントの次と同じキー
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("G", 2));
+  EXPECT_EQ(*it, pair_type("G", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+
+  // 値は更新されない
+  EXPECT_EQ(rb_tree.search_key_node("G")->value_.second, 0);
+}
+
+TEST(InsertWithHint, NewValueIsTheSameAsThePrevious) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  result = rb_tree.insert_unique(pair_type("E", 0));
+  hint_it = result.first;
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // 新しい値がヒントの前と同じキー
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("C", 2));
+  EXPECT_EQ(*it, pair_type("C", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+
+  // 値は更新されない
+  EXPECT_EQ(rb_tree.search_key_node("C")->value_.second, 0);
+}
+
+TEST(InsertWithHint, TheHintIsTheBeginNode) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  rb_tree.insert_unique(pair_type("E", 0));
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // ヒントがbegin()だった
+  hint_it = rb_tree.begin();
+  // "0" < "A"
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("0", 0));
+  EXPECT_EQ(*it, pair_type("0", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+
+  EXPECT_EQ((*(rb_tree.begin())).first, "0");
+}
+
+TEST(InsertWithHint, TheHintIsPreviousToTheEndNode) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  ft::pair<tree_iterator, bool> result;
+  tree_iterator hint_it;
+
+  /*     C
+   *   /   \
+   *  A     G
+   *      /    \
+   *     E      I
+   */
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  rb_tree.insert_unique(pair_type("E", 0));
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  // ヒントがend() - 1だった
+  hint_it = rb_tree.end();
+  --hint_it;
+  tree_iterator it = rb_tree.insert_unique(hint_it, pair_type("J", 0));
+  EXPECT_EQ(*it, pair_type("J", 0));
+
+  expectRedBlackTreeKeepRules(rb_tree);
+
+  // end() - 1 は新しく挿入したノードになっている
+  it = rb_tree.end();
+  --it;
+  EXPECT_EQ((*it).first, "J");
+}
 
 TEST(InsertRange, NeedToThinkAboutWhatTestDo) {}
 

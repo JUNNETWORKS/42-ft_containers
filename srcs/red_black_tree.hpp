@@ -420,6 +420,51 @@ class RedBlackTree {
     return ft::pair<iterator, bool>(iterator(new_node), true);
   }
 
+  iterator insert_unique(iterator hint_it, const Value &value) {
+    iterator prev_it = iterator(hint_it);
+    if (hint_it != begin()) {
+      --prev_it;
+    }
+    iterator next_it = iterator(hint_it);
+    if (hint_it != end()) {
+      ++next_it;
+    }
+
+    if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*hint_it))) {
+      // hint_it == value
+      return iterator(hint_it);
+    } else if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*prev_it))) {
+      // --hint_it == value
+      return iterator(prev_it);
+    } else if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*next_it))) {
+      // ++hint_it == value
+      return iterator(next_it);
+    } else if (Compare()(KeyOfValue()(value), KeyOfValue()(*hint_it)) &&
+               Compare()(KeyOfValue()(*prev_it), KeyOfValue()(value)) &&
+               hint_it.node_->left_->is_nil_node_) {
+      // --hint_it < value < hint_it なら hint_it の左に挿入
+      node_type *new_node = __alloc_new_node(value);
+      hint_it.node_->left_ = new_node;
+      new_node->parent_ = hint_it.node_;
+      __insert_fixup(new_node);
+      __update_tree_info_based_on_new_node(new_node);
+      return iterator(new_node);
+    } else if (Compare()(KeyOfValue()(*hint_it), KeyOfValue()(value)) &&
+               Compare()(KeyOfValue()(value), KeyOfValue()(*next_it)) &&
+               hint_it.node_->right_->is_nil_node_) {
+      // hint_it < value < ++hint_it なら hint_it の右に挿入
+      node_type *new_node = __alloc_new_node(value);
+      hint_it.node_->right_ = new_node;
+      new_node->parent_ = hint_it.node_;
+      __insert_fixup(new_node);
+      __update_tree_info_based_on_new_node(new_node);
+      return iterator(new_node);
+    } else {
+      // 入れられ無さそうなら普通にルートから入れる場所を探して入れる
+      return insert_unique(value).first;
+    }
+  }
+
   void delete_key_node(Key key) {
     // Search(key) の結果が nil_node だった場合には何もしない
     node_type *target_node = search_key_node(key);

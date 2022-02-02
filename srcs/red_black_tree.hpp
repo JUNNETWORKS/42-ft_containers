@@ -414,10 +414,6 @@ class RedBlackTree {
     } else {
       parent->right_ = new_node;
     }
-    new_node->left_ = nil_node_;
-    new_node->right_ = nil_node_;
-    new_node->color_ =
-        node_type::RED;  // 新しいノードの色は最初は赤に設定される
     __insert_fixup(new_node);
     __update_tree_info_based_on_new_node(new_node);
 
@@ -1161,9 +1157,12 @@ typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
 RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_new_node(
     value_type value) {
   node_allocator allocator = node_allocator();
-  node_type *p = allocator.allocate(1);
-  allocator.construct(p, value);
-  return p;
+  node_type *new_node = allocator.allocate(1);
+  allocator.construct(new_node, value);
+  new_node->left_ = nil_node_;
+  new_node->right_ = nil_node_;
+  new_node->color_ = node_type::RED;  // 新しいノードの色は最初は赤に設定される
+  return new_node;
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>

@@ -2149,7 +2149,81 @@ TEST(InsertWithHint, TheHintIsPreviousToTheEndNode) {
   EXPECT_EQ((*it).first, "J");
 }
 
-TEST(InsertRange, NeedToThinkAboutWhatTestDo) {}
+TEST(InsertRange, TreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef std::vector<pair_type> pair_vector;
+  typedef pair_vector::iterator vector_iterator;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  pair_vector vec;
+
+  vec.push_back(pair_type("A", 0));
+  vec.push_back(pair_type("C", 0));
+  vec.push_back(pair_type("E", 0));
+  vec.push_back(pair_type("G", 0));
+  vec.push_back(pair_type("I", 0));
+
+  rb_tree.insert_range(vec.begin(), vec.end());
+
+  tree_iterator tree_it = rb_tree.begin();
+  vector_iterator vec_it = vec.begin();
+  for (; tree_it != rb_tree.end() && vec_it != vec.end(); ++tree_it, ++vec_it) {
+    EXPECT_EQ(*tree_it, *vec_it);
+  }
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
+
+TEST(InsertRange, TreeHasElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef std::vector<pair_type> pair_vector;
+  typedef pair_vector::iterator vector_iterator;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+  pair_vector vec;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("B", 0));
+  rb_tree.insert_unique(pair_type("D", 0));
+  rb_tree.insert_unique(pair_type("F", 0));
+  rb_tree.insert_unique(pair_type("H", 0));
+  rb_tree.insert_unique(pair_type("J", 0));
+
+  // Aは2回insertされる。rb_treeに既にAがあるので pair("A", 2) は反映されない
+  vec.push_back(pair_type("A", 2));
+  vec.push_back(pair_type("C", 0));
+  vec.push_back(pair_type("E", 0));
+  vec.push_back(pair_type("G", 0));
+  vec.push_back(pair_type("I", 0));
+
+  rb_tree.insert_range(vec.begin(), vec.end());
+
+  // rb_tree には A~J までが入っているはずである
+  pair_vector expected_vec;
+  for (char c = 'A'; c <= 'J'; ++c) {
+    expected_vec.push_back(pair_type(std::string(1, c), 0));
+  }
+
+  tree_iterator tree_it = rb_tree.begin();
+  vector_iterator vec_it = expected_vec.begin();
+  for (; tree_it != rb_tree.end() && vec_it != expected_vec.end();
+       ++tree_it, ++vec_it) {
+    EXPECT_EQ((*tree_it).first, (*vec_it).first);
+    EXPECT_EQ((*tree_it).second, 0);
+  }
+
+  expectRedBlackTreeKeepRules(rb_tree);
+}
 
 TEST(Erase, NeedToThinkAboutWhatTestDo) {}
 

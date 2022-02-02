@@ -465,6 +465,13 @@ class RedBlackTree {
     }
   }
 
+  template <class InputIt>
+  void insert_range(InputIt first, InputIt last) {
+    for (; first != last; ++first) {
+      insert_unique(*first);
+    }
+  }
+
   void delete_key_node(Key key) {
     // Search(key) の結果が nil_node だった場合には何もしない
     node_type *target_node = search_key_node(key);

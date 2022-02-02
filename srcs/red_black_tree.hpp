@@ -323,8 +323,7 @@ class RedBlackTree {
  private:
 #endif
   // Members
-  node_type nil_node_object_;  // NIL node isn't stored in heap area.
-  node_type *nil_node_;        // point to nil_node_object
+  node_type *nil_node_;  // point to nil_node_object
   node_type *root_;
   size_type node_count_;
   // begin() と end() を O(1) でアクセスするためにメンバー変数にもたせておく
@@ -332,19 +331,16 @@ class RedBlackTree {
   // beginは常に最大のノードを示す。
   // endは左の子としてroot_を持つ。
   node_type *begin_node_;
-  node_type end_node_object_;
   node_type *end_node_;
 
  public:
   // Constructor, Descructor
 
   RedBlackTree()
-      : nil_node_object_(Value(), true),
-        nil_node_(&nil_node_object_),
+      : nil_node_(__alloc_nil_node()),
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_object_(Value(), false),
         end_node_(nil_node_) {
     nil_node_->parent_ = nil_node_;
     nil_node_->left_ = nil_node_;
@@ -357,12 +353,10 @@ class RedBlackTree {
   }
 
   RedBlackTree(const RedBlackTree &other)
-      : nil_node_object_(Value(), true),
-        nil_node_(&nil_node_object_),
+      : nil_node_(__alloc_nil_node()),
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_object_(Value(), false),
         end_node_(nil_node_) {
     operator=(other);
   }
@@ -387,6 +381,7 @@ class RedBlackTree {
   ~RedBlackTree() {
     // 全てのノードをdeleteする
     __delete_tree(root_);
+    __delete_node(nil_node_);
   }
 
   /********** Iterators **********/
@@ -676,6 +671,7 @@ class RedBlackTree {
   void __delete_node(node_type *z);
   node_type *__copy_tree(node_type *other_root, node_type *other_nil_node);
   node_type *__alloc_new_node(value_type value);
+  node_type *__alloc_nil_node();
   node_type *__copy_node(const node_type *z, const node_type *nil_node);
 
   /********** Utils **********/
@@ -897,7 +893,7 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::
                 KeyOfValue()(begin_node_->value_))) {
     begin_node_ = new_node;
   }
-  // end_node_ が新たなルートを指すようにする
+  // end_node_ の子が新たなルートを指すようにする
   root_->parent_ = end_node_;
   end_node_->left_ = root_;
   end_node_->right_ = root_;
@@ -1183,7 +1179,8 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_fixup(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_tree(
     node_type *root) {
-  // 注意: NILノードは静的確保で確保されているのでメモリ解法処理不要
+  // 注意: NILノードは __delete_tree()
+  // を呼び出した後に呼び出し側で呼ぶ必要がある
   if (root->is_nil_node_) {
     return;
   }
@@ -1195,9 +1192,6 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_tree(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_node(
     node_type *z) {
-  if (z->is_nil_node_) {
-    return;
-  }
   node_allocator allocator = node_allocator();
   allocator.destroy(z);
   allocator.deallocate(z, 1);
@@ -1230,6 +1224,19 @@ RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_new_node(
   new_node->right_ = nil_node_;
   new_node->color_ = node_type::RED;  // 新しいノードの色は最初は赤に設定される
   return new_node;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
+RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_nil_node() {
+  node_allocator allocator = node_allocator();
+  node_type *nil_node = allocator.allocate(1);
+  allocator.construct(nil_node, Value(), true);
+  nil_node->parent_ = nil_node;
+  nil_node->left_ = nil_node;
+  nil_node->right_ = nil_node;
+  nil_node->color_ = node_type::BLACK;
+  return nil_node;
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>

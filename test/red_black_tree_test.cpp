@@ -2364,7 +2364,102 @@ TEST(EraseKey, TreeHasNoTargetKeyNode) {
   EXPECT_EQ(rb_tree.search_key_node("B")->is_nil_node_, true);
 }
 
-TEST(Swap, NeedToThinkAboutWhatTestDo) {}
+TEST(Swap, SwapAndDeleteTheOtherOne) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+
+  tree_type *rb_tree1 = new tree_type();
+
+  rb_tree1->insert_unique(pair_type("A", 0));
+  rb_tree1->insert_unique(pair_type("C", 0));
+  rb_tree1->insert_unique(pair_type("E", 0));
+  rb_tree1->insert_unique(pair_type("G", 0));
+  rb_tree1->insert_unique(pair_type("I", 0));
+
+  tree_type *rb_tree2 = new tree_type();
+
+  rb_tree2->insert_unique(pair_type("B", 0));
+  rb_tree2->insert_unique(pair_type("D", 0));
+  rb_tree2->insert_unique(pair_type("F", 0));
+  rb_tree2->insert_unique(pair_type("H", 0));
+  rb_tree2->insert_unique(pair_type("J", 0));
+
+  rb_tree1->swap(*rb_tree2);
+
+  tree_iterator it = rb_tree1->begin();
+  EXPECT_EQ(*it++, pair_type("B", 0));
+  EXPECT_EQ(*it++, pair_type("D", 0));
+  EXPECT_EQ(*it++, pair_type("F", 0));
+  EXPECT_EQ(*it++, pair_type("H", 0));
+  EXPECT_EQ(*it++, pair_type("J", 0));
+  EXPECT_EQ(it, rb_tree1->end());
+  delete rb_tree1;
+
+  it = rb_tree2->begin();
+  EXPECT_EQ(*it++, pair_type("A", 0));
+  EXPECT_EQ(*it++, pair_type("C", 0));
+  EXPECT_EQ(*it++, pair_type("E", 0));
+  EXPECT_EQ(*it++, pair_type("G", 0));
+  EXPECT_EQ(*it++, pair_type("I", 0));
+  EXPECT_EQ(it, rb_tree2->end());
+  delete rb_tree2;
+}
+
+TEST(Swap, BothAreEmptyTree) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+  tree_type rb_tree2;
+
+  rb_tree1.swap(rb_tree2);
+
+  EXPECT_EQ(rb_tree1.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree1.begin(), rb_tree1.end());
+
+  EXPECT_EQ(rb_tree2.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree2.begin(), rb_tree2.end());
+}
+
+TEST(Swap, OneTreeHasElementsAndOneTreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+
+  tree_type rb_tree1;
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  rb_tree1.insert_unique(pair_type("C", 0));
+  rb_tree1.insert_unique(pair_type("E", 0));
+  rb_tree1.insert_unique(pair_type("G", 0));
+  rb_tree1.insert_unique(pair_type("I", 0));
+
+  tree_type rb_tree2;
+
+  rb_tree1.swap(rb_tree2);
+
+  EXPECT_EQ(rb_tree1.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree1.begin(), rb_tree1.end());
+
+  EXPECT_EQ(rb_tree2.size(), tree_type::size_type(5));
+  tree_iterator it = rb_tree2.begin();
+  EXPECT_EQ(*it++, pair_type("A", 0));
+  EXPECT_EQ(*it++, pair_type("C", 0));
+  EXPECT_EQ(*it++, pair_type("E", 0));
+  EXPECT_EQ(*it++, pair_type("G", 0));
+  EXPECT_EQ(*it++, pair_type("I", 0));
+  EXPECT_EQ(it, rb_tree2.end());
+}
 
 TEST(Count, NeedToThinkAboutWhatTestDo) {}
 

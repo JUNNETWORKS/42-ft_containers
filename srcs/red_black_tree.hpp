@@ -384,7 +384,7 @@ class RedBlackTree {
     __delete_node(nil_node_);
   }
 
-  /********** Iterators **********/
+  /********** Insert **********/
 
   ft::pair<iterator, bool> insert_unique(const Value &value) {
     node_type *parent = nil_node_;
@@ -583,7 +583,13 @@ class RedBlackTree {
     return 1;
   }
 
-  // void swap(RedBlackTree &other);
+  void swap(RedBlackTree &other) {
+    std::swap(nil_node_, other.nil_node_);
+    std::swap(root_, other.root_);
+    std::swap(node_count_, other.node_count_);
+    std::swap(begin_node_, other.begin_node_);
+    std::swap(end_node_, other.end_node_);
+  }
 
   // /********** Lookup **********/
 

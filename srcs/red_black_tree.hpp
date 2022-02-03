@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "iterator_traits.hpp"
+#include "lexicographical_compare.hpp"
 #include "pair.hpp"
 #include "reverse_iterator.hpp"
 
@@ -753,6 +754,53 @@ class RedBlackTree {
 };
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator==(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  return lhs.size() == rhs.size() &&
+         std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator!=(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  return !(lhs == rhs);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator<(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  typedef RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> tree_type;
+  typedef typename tree_type::const_iterator const_iterator;
+
+  return ft::lexicographical_compare<const_iterator, const_iterator>(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator<=(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  return !(lhs > rhs);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator>(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  return rhs < lhs;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool operator>=(
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
+    const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
+  return !(lhs < rhs);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__print_tree_2D_util(
     node_type *root, int space) const {
   if (root->is_nil_node_)
@@ -1331,6 +1379,7 @@ bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__are_keys_equal(
     const key_type &key1, const key_type &key2) const {
   return !Compare()(key1, key2) && !Compare()(key2, key1);
 }
+
 }  // namespace ft
 
 #endif /* RED_BLACK_TREE_H_ */

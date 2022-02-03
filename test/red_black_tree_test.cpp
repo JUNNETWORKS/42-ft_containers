@@ -2692,3 +2692,83 @@ TEST(EqualRange, TreeHasNoElement) {
   EXPECT_EQ(result2.first, rb_tree2.end());
   EXPECT_EQ(result2.second, rb_tree2.end());
 }
+
+TEST(OperatorTwoValuesAreEqual, EqualAndNotEqual) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+  tree_type rb_tree2;
+
+  EXPECT_TRUE(rb_tree1 == rb_tree2);
+  EXPECT_FALSE(rb_tree1 != rb_tree2);
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  EXPECT_FALSE(rb_tree1 == rb_tree2);
+
+  rb_tree2.insert_unique(pair_type("A", 0));
+  EXPECT_TRUE(rb_tree1 == rb_tree2);
+
+  rb_tree1.insert_unique(pair_type("B", 0));
+  rb_tree2.insert_unique(pair_type("B", 1));
+  EXPECT_FALSE(rb_tree1 == rb_tree2);
+}
+
+TEST(OperatorLexicographicalCompare, KeysAreDifferent) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+  tree_type rb_tree2;
+
+  EXPECT_FALSE(rb_tree1 < rb_tree2);
+  EXPECT_TRUE(rb_tree1 <= rb_tree2);
+  EXPECT_FALSE(rb_tree1 > rb_tree2);
+  EXPECT_TRUE(rb_tree1 >= rb_tree2);
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  EXPECT_FALSE(rb_tree1 < rb_tree2);
+  EXPECT_FALSE(rb_tree1 <= rb_tree2);
+  EXPECT_TRUE(rb_tree1 > rb_tree2);
+  EXPECT_TRUE(rb_tree1 >= rb_tree2);
+
+  rb_tree2.insert_unique(pair_type("B", 0));
+  EXPECT_TRUE(rb_tree1 < rb_tree2);
+  EXPECT_TRUE(rb_tree1 <= rb_tree2);
+  EXPECT_FALSE(rb_tree1 > rb_tree2);
+  EXPECT_FALSE(rb_tree1 >= rb_tree2);
+}
+
+TEST(OperatorLexicographicalCompare, ValueAreDifferent) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+  tree_type rb_tree2;
+
+  EXPECT_FALSE(rb_tree1 < rb_tree2);
+  EXPECT_TRUE(rb_tree1 <= rb_tree2);
+  EXPECT_FALSE(rb_tree1 > rb_tree2);
+  EXPECT_TRUE(rb_tree1 >= rb_tree2);
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  EXPECT_FALSE(rb_tree1 < rb_tree2);
+  EXPECT_FALSE(rb_tree1 <= rb_tree2);
+  EXPECT_TRUE(rb_tree1 > rb_tree2);
+  EXPECT_TRUE(rb_tree1 >= rb_tree2);
+
+  rb_tree2.insert_unique(pair_type("A", 1));
+  EXPECT_TRUE(rb_tree1 < rb_tree2);
+  EXPECT_TRUE(rb_tree1 <= rb_tree2);
+  EXPECT_FALSE(rb_tree1 > rb_tree2);
+  EXPECT_FALSE(rb_tree1 >= rb_tree2);
+}

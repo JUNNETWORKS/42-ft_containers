@@ -614,12 +614,37 @@ class RedBlackTree {
     return const_iterator(node);
   }
 
-  // /* Returns an iterator pointing to the first element that is not less than
-  //  * (i.e. greater or equal to) key.
-  //  */
-  // iterator lower_bound(const key_type &key);
+  /* Returns an iterator pointing to the first element that is not less than
+   * (i.e. greater or equal to) key.
+   */
+  iterator lower_bound(const key_type &key) {
+    node_type *current = root_;
+    node_type *low_node = end_node_;
+    while (!current->is_nil_node_) {
+      if (!Compare()(KeyOfValue()(current->value_), key)) {
+        // key <= current
+        low_node = current;
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return iterator(low_node);
+  }
 
-  // const_iterator lower_bound(const key_type &key) const;
+  const_iterator lower_bound(const key_type &key) const {
+    node_type *current = root_;
+    node_type *low_node = end_node_;
+    while (!current->is_nil_node_) {
+      if (!Compare()(KeyOfValue()(current->value_), key)) {
+        low_node = current;
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return const_iterator(low_node);
+  }
 
   // /* Returns an iterator pointing to the first element that is greater than
   // key.

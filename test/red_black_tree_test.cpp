@@ -2511,7 +2511,51 @@ TEST(Find, Normal) {
   EXPECT_EQ(cit, rb_tree2.end());
 }
 
-TEST(LowerBound, NeedToThinkAboutWhatTestDo) {}
+TEST(LowerBound, TreeHasElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  rb_tree1.insert_unique(pair_type("C", 0));
+  rb_tree1.insert_unique(pair_type("E", 0));
+  rb_tree1.insert_unique(pair_type("G", 0));
+  rb_tree1.insert_unique(pair_type("I", 0));
+
+  EXPECT_EQ((*(rb_tree1.lower_bound("0"))).first, "A");
+  EXPECT_EQ((*(rb_tree1.lower_bound("A"))).first, "A");
+  EXPECT_EQ((*(rb_tree1.lower_bound("B"))).first, "C");
+  EXPECT_EQ((*(rb_tree1.lower_bound("C"))).first, "C");
+  EXPECT_EQ((*(rb_tree1.lower_bound("I"))).first, "I");
+  EXPECT_EQ(rb_tree1.lower_bound("J"), rb_tree1.end());
+
+  const tree_type rb_tree2(rb_tree1);
+  EXPECT_EQ((*(rb_tree2.lower_bound("0"))).first, "A");
+  EXPECT_EQ((*(rb_tree2.lower_bound("A"))).first, "A");
+  EXPECT_EQ((*(rb_tree2.lower_bound("B"))).first, "C");
+  EXPECT_EQ((*(rb_tree2.lower_bound("C"))).first, "C");
+  EXPECT_EQ((*(rb_tree1.lower_bound("I"))).first, "I");
+  EXPECT_EQ(rb_tree2.lower_bound("J"), rb_tree2.end());
+}
+
+TEST(LowerBound, TreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree1;
+
+  EXPECT_EQ(rb_tree1.lower_bound("0"), rb_tree1.end());
+
+  const tree_type rb_tree2(rb_tree1);
+  EXPECT_EQ(rb_tree2.lower_bound("0"), rb_tree2.end());
+}
 
 TEST(UpperBound, NeedToThinkAboutWhatTestDo) {}
 

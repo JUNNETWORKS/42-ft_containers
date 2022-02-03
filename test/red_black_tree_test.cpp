@@ -2168,7 +2168,7 @@ TEST(InsertRange, TreeHasNoElement) {
   vec.push_back(pair_type("G", 0));
   vec.push_back(pair_type("I", 0));
 
-  rb_tree.insert_range(vec.begin(), vec.end());
+  rb_tree.insert_range_unique(vec.begin(), vec.end());
 
   tree_iterator tree_it = rb_tree.begin();
   vector_iterator vec_it = vec.begin();
@@ -2206,7 +2206,7 @@ TEST(InsertRange, TreeHasElements) {
   vec.push_back(pair_type("G", 0));
   vec.push_back(pair_type("I", 0));
 
-  rb_tree.insert_range(vec.begin(), vec.end());
+  rb_tree.insert_range_unique(vec.begin(), vec.end());
 
   // rb_tree には A~J までが入っているはずである
   pair_vector expected_vec;

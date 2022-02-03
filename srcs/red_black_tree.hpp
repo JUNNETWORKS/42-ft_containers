@@ -463,7 +463,7 @@ class RedBlackTree {
   }
 
   template <class InputIt>
-  void insert_range(InputIt first, InputIt last) {
+  void insert_range_unique(InputIt first, InputIt last) {
     for (; first != last; ++first) {
       insert_unique(*first);
     }

@@ -2603,4 +2603,92 @@ TEST(UpperBound, TreeHasNoElement) {
   EXPECT_EQ(rb_tree2.upper_bound("0"), rb_tree2.end());
 }
 
-TEST(EqualRange, NeedToThinkAboutWhatTestDo) {}
+TEST(EqualRange, TreeHasElements) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+  typedef ft::pair<tree_iterator, tree_iterator> result_type;
+
+  tree_type rb_tree1;
+  result_type result1;
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  rb_tree1.insert_unique(pair_type("C", 0));
+  rb_tree1.insert_unique(pair_type("E", 0));
+  rb_tree1.insert_unique(pair_type("G", 0));
+  rb_tree1.insert_unique(pair_type("I", 0));
+
+  result1 = rb_tree1.equal_range("0");
+  EXPECT_EQ((*(result1.first)).first, "A");
+  EXPECT_EQ((*(result1.second)).first, "A");
+  result1 = rb_tree1.equal_range("A");
+  EXPECT_EQ((*(result1.first)).first, "A");
+  EXPECT_EQ((*(result1.second)).first, "C");
+  result1 = rb_tree1.equal_range("B");
+  EXPECT_EQ((*(result1.first)).first, "C");
+  EXPECT_EQ((*(result1.second)).first, "C");
+  result1 = rb_tree1.equal_range("C");
+  EXPECT_EQ((*(result1.first)).first, "C");
+  EXPECT_EQ((*(result1.second)).first, "E");
+  result1 = rb_tree1.equal_range("I");
+  EXPECT_EQ((*(result1.first)).first, "I");
+  EXPECT_EQ(result1.second, rb_tree1.end());
+  result1 = rb_tree1.equal_range("J");
+  EXPECT_EQ(result1.first, rb_tree1.end());
+  EXPECT_EQ(result1.second, rb_tree1.end());
+
+  typedef tree_type::const_iterator const_tree_iterator;
+  typedef ft::pair<const_tree_iterator, const_tree_iterator> const_result_type;
+
+  const tree_type rb_tree2(rb_tree1);
+  const_result_type result2;
+
+  result2 = rb_tree2.equal_range("0");
+  EXPECT_EQ((*(result2.first)).first, "A");
+  EXPECT_EQ((*(result2.second)).first, "A");
+  result2 = rb_tree2.equal_range("A");
+  EXPECT_EQ((*(result2.first)).first, "A");
+  EXPECT_EQ((*(result2.second)).first, "C");
+  result2 = rb_tree2.equal_range("B");
+  EXPECT_EQ((*(result2.first)).first, "C");
+  EXPECT_EQ((*(result2.second)).first, "C");
+  result2 = rb_tree2.equal_range("C");
+  EXPECT_EQ((*(result2.first)).first, "C");
+  EXPECT_EQ((*(result2.second)).first, "E");
+  result2 = rb_tree2.equal_range("I");
+  EXPECT_EQ((*(result2.first)).first, "I");
+  EXPECT_EQ(result2.second, rb_tree2.end());
+  result2 = rb_tree2.equal_range("J");
+  EXPECT_EQ(result2.first, rb_tree2.end());
+  EXPECT_EQ(result2.second, rb_tree2.end());
+}
+
+TEST(EqualRange, TreeHasNoElement) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+  typedef ft::pair<tree_iterator, tree_iterator> result_type;
+
+  tree_type rb_tree1;
+  result_type result1;
+
+  result1 = rb_tree1.equal_range("0");
+  EXPECT_EQ(result1.first, rb_tree1.end());
+  EXPECT_EQ(result1.second, rb_tree1.end());
+
+  typedef tree_type::const_iterator const_tree_iterator;
+  typedef ft::pair<const_tree_iterator, const_tree_iterator> const_result_type;
+
+  const tree_type rb_tree2(rb_tree1);
+  const_result_type result2;
+
+  result2 = rb_tree2.equal_range("0");
+  EXPECT_EQ(result2.first, rb_tree2.end());
+  EXPECT_EQ(result2.second, rb_tree2.end());
+}

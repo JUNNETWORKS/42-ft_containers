@@ -598,9 +598,21 @@ class RedBlackTree {
     return !node->is_nil_node_;
   }
 
-  // iterator find(const Key &key);
+  iterator find(const Key &key) {
+    node_type *node = search_key_node(key);
+    if (node->is_nil_node_) {
+      return end();
+    }
+    return iterator(node);
+  }
 
-  // const_iterator find(const Key &key) const;
+  const_iterator find(const Key &key) const {
+    node_type *node = search_key_node(key);
+    if (node->is_nil_node_) {
+      return end();
+    }
+    return const_iterator(node);
+  }
 
   // /* Returns an iterator pointing to the first element that is not less than
   //  * (i.e. greater or equal to) key.

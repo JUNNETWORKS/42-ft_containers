@@ -2480,7 +2480,36 @@ TEST(Count, Normal) {
   EXPECT_EQ(rb_tree.count("B"), tree_type::size_type(0));
 }
 
-TEST(Find, NeedToThinkAboutWhatTestDo) {}
+TEST(Find, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef typename tree_type::iterator tree_iterator;
+  typedef typename tree_type::const_iterator tree_const_iterator;
+
+  tree_type rb_tree1;
+
+  rb_tree1.insert_unique(pair_type("A", 0));
+  rb_tree1.insert_unique(pair_type("C", 0));
+  rb_tree1.insert_unique(pair_type("E", 0));
+  rb_tree1.insert_unique(pair_type("G", 0));
+  rb_tree1.insert_unique(pair_type("I", 0));
+
+  // find()
+  tree_iterator it = rb_tree1.find("A");
+  EXPECT_EQ(*it, pair_type("A", 0));
+  it = rb_tree1.find("B");
+  EXPECT_EQ(it, rb_tree1.end());
+
+  // find() const
+  const tree_type rb_tree2(rb_tree1);
+  tree_const_iterator cit = rb_tree2.find("A");
+  EXPECT_EQ(*cit, pair_type("A", 0));
+  cit = rb_tree2.find("B");
+  EXPECT_EQ(cit, rb_tree2.end());
+}
 
 TEST(LowerBound, NeedToThinkAboutWhatTestDo) {}
 

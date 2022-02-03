@@ -2461,7 +2461,24 @@ TEST(Swap, OneTreeHasElementsAndOneTreeHasNoElement) {
   EXPECT_EQ(it, rb_tree2.end());
 }
 
-TEST(Count, NeedToThinkAboutWhatTestDo) {}
+TEST(Count, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+
+  tree_type rb_tree;
+
+  rb_tree.insert_unique(pair_type("A", 0));
+  rb_tree.insert_unique(pair_type("C", 0));
+  rb_tree.insert_unique(pair_type("E", 0));
+  rb_tree.insert_unique(pair_type("G", 0));
+  rb_tree.insert_unique(pair_type("I", 0));
+
+  EXPECT_EQ(rb_tree.count("A"), tree_type::size_type(1));
+  EXPECT_EQ(rb_tree.count("B"), tree_type::size_type(0));
+}
 
 TEST(Find, NeedToThinkAboutWhatTestDo) {}
 

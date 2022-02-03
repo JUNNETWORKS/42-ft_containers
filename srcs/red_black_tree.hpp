@@ -591,9 +591,12 @@ class RedBlackTree {
     std::swap(end_node_, other.end_node_);
   }
 
-  // /********** Lookup **********/
+  /********** Lookup **********/
 
-  // size_type count(const Key &key) const;
+  size_type count(const Key &key) const {
+    node_type *node = search_key_node(key);
+    return !node->is_nil_node_;
+  }
 
   // iterator find(const Key &key);
 

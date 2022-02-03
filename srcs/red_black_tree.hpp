@@ -622,7 +622,6 @@ class RedBlackTree {
     node_type *low_node = end_node_;
     while (!current->is_nil_node_) {
       if (!Compare()(KeyOfValue()(current->value_), key)) {
-        // key <= current
         low_node = current;
         current = current->left_;
       } else {
@@ -646,12 +645,36 @@ class RedBlackTree {
     return const_iterator(low_node);
   }
 
-  // /* Returns an iterator pointing to the first element that is greater than
-  // key.
-  //  */
-  // iterator upper_bound(const key_type &key);
+  /* Returns an iterator pointing to the first element that is greater than
+  key.
+   */
+  iterator upper_bound(const key_type &key) {
+    node_type *current = root_;
+    node_type *high_node = end_node_;
+    while (!current->is_nil_node_) {
+      if (Compare()(key, KeyOfValue()(current->value_))) {
+        high_node = current;
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return iterator(high_node);
+  }
 
-  // const_iterator upper_bound(const key_type &key) const;
+  const_iterator upper_bound(const key_type &key) const {
+    node_type *current = root_;
+    node_type *high_node = end_node_;
+    while (!current->is_nil_node_) {
+      if (Compare()(key, KeyOfValue()(current->value_))) {
+        high_node = current;
+        current = current->left_;
+      } else {
+        current = current->right_;
+      }
+    }
+    return const_iterator(high_node);
+  }
 
   // ft::pair<iterator, iterator> equal_range(const Key &key);
 

@@ -695,7 +695,7 @@ class RedBlackTree {
   /********** Observers **********/
 
   Compare key_comp() const {
-    return __compare_keys;
+    return Compare();
   }
 
   /********** Debug **********/

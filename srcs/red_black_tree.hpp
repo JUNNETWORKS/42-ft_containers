@@ -328,9 +328,8 @@ class RedBlackTree {
   node_type *root_;
   size_type node_count_;
   // begin() と end() を O(1) でアクセスするためにメンバー変数にもたせておく
-  // beginは常に最小のノードを示す。
-  // beginは常に最大のノードを示す。
-  // endは左の子としてroot_を持つ。
+  // begin_node_ は常に最小のノードを示す。
+  // end_node_ は左右の子としてroot_を持つ。実体は nil_node_ である。
   node_type *begin_node_;
   node_type *end_node_;
 
@@ -392,11 +391,11 @@ class RedBlackTree {
     node_type *current = root_;
     while (!current->is_nil_node_) {
       parent = current;
-      if (__are_keys_equal(KeyOfValue()(value),
-                           KeyOfValue()(current->value_))) {
+      if (__are_keys_equal(__get_key_of_value(value),
+                           __get_key_of_value(current->value_))) {
         return ft::pair<iterator, bool>(iterator(current), false);
-      } else if (Compare()(KeyOfValue()(value),
-                           KeyOfValue()(current->value_))) {
+      } else if (__compare_keys(__get_key_of_value(value),
+                                __get_key_of_value(current->value_))) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -406,8 +405,8 @@ class RedBlackTree {
     new_node->parent_ = parent;
     if (parent->is_nil_node_) {
       root_ = new_node;
-    } else if (Compare()(KeyOfValue()(new_node->value_),
-                         KeyOfValue()(parent->value_))) {
+    } else if (__compare_keys(__get_key_of_value(new_node->value_),
+                              __get_key_of_value(parent->value_))) {
       parent->left_ = new_node;
     } else {
       parent->right_ = new_node;
@@ -424,21 +423,26 @@ class RedBlackTree {
       --prev_it;
     }
     iterator next_it = iterator(hint_it);
-    if (hint_it != end()) {
+    if (hint_it != end() || hint_it != --(end())) {
       ++next_it;
     }
 
-    if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*hint_it))) {
+    if (__are_keys_equal(__get_key_of_value(value),
+                         __get_key_of_value(*hint_it))) {
       // hint_it == value
       return iterator(hint_it);
-    } else if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*prev_it))) {
+    } else if (__are_keys_equal(__get_key_of_value(value),
+                                __get_key_of_value(*prev_it))) {
       // --hint_it == value
       return iterator(prev_it);
-    } else if (__are_keys_equal(KeyOfValue()(value), KeyOfValue()(*next_it))) {
+    } else if (__are_keys_equal(__get_key_of_value(value),
+                                __get_key_of_value(*next_it))) {
       // ++hint_it == value
       return iterator(next_it);
-    } else if (Compare()(KeyOfValue()(value), KeyOfValue()(*hint_it)) &&
-               Compare()(KeyOfValue()(*prev_it), KeyOfValue()(value)) &&
+    } else if (__compare_keys(__get_key_of_value(value),
+                              __get_key_of_value(*hint_it)) &&
+               __compare_keys(__get_key_of_value(*prev_it),
+                              __get_key_of_value(value)) &&
                hint_it.node_->left_->is_nil_node_) {
       // --hint_it < value < hint_it なら hint_it の左に挿入
       node_type *new_node = __alloc_new_node(value);
@@ -447,8 +451,10 @@ class RedBlackTree {
       __insert_fixup(new_node);
       __update_tree_info_based_on_new_node(new_node);
       return iterator(new_node);
-    } else if (Compare()(KeyOfValue()(*hint_it), KeyOfValue()(value)) &&
-               Compare()(KeyOfValue()(value), KeyOfValue()(*next_it)) &&
+    } else if (__compare_keys(__get_key_of_value(*hint_it),
+                              __get_key_of_value(value)) &&
+               __compare_keys(__get_key_of_value(value),
+                              __get_key_of_value(*next_it)) &&
                hint_it.node_->right_->is_nil_node_) {
       // hint_it < value < ++hint_it なら hint_it の右に挿入
       node_type *new_node = __alloc_new_node(value);
@@ -475,8 +481,8 @@ class RedBlackTree {
   node_type *search_key_node(const Key &key) const {
     node_type *current = root_;
     while (!current->is_nil_node_ &&
-           !__are_keys_equal(KeyOfValue()(current->value_), key)) {
-      if (Compare()(key, KeyOfValue()(current->value_))) {
+           !__are_keys_equal(__get_key_of_value(current->value_), key)) {
+      if (__compare_keys(key, __get_key_of_value(current->value_))) {
         current = current->left_;
       } else {
         current = current->right_;
@@ -622,7 +628,7 @@ class RedBlackTree {
     node_type *current = root_;
     node_type *low_node = end_node_;
     while (!current->is_nil_node_) {
-      if (!Compare()(KeyOfValue()(current->value_), key)) {
+      if (!__compare_keys(__get_key_of_value(current->value_), key)) {
         low_node = current;
         current = current->left_;
       } else {
@@ -636,7 +642,7 @@ class RedBlackTree {
     node_type *current = root_;
     node_type *low_node = end_node_;
     while (!current->is_nil_node_) {
-      if (!Compare()(KeyOfValue()(current->value_), key)) {
+      if (!__compare_keys(__get_key_of_value(current->value_), key)) {
         low_node = current;
         current = current->left_;
       } else {
@@ -653,7 +659,7 @@ class RedBlackTree {
     node_type *current = root_;
     node_type *high_node = end_node_;
     while (!current->is_nil_node_) {
-      if (Compare()(key, KeyOfValue()(current->value_))) {
+      if (__compare_keys(key, __get_key_of_value(current->value_))) {
         high_node = current;
         current = current->left_;
       } else {
@@ -667,7 +673,7 @@ class RedBlackTree {
     node_type *current = root_;
     node_type *high_node = end_node_;
     while (!current->is_nil_node_) {
-      if (Compare()(key, KeyOfValue()(current->value_))) {
+      if (__compare_keys(key, __get_key_of_value(current->value_))) {
         high_node = current;
         current = current->left_;
       } else {
@@ -689,7 +695,7 @@ class RedBlackTree {
   /********** Observers **********/
 
   Compare key_comp() const {
-    return Compare();
+    return __compare_keys;
   }
 
   /********** Debug **********/
@@ -711,11 +717,11 @@ class RedBlackTree {
   }
 
   void print_node_info(node_type *node) {
-    std::cout << "Key: " << KeyOfValue()(node->value_)
+    std::cout << "Key: " << __get_key_of_value(node->value_)
               << "\n\tValue: " << node->value_ << "\n\tColor: " << node->color_
-              << "\n\tParent: " << KeyOfValue()(node->parent_->value_)
-              << "\n\tLeft: " << KeyOfValue()(node->left_->value_)
-              << "\n\tRight: " << KeyOfValue()(node->right_->value_)
+              << "\n\tParent: " << __get_key_of_value(node->parent_->value_)
+              << "\n\tLeft: " << __get_key_of_value(node->left_->value_)
+              << "\n\tRight: " << __get_key_of_value(node->right_->value_)
               << std::endl;
   }
 
@@ -751,6 +757,8 @@ class RedBlackTree {
 
   /********** Utils **********/
   bool __are_keys_equal(const key_type &key1, const key_type &key2) const;
+  bool __compare_keys(const key_type &key1, const key_type &key2) const;
+  const key_type __get_key_of_value(const value_type &value) const;
 };
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
@@ -814,7 +822,7 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__print_tree_2D_util(
   // print current node after space
   std::cout << std::endl;
   for (int i = 10; i < space; i++) std::cout << " ";
-  std::cout << KeyOfValue()(root->value_)
+  std::cout << __get_key_of_value(root->value_)
             << (root->color_ == node_type::RED ? "(R)" : "(B)") << std::endl;
 
   // print left
@@ -1011,8 +1019,8 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::
     __update_tree_info_based_on_new_node(node_type *new_node) {
   // begin_node_ の更新
   if (begin_node_->is_nil_node_ ||
-      Compare()(KeyOfValue()(new_node->value_),
-                KeyOfValue()(begin_node_->value_))) {
+      __compare_keys(__get_key_of_value(new_node->value_),
+                     __get_key_of_value(begin_node_->value_))) {
     begin_node_ = new_node;
   }
   // end_node_ の子が新たなルートを指すようにする
@@ -1377,7 +1385,20 @@ RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__copy_node(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__are_keys_equal(
     const key_type &key1, const key_type &key2) const {
-  return !Compare()(key1, key2) && !Compare()(key2, key1);
+  return !__compare_keys(key1, key2) && !__compare_keys(key2, key1);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__compare_keys(
+    const key_type &key1, const key_type &key2) const {
+  return Compare()(key1, key2);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+const typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::key_type
+RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__get_key_of_value(
+    const value_type &value) const {
+  return KeyOfValue()(value);
 }
 
 }  // namespace ft

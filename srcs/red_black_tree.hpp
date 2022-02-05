@@ -175,7 +175,9 @@ struct RBTNode {
   RBTNode *left_;
   RBTNode *right_;
   Color color_;
-  const bool is_nil_node_;
+  // C++98 の allocator.construct()
+  // は引数1つしか取れないので外部から変更出来るようにしている。
+  bool is_nil_node_;
 
   RBTNode(Value value = Value(), bool is_nil_node = false)
       : value_(value),
@@ -1398,7 +1400,8 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
 RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_nil_node() {
   node_type *nil_node = node_allocator_.allocate(1);
-  node_allocator_.construct(nil_node, Value(), true);
+  node_allocator_.construct(nil_node, Value());
+  nil_node->is_nil_node_ = true;
   nil_node->parent_ = nil_node;
   nil_node->left_ = nil_node;
   nil_node->right_ = nil_node;

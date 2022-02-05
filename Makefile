@@ -50,14 +50,15 @@ SRCS_TEST := $(TEST_DIR)/vector_test.cpp  \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
 	$(TEST_DIR)/pair_test.cpp \
-	$(TEST_DIR)/red_black_tree_test.cpp
+	$(TEST_DIR)/red_black_tree_test.cpp \
+	$(TEST_DIR)/map_test.cpp
 OBJECTS_TEST  := $(SRCS_TEST:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES_TEST \
          := $(OBJECTS_TEST:.o=.d)
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	g++ -g -Wall -Wextra -Werror -DDEBUG --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) \
+	g++ -g -Wall -Wextra -Werror -DDEBUG --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
 -include $(DEPENDENCIES_TEST)

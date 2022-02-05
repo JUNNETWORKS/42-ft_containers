@@ -11,6 +11,7 @@ tester
 # editor
 .vscode/
 .idea/
+compile_commands.json
 
 # debugger
 peda-session-*.txt

@@ -15,6 +15,7 @@
 #include "pair.hpp"
 #include "test_utils.hpp"
 #include "utils/comparison.hpp"
+#include "utils/my_allocator.hpp"
 
 namespace {
 const std::uint64_t kLoopMax = 1000;
@@ -101,7 +102,46 @@ TEST(CopyConstructorAndAssignation, Normal) {
   m2["A"] = 1;
   m2["B"] = 2;
 
-TEST(GetAllocator, NeedToThinkAboutWhatTestDo) {}
+  map_type m3;
+  m3 = m2;
+  m3["A"] = 2;
+  m3["B"] = 3;
+
+  EXPECT_EQ(m1["A"], 0);
+  EXPECT_EQ(m1["B"], 1);
+
+  EXPECT_EQ(m2["A"], 1);
+  EXPECT_EQ(m2["B"], 2);
+
+  EXPECT_EQ(m3["A"], 2);
+  EXPECT_EQ(m3["B"], 3);
+}
+
+TEST(GetAllocator, DefaultAllocator) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<key_type, mapped_type> pair_type;
+  typedef std::allocator<pair_type> allocator_type;
+  typedef ft::map<key_type, mapped_type, std::less<key_type>, allocator_type>
+      map_type;
+
+  map_type m;
+  map_type::allocator_type allocator = m.get_allocator();
+  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
+}
+
+TEST(GetAllocator, CustomAllocator) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::pair<key_type, mapped_type> pair_type;
+  typedef ft::test::MyAllocator<pair_type> allocator_type;
+  typedef ft::map<key_type, mapped_type, std::less<key_type>, allocator_type>
+      map_type;
+
+  map_type m;
+  map_type::allocator_type allocator = m.get_allocator();
+  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
+}
 
 TEST(ElementAccess, NeedToThinkAboutWhatTestDo) {}
 

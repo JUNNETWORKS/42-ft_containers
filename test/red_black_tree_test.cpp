@@ -473,14 +473,76 @@ TEST(ConstructorWithComparisonInstance, Normal) {
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type>,
                            compare_type>
       tree_type;
+  typedef tree_type::iterator tree_iterator;
 
   const compare_type less_comp = compare_type(true);
   const compare_type greater_comp = compare_type(false);
   tree_type rb_tree_less(less_comp);
   tree_type rb_tree_greater(greater_comp);
 
-  rb_tree_less.insert_unique(pair_type("A", 0));
-  rb_tree_greater.insert_unique(pair_type("A", 0));
+  for (char c = 'A'; c <= 'Z'; ++c) {
+    std::string s(1, c);
+    rb_tree_less.insert_unique(pair_type(s, 0));
+    rb_tree_greater.insert_unique(pair_type(s, 0));
+  }
+
+  tree_iterator it = rb_tree_less.begin();
+  for (char c = 'A'; c <= 'Z' && it != rb_tree_less.end(); ++c, ++it) {
+    EXPECT_EQ((*it).first[0], c);
+  }
+  EXPECT_EQ(it, rb_tree_less.end());
+
+  it = rb_tree_greater.begin();
+  for (char c = 'Z'; c >= 'A' && it != rb_tree_greater.end(); --c, ++it) {
+    EXPECT_EQ((*it).first[0], c);
+  }
+  EXPECT_EQ(it, rb_tree_greater.end());
+}
+
+TEST(ConstructorWithRange, RangeIsGreaterThanZero) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::test::less_or_greater<key_type> compare_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type>,
+                           compare_type>
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+  typedef std::vector<pair_type> pair_vector_type;
+  typedef pair_vector_type::iterator vector_iterator;
+
+  pair_vector_type vec;
+  vec.push_back(pair_type("A", 0));
+  vec.push_back(pair_type("C", 0));
+  vec.push_back(pair_type("E", 0));
+  vec.push_back(pair_type("G", 0));
+  vec.push_back(pair_type("I", 0));
+
+  tree_type rb_tree(vec.begin(), vec.end());
+
+  tree_iterator tree_it = rb_tree.begin();
+  vector_iterator vector_it = vec.begin();
+  for (; vector_it != vec.end(); ++vector_it, ++tree_it) {
+    EXPECT_EQ((*tree_it).first, (*vector_it).first);
+  }
+  EXPECT_EQ(tree_it, rb_tree.end());
+}
+
+TEST(ConstructorWithRange, RangeIsZero) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::test::less_or_greater<key_type> compare_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type>,
+                           compare_type>
+      tree_type;
+  typedef std::vector<pair_type> pair_vector_type;
+
+  pair_vector_type vec;
+  tree_type rb_tree(vec.begin(), vec.end());
+
+  EXPECT_EQ(rb_tree.size(), tree_type::size_type(0));
+  EXPECT_EQ(rb_tree.begin(), rb_tree.end());
 }
 
 // insert_unique

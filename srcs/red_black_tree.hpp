@@ -360,6 +360,20 @@ class RedBlackTree {
     __initialize_empty_tree();
   }
 
+  template <class InputIt>
+  RedBlackTree(InputIt first, InputIt last, const Compare &comp = Compare(),
+               const Alloc &alloc = Alloc())
+      : nil_node_(__alloc_nil_node()),
+        root_(nil_node_),
+        node_count_(0),
+        begin_node_(nil_node_),
+        end_node_(nil_node_),
+        key_comp_(comp),
+        node_allocator_(node_allocator(alloc)) {
+    __initialize_empty_tree();
+    insert_range_unique(first, last);
+  }
+
   RedBlackTree(const RedBlackTree &other)
       : nil_node_(__alloc_nil_node()),
         root_(nil_node_),

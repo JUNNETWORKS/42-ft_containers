@@ -1,10 +1,8 @@
-#include "red_black_tree.hpp"
-
-#include "pair.hpp"
-
 // KeyOfValueを使うためにinclude
 // #include "map.hpp"
 // #include "set.hpp"
+
+#include "red_black_tree.hpp"
 
 #include <gtest/gtest.h>
 
@@ -16,6 +14,9 @@
 #include <iterator>
 #include <set>
 #include <vector>
+
+#include "pair.hpp"
+#include "utils/comparison.hpp"
 
 namespace ft {
 template <typename Pair>
@@ -462,6 +463,24 @@ TEST(RedBlackTree, CopyConstructor) {
   EXPECT_EQ(n2, t2.end_node_);
   EXPECT_EQ(n3, t3.end_node_);
   EXPECT_EQ(n4, t4.end_node_);
+}
+
+TEST(ConstructorWithComparisonInstance, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::test::less_or_greater<key_type> compare_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type>,
+                           compare_type>
+      tree_type;
+
+  const compare_type less_comp = compare_type(true);
+  const compare_type greater_comp = compare_type(false);
+  tree_type rb_tree_less(less_comp);
+  tree_type rb_tree_greater(greater_comp);
+
+  rb_tree_less.insert_unique(pair_type("A", 0));
+  rb_tree_greater.insert_unique(pair_type("A", 0));
 }
 
 // insert_unique

@@ -332,6 +332,8 @@ class RedBlackTree {
   // end_node_ は左右の子としてroot_を持つ。実体は nil_node_ である。
   node_type *begin_node_;
   node_type *end_node_;
+  const Compare key_comp_;
+  node_allocator node_allocator_;
 
  public:
   // Constructor, Descructor
@@ -341,15 +343,21 @@ class RedBlackTree {
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_(nil_node_) {
-    nil_node_->parent_ = nil_node_;
-    nil_node_->left_ = nil_node_;
-    nil_node_->right_ = nil_node_;
-    nil_node_->color_ = node_type::BLACK;
+        end_node_(nil_node_),
+        key_comp_(Compare()),
+        node_allocator_() {
+    __initialize_empty_tree();
+  }
 
-    begin_node_ = root_;
-    end_node_->left_ = root_;
-    end_node_->right_ = root_;
+  explicit RedBlackTree(const Compare &comp, const Alloc &alloc = Alloc())
+      : nil_node_(__alloc_nil_node()),
+        root_(nil_node_),
+        node_count_(0),
+        begin_node_(nil_node_),
+        end_node_(nil_node_),
+        key_comp_(comp),
+        node_allocator_(node_allocator(alloc)) {
+    __initialize_empty_tree();
   }
 
   RedBlackTree(const RedBlackTree &other)
@@ -357,7 +365,9 @@ class RedBlackTree {
         root_(nil_node_),
         node_count_(0),
         begin_node_(nil_node_),
-        end_node_(nil_node_) {
+        end_node_(nil_node_),
+        key_comp_(Compare()),
+        node_allocator_() {
     operator=(other);
   }
 
@@ -500,7 +510,7 @@ class RedBlackTree {
   }
 
   allocator_type get_allocator() const {
-    return allocator_type(node_allocator());
+    return allocator_type(node_allocator_);
   }
 
   /********** Iterators **********/
@@ -548,7 +558,7 @@ class RedBlackTree {
   }
 
   size_type max_size() const {
-    return node_allocator().max_size();
+    return node_allocator_.max_size();
   }
 
   /********** Modifiers **********/
@@ -695,7 +705,7 @@ class RedBlackTree {
   /********** Observers **********/
 
   Compare key_comp() const {
-    return Compare();
+    return key_comp_;
   }
 
   /********** Debug **********/
@@ -731,6 +741,9 @@ class RedBlackTree {
  private:
 #endif
 
+  /********** Constructor **********/
+  void __initialize_empty_tree();
+
   /********** Debug **********/
   void __print_tree_2D_util(node_type *root, int space = 0) const;
 
@@ -755,7 +768,7 @@ class RedBlackTree {
   node_type *__alloc_nil_node();
   node_type *__copy_node(const node_type *z, const node_type *nil_node);
 
-  /********** Utils **********/
+  /********** Comparisons **********/
   bool __are_keys_equal(const key_type &key1, const key_type &key2) const;
   bool __compare_keys(const key_type &key1, const key_type &key2) const;
   const key_type __get_key_of_value(const value_type &value) const;
@@ -806,6 +819,19 @@ bool operator>=(
     const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
     const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
   return !(lhs < rhs);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void RedBlackTree<Key, Value, KeyOfValue, Compare,
+                  Alloc>::__initialize_empty_tree() {
+  nil_node_->parent_ = nil_node_;
+  nil_node_->left_ = nil_node_;
+  nil_node_->right_ = nil_node_;
+  nil_node_->color_ = node_type::BLACK;
+
+  begin_node_ = root_;
+  end_node_->left_ = root_;
+  end_node_->right_ = root_;
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
@@ -1322,9 +1348,8 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_tree(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__delete_node(
     node_type *z) {
-  node_allocator allocator = node_allocator();
-  allocator.destroy(z);
-  allocator.deallocate(z, 1);
+  node_allocator_.destroy(z);
+  node_allocator_.deallocate(z, 1);
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
@@ -1347,9 +1372,8 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
 RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_new_node(
     value_type value) {
-  node_allocator allocator = node_allocator();
-  node_type *new_node = allocator.allocate(1);
-  allocator.construct(new_node, value);
+  node_type *new_node = node_allocator_.allocate(1);
+  node_allocator_.construct(new_node, value);
   new_node->left_ = nil_node_;
   new_node->right_ = nil_node_;
   new_node->color_ = node_type::RED;  // 新しいノードの色は最初は赤に設定される
@@ -1359,9 +1383,8 @@ RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_new_node(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
 RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__alloc_nil_node() {
-  node_allocator allocator = node_allocator();
-  node_type *nil_node = allocator.allocate(1);
-  allocator.construct(nil_node, Value(), true);
+  node_type *nil_node = node_allocator_.allocate(1);
+  node_allocator_.construct(nil_node, Value(), true);
   nil_node->parent_ = nil_node;
   nil_node->left_ = nil_node;
   nil_node->right_ = nil_node;
@@ -1373,12 +1396,11 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::node_type *
 RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__copy_node(
     const node_type *z, const node_type *nil_node) {
-  node_allocator allocator = node_allocator();
   if (z == nil_node) {
     return nil_node_;
   }
-  node_type *new_node = allocator.allocate(1);
-  allocator.construct(new_node, *z);
+  node_type *new_node = node_allocator_.allocate(1);
+  node_allocator_.construct(new_node, *z);
   return new_node;
 }
 
@@ -1391,7 +1413,7 @@ bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__are_keys_equal(
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 bool RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc>::__compare_keys(
     const key_type &key1, const key_type &key2) const {
-  return Compare()(key1, key2);
+  return key_comp_(key1, key2);
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>

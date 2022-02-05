@@ -81,7 +81,8 @@ class map {
 
   template <class InputIt>
   map(InputIt first, InputIt last, const Compare& comp = Compare(),
-      const Allocator& alloc = Allocator()) {}
+      const Allocator& alloc = Allocator())
+      : rbtree_(first, last, comp, alloc) {}
 
   map(const map& other) : rbtree_(other.rbtree_) {}
 
@@ -89,6 +90,7 @@ class map {
     if (this != &other) {
       rbtree_ = other.rbtree_;
     }
+    return *this;
   }
 
   /********** Destructor **********/

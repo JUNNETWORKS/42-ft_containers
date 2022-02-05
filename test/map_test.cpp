@@ -63,11 +63,43 @@ TEST(ConstructorWithCompareMethod, CustomizableComparison) {
   EXPECT_EQ(it, greater_map.end());
 }
 
-TEST(ConstructorWithIterator, NeedToThinkAboutWhatTestDo) {}
+TEST(ConstructorWithIterator, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::map<key_type, mapped_type> map_type;
+  typedef map_type::iterator map_iterator;
+  typedef std::vector<map_type::value_type> vector_type;
+  typedef vector_type::iterator vector_iterator;
 
-TEST(CopyConstructor, NeedToThinkAboutWhatTestDo) {}
+  vector_type vec;
 
-TEST(Assignation, NeedToThinkAboutWhatTestDo) {}
+  for (int c = 'A'; c <= 'Z'; ++c) {
+    std::string s(1, c);
+    vec.push_back(map_type::value_type(s, 0));
+  }
+
+  map_type m(vec.begin(), vec.end());
+
+  map_iterator map_it = m.begin();
+  vector_iterator vec_it = vec.begin();
+  for (; vec_it != vec.end(); ++vec_it, ++map_it) {
+    EXPECT_EQ((*map_it).first, (*vec_it).first);
+  }
+  EXPECT_EQ(map_it, m.end());
+}
+
+TEST(CopyConstructorAndAssignation, Normal) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::map<key_type, mapped_type> map_type;
+
+  map_type m1;
+  m1["A"] = 0;
+  m1["B"] = 1;
+
+  map_type m2(m1);
+  m2["A"] = 1;
+  m2["B"] = 2;
 
 TEST(GetAllocator, NeedToThinkAboutWhatTestDo) {}
 

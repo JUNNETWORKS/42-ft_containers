@@ -12,9 +12,9 @@
 #include <set>
 #include <vector>
 
-#include "comparison.hpp"
 #include "pair.hpp"
 #include "test_utils.hpp"
+#include "utils/comparison.hpp"
 
 namespace {
 const std::uint64_t kLoopMax = 1000;
@@ -51,13 +51,13 @@ TEST(ConstructorWithCompareMethod, CustomizableComparison) {
   }
 
   map_iterator it = less_map.begin();
-  for (char c = 'A'; c <= 'Z' && it != less_map.end(); ++c) {
+  for (char c = 'A'; c <= 'Z' && it != less_map.end(); ++c, ++it) {
     EXPECT_EQ((*it).first[0], c);
   }
   EXPECT_EQ(it, less_map.end());
 
   it = greater_map.begin();
-  for (char c = 'Z'; c >= 'A' && it != greater_map.end(); ++c) {
+  for (char c = 'Z'; c >= 'A' && it != greater_map.end(); --c, ++it) {
     EXPECT_EQ((*it).first[0], c);
   }
   EXPECT_EQ(it, greater_map.end());

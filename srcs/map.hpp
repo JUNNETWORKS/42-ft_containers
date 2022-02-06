@@ -254,7 +254,7 @@ class map {
     return value_compare(rbtree_.key_comp());
   }
 
-  /********** Basic operators **********/
+  /********** Basic comparison operators **********/
   template <typename K1, typename T1, typename C1, typename A>
   friend bool operator==(const map<K1, T1, C1, A>&, const map<K1, T1, C1, A>&);
 

@@ -34,10 +34,6 @@ class map {
   typedef ft::pair<const Key, Val> value_type;
   typedef Compare key_compare;
   typedef Allocator allocator_type;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
-  typedef typename Allocator::pointer pointer;
-  typedef typename Allocator::const_pointer const_pointer;
 
  private:
   // This turns a red-black tree into a map.
@@ -51,6 +47,10 @@ class map {
   RepType rbtree_;
 
  public:
+  typedef typename pair_alloc_type::reference reference;
+  typedef typename pair_alloc_type::const_reference const_reference;
+  typedef typename pair_alloc_type::pointer pointer;
+  typedef typename pair_alloc_type::const_pointer const_pointer;
   typedef typename RepType::size_type size_type;
   typedef typename RepType::difference_type difference_type;
   typedef typename RepType::iterator iterator;

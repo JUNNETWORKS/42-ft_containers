@@ -254,6 +254,7 @@ class map {
     return value_compare(rbtree_.key_comp());
   }
 
+  /********** Basic operators **********/
   template <typename K1, typename T1, typename C1, typename A>
   friend bool operator==(const map<K1, T1, C1, A>&, const map<K1, T1, C1, A>&);
 
@@ -298,5 +299,12 @@ inline bool operator>=(const map<Key, Value, Compare, Alloc>& lhs,
 }
 
 }  // namespace ft
+
+// specializes the std::swap algorithm
+template <typename Key, typename Value, typename Compare, typename Alloc>
+inline void std::swap(const ft::map<Key, Value, Compare, Alloc>& lhs,
+                      const ft::map<Key, Value, Compare, Alloc>& rhs) {
+  lhs.swap(rhs);
+}
 
 #endif

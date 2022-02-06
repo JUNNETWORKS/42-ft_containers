@@ -427,6 +427,38 @@ TEST(Swap, Normal) {
   EXPECT_EQ(it, m2.end());
 }
 
+TEST(Swap, StdSwap) {
+  typedef std::string key_type;
+  typedef int mapped_type;
+  typedef ft::map<key_type, mapped_type> map_type;
+  typedef map_type::value_type pair_type;
+  typedef map_type::iterator map_iterator;
+
+  map_type m1;
+  m1["A"] = 1;
+  m1["B"] = 2;
+  m1["C"] = 3;
+
+  map_type m2;
+  m2["D"] = 4;
+  m2["E"] = 5;
+  m2["F"] = 6;
+
+  std::swap(m1, m2);
+
+  map_iterator it = m1.begin();
+  EXPECT_EQ(*it++, pair_type("D", 4));
+  EXPECT_EQ(*it++, pair_type("E", 5));
+  EXPECT_EQ(*it++, pair_type("F", 6));
+  EXPECT_EQ(it, m1.end());
+
+  it = m2.begin();
+  EXPECT_EQ(*it++, pair_type("A", 1));
+  EXPECT_EQ(*it++, pair_type("B", 2));
+  EXPECT_EQ(*it++, pair_type("C", 3));
+  EXPECT_EQ(it, m2.end());
+}
+
 TEST(FindAndCount, Normal) {
   typedef std::string key_type;
   typedef int mapped_type;

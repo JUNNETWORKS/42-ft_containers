@@ -12,11 +12,11 @@ namespace test {
 struct Student {
   typedef std::string name_type;
   typedef std::uint8_t age_type;
-  typedef std::int64_t id_type;
+  typedef std::uint64_t id_type;
 
   std::string name_;
   std::uint8_t age_;
-  std::int64_t id_;
+  std::uint64_t id_;
 
   Student()
       : name_(generate_random_string(12)), age_(0), id_(generate_hash(name_)) {}

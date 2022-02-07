@@ -13,15 +13,17 @@
 #include <vector>
 
 #include "pair.hpp"
-#include "test_utils.hpp"
+#include "utils/Student.hpp"
 #include "utils/comparison.hpp"
+#include "utils/hash.hpp"
 #include "utils/my_allocator.hpp"
+#include "utils/string.hpp"
 
 namespace {
 const std::uint64_t kLoopMax = 1000;
 }
 
-TEST(DefaultConstructor, Normal) {
+TEST(Map, DefaultConstructor) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -32,7 +34,7 @@ TEST(DefaultConstructor, Normal) {
   EXPECT_EQ(m.begin(), m.end());
 }
 
-TEST(ConstructorWithCompareMethod, CustomizableComparison) {
+TEST(Map, ConstructorWithCompareMethod_CustomizableComparison) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::test::less_or_greater<key_type> compare_type;
@@ -64,7 +66,7 @@ TEST(ConstructorWithCompareMethod, CustomizableComparison) {
   EXPECT_EQ(it, greater_map.end());
 }
 
-TEST(ConstructorWithIterator, Normal) {
+TEST(Map, ConstructorWithIterator) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -89,7 +91,7 @@ TEST(ConstructorWithIterator, Normal) {
   EXPECT_EQ(map_it, m.end());
 }
 
-TEST(CopyConstructorAndAssignation, Normal) {
+TEST(Map, CopyConstructorAndAssignation) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -117,7 +119,7 @@ TEST(CopyConstructorAndAssignation, Normal) {
   EXPECT_EQ(m3["B"], 3);
 }
 
-TEST(GetAllocator, DefaultAllocator) {
+TEST(Map, GetAllocator_DefaultAllocator) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<key_type, mapped_type> pair_type;
@@ -130,7 +132,7 @@ TEST(GetAllocator, DefaultAllocator) {
   EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
 }
 
-TEST(GetAllocator, CustomAllocator) {
+TEST(Map, GetAllocator_CustomAllocator) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<key_type, mapped_type> pair_type;
@@ -143,7 +145,7 @@ TEST(GetAllocator, CustomAllocator) {
   EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
 }
 
-TEST(ElementAccess, Normal) {
+TEST(Map, ElementAccess) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -171,7 +173,7 @@ TEST(ElementAccess, Normal) {
   EXPECT_EQ(m.at(s), 100);
 }
 
-TEST(ForwardIterator, TestAll) {
+TEST(Map, ForwardIterator) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -209,7 +211,7 @@ TEST(ForwardIterator, TestAll) {
   EXPECT_EQ(cit, m2.end());
 }
 
-TEST(ReverseIterator, TestALl) {
+TEST(Map, ReverseIterator) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -247,7 +249,7 @@ TEST(ReverseIterator, TestALl) {
   EXPECT_EQ(cit, m2.rend());
 }
 
-TEST(Capacity, SimpleTest) {
+TEST(Map, Capacity_SimpleTest) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -264,7 +266,7 @@ TEST(Capacity, SimpleTest) {
   EXPECT_EQ(m.empty(), false);
 }
 
-TEST(Clear, RemoveAllElements) {
+TEST(Map, Clear_RemoveAllElements) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -281,7 +283,7 @@ TEST(Clear, RemoveAllElements) {
   EXPECT_EQ(m.empty(), true);
 }
 
-TEST(Insert, InsertElement) {
+TEST(Map, Insert_InsertElement) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<key_type, mapped_type> pair_type;
@@ -303,7 +305,7 @@ TEST(Insert, InsertElement) {
   EXPECT_EQ(m["A"], 3);
 }
 
-TEST(InsertWithHint, Normal) {
+TEST(Map, InsertWithHint) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -334,7 +336,7 @@ TEST(InsertWithHint, Normal) {
   EXPECT_EQ(it, m.end());
 }
 
-TEST(InsertRange, Normal) {
+TEST(Map, InsertRange) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -362,7 +364,7 @@ TEST(InsertRange, Normal) {
   EXPECT_EQ(it, m.end());
 }
 
-TEST(Erase, Normal) {
+TEST(Map, Erase) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -395,7 +397,7 @@ TEST(Erase, Normal) {
   EXPECT_EQ(*it++, pair_type("E", 5));
 }
 
-TEST(Swap, Normal) {
+TEST(Map, Swap) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -427,7 +429,7 @@ TEST(Swap, Normal) {
   EXPECT_EQ(it, m2.end());
 }
 
-TEST(Swap, StdSwap) {
+TEST(Map, StdSwap) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -459,7 +461,7 @@ TEST(Swap, StdSwap) {
   EXPECT_EQ(it, m2.end());
 }
 
-TEST(FindAndCount, Normal) {
+TEST(Map, FindAndCount) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -491,7 +493,7 @@ TEST(FindAndCount, Normal) {
   EXPECT_EQ(m.count("E"), map_type::size_type(1));
 }
 
-TEST(EqualRange, Normal) {
+TEST(Map, EqualRange) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -517,7 +519,7 @@ TEST(EqualRange, Normal) {
   }
 }
 
-TEST(LowerBound, Normal) {
+TEST(Map, LowerBound) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -544,7 +546,7 @@ TEST(LowerBound, Normal) {
   EXPECT_EQ(it, m.end());
 }
 
-TEST(UpperBound, Normal) {
+TEST(Map, UpperBound) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;
@@ -571,7 +573,7 @@ TEST(UpperBound, Normal) {
   EXPECT_EQ(it, m.end());
 }
 
-TEST(Observers, Normal) {
+TEST(Map, Observers) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::pair<key_type, mapped_type> pair_type;
@@ -589,7 +591,7 @@ TEST(Observers, Normal) {
   EXPECT_FALSE(value_comp_func(pair_type("A", 0), pair_type("A", 0)));
 }
 
-TEST(Operators, Normal) {
+TEST(Map, Operators) {
   typedef std::string key_type;
   typedef int mapped_type;
   typedef ft::map<key_type, mapped_type> map_type;

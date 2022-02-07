@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "pair.hpp"
+#include "red_black_tree.hpp"
 
 namespace ft {
 
@@ -56,90 +57,159 @@ class set {
   typedef typename RepType::const_reverse_iterator const_reverse_iterator;
 
   /********** Constructor, Assignation and Destructor **********/
-  set();
+  set() : rbtree_() {}
 
-  explicit set(const Compare& comp, const Allocator& alloc = Allocator());
+  explicit set(const Compare& comp, const Allocator& alloc = Allocator())
+      : rbtree_(comp, alloc) {}
 
   template <class InputIt>
   set(InputIt first, InputIt last, const Compare& comp = Compare(),
-      const Allocator& alloc = Allocator());
+      const Allocator& alloc = Allocator())
+      : rbtree_(first, last, comp, alloc) {}
 
-  set(const set& other);
+  set(const set& other) : rbtree_(other.rbtree_) {}
 
-  set& operator=(const set& other);
+  set& operator=(const set& other) {
+    if (this != &other) {
+      rbtree_ = other.rbtree_;
+    }
+    return *this;
+  }
 
-  ~set();
+  ~set() {}
 
   /********** Get allocator **********/
-  allocator_type get_allocator() const;
+  allocator_type get_allocator() const {
+    return allocator_type(rbtree_.get_allocator());
+  }
 
   /********** Iterators **********/
-  iterator begin();
+  iterator begin() {
+    return rbtree_.begin();
+  }
 
-  const_iterator begin() const;
+  const_iterator begin() const {
+    return rbtree_.begin();
+  }
 
-  iterator end();
+  iterator end() {
+    return rbtree_.end();
+  }
 
-  const_iterator end() const;
+  const_iterator end() const {
+    return rbtree_.end();
+  }
 
-  reverse_iterator rbegin();
+  reverse_iterator rbegin() {
+    return rbtree_.rbegin();
+  }
 
-  const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const {
+    return rbtree_.rbegin();
+  }
 
-  reverse_iterator rend();
+  reverse_iterator rend() {
+    return rbtree_.rend();
+  }
 
-  const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const {
+    return rbtree_.rend();
+  }
 
   /********** Capacity **********/
-  bool empty() const;
+  bool empty() const {
+    return size() == 0;
+  }
 
-  size_type size() const;
+  size_type size() const {
+    return rbtree_.size();
+  }
 
-  size_type max_size() const;
+  size_type max_size() const {
+    return rbtree_.max_size();
+  }
 
   /********** Modifiers **********/
-  void clear();
+  void clear() {
+    rbtree_.clear();
+  }
 
-  ft::pair<iterator, bool> insert(const value_type& value);
+  ft::pair<iterator, bool> insert(const value_type& value) {
+    return rbtree_.insert_unique(value);
+  }
 
-  iterator insert(iterator hint, const value_type& value);
+  iterator insert(iterator hint, const value_type& value) {
+    return rbtree_.insert_unique(hint, value);
+  }
 
   template <class InputIt>
-  void insert(InputIt first, InputIt last);
+  void insert(InputIt first, InputIt last) {
+    rbtree_.insert_range_unique(first, last);
+  }
 
-  void erase(iterator pos);
+  void erase(iterator pos) {
+    rbtree_.erase(pos);
+  }
 
-  void erase(iterator first, iterator last);
+  void erase(iterator first, iterator last) {
+    rbtree_.erase(first, last);
+  }
 
-  size_type erase(const Key& key);
+  size_type erase(const Key& key) {
+    return rbtree_.erase(key);
+  }
 
-  void swap(set& other);
+  void swap(set& other) {
+    rbtree_.swap(other.rbtree_);
+  }
 
   /********** Lookup **********/
-  size_type count(const Key& key) const;
+  size_type count(const Key& key) const {
+    return rbtree_.find(key) == rbtree_.end() ? 0 : 1;
+  }
 
-  iterator find(const Key& key);
+  iterator find(const Key& key) {
+    return rbtree_.find(key);
+  }
 
-  const_iterator find(const Key& key) const;
+  const_iterator find(const Key& key) const {
+    return rbtree_.find(key);
+  }
 
-  ft::pair<iterator, iterator> equal_range(const Key& key);
+  ft::pair<iterator, iterator> equal_range(const Key& key) {
+    return rbtree_.equal_range(key);
+  }
 
-  ft::pair<const_iterator, const_iterator> equal_range(const Key& key) const;
+  ft::pair<const_iterator, const_iterator> equal_range(const Key& key) const {
+    return rbtree_.equal_range(key);
+  }
 
-  iterator lower_bound(const Key& key);
+  iterator lower_bound(const Key& key) {
+    return rbtree_.lower_bound(key);
+  }
 
-  const_iterator lower_bound(const Key& key) const;
+  const_iterator lower_bound(const Key& key) const {
+    return rbtree_.lower_bound(key);
+  }
 
-  iterator upper_bound(const Key& key);
+  iterator upper_bound(const Key& key) {
+    return rbtree_.upper_bound(key);
+  }
 
-  const_iterator upper_bound(const Key& key) const;
+  const_iterator upper_bound(const Key& key) const {
+    return rbtree_.upper_bound(key);
+  }
 
   /********** Observers **********/
-  key_compare key_comp() const;
+  key_compare key_comp() const {
+    return rbtree_.key_comp();
+  }
 
-  value_compare value_comp() const;
+  value_compare value_comp() const {
+    return value_compare(rbtree_.key_comp());
+  }
 
-  /********** Basic operators **********/
+  /********** Basic comparison operators **********/
   template <typename K1, typename C1, typename A>
   friend bool operator==(const set<K1, C1, A>&, const set<K1, C1, A>&);
 

@@ -18,6 +18,13 @@ struct Student {
   std::uint8_t age_;
   std::uint64_t id_;
 
+  class Compare {
+   public:
+    bool operator()(const Student& lhs, const Student& rhs) const {
+      return lhs.id_ < rhs.id_;
+    }
+  };
+
   Student()
       : name_(generate_random_string(12)), age_(0), id_(generate_hash(name_)) {}
 

@@ -51,7 +51,10 @@ SRCS_TEST := $(TEST_DIR)/vector_test.cpp  \
 	$(TEST_DIR)/stack_test.cpp \
 	$(TEST_DIR)/pair_test.cpp \
 	$(TEST_DIR)/red_black_tree_test.cpp \
-	$(TEST_DIR)/map_test.cpp
+	$(TEST_DIR)/map_test.cpp \
+	$(TEST_DIR)/set_test.cpp
+SRCS_TEST_UTILS := $(wildcard $(TEST_DIR)/utils/*.cpp)
+OBJECTS_TEST_UTILS  := $(SRCS_TEST_UTILS:%.cpp=$(OBJ_DIR)/%.o)
 OBJECTS_TEST  := $(SRCS_TEST:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES_TEST \
          := $(OBJECTS_TEST:.o=.d)
@@ -72,11 +75,11 @@ $(GTEST):
 	mv googletest-release-1.11.0 $(GTESTDIR)
 
 .PHONY: test
-test: $(OBJECTS_TEST)
+test: $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS)
 	# Google Test require C++11
 	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
 	-DDEBUG -g -fsanitize=address \
-	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) -o tester
+	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS) -o tester
 	./tester
 
 coverage:
@@ -84,7 +87,7 @@ coverage:
 	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
 	-DDEBUG -g -fsanitize=address \
 	-ftest-coverage -fprofile-arcs -lgcov \
-	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(SRCS_TEST) -o tester
+	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(SRCS_TEST) $(SRCS_TEST_UTILS) -o tester
 	./tester
 	# coverage
 	lcov -c -b . -d . -o cov_test.info --gcov-tool /usr/bin/gcov-8

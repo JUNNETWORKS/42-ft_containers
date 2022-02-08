@@ -1,6 +1,8 @@
 #ifndef TEST_UTILS_STUDENT_H_
 #define TEST_UTILS_STUDENT_H_
 
+#include <stdint.h>
+
 #include <string>
 
 #include "hash.hpp"
@@ -11,12 +13,12 @@ namespace test {
 
 struct Student {
   typedef std::string name_type;
-  typedef std::uint8_t age_type;
-  typedef std::uint64_t id_type;
+  typedef uint8_t age_type;
+  typedef uint64_t id_type;
 
   std::string name_;
-  std::uint8_t age_;
-  std::uint64_t id_;
+  uint8_t age_;
+  uint64_t id_;
 
   class Compare {
    public:
@@ -28,7 +30,7 @@ struct Student {
   Student()
       : name_(generate_random_string(12)), age_(0), id_(generate_hash(name_)) {}
 
-  Student(const std::string& name, const std::uint8_t age)
+  Student(const std::string& name, const uint8_t age)
       : name_(name), age_(age), id_(generate_hash(name)) {}
 
   Student(const Student& other)

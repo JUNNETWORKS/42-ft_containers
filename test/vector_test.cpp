@@ -1,7 +1,5 @@
 #include "vector.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
@@ -9,7 +7,13 @@
 #include <iterator>
 #include <vector>
 
-#include "debug_utils.hpp"
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
+#include "testlib/testlib.hpp"
+#endif
+
+#include "utils/debug_utils.hpp"
 
 class VectorTest : public ::testing::Test {
  protected:
@@ -21,7 +25,7 @@ class VectorTest : public ::testing::Test {
 
   static const size_t kDefaultSize = 10;
 
-  void SetUp() override {
+  virtual void SetUp() {
     srand(time(NULL));
 
     for (size_t i = 0; i < kDefaultSize; ++i) {

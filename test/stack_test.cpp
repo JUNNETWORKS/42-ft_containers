@@ -1,7 +1,5 @@
 #include "stack.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
@@ -10,6 +8,11 @@
 #include <stack>
 #include <vector>
 
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
+#include "testlib/testlib.hpp"
+#endif
 #include "vector.hpp"
 
 namespace {

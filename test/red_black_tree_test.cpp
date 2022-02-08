@@ -4,7 +4,7 @@
 
 #include "red_black_tree.hpp"
 
-#include <gtest/gtest.h>
+#include <stdio.h>
 
 #include <algorithm>
 #include <cassert>
@@ -15,27 +15,14 @@
 #include <set>
 #include <vector>
 
+#include "map.hpp"
 #include "pair.hpp"
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
+#include "testlib/testlib.hpp"
+#endif
 #include "utils/comparison.hpp"
-
-namespace ft {
-template <typename Pair>
-struct Select1st {
-  /// @c argument_type is the type of the argument
-  typedef Pair argument_type;
-
-  /// @c result_type is the return type
-  typedef typename Pair::first_type result_type;
-
-  typename Pair::first_type &operator()(Pair &p) const {
-    return p.first;
-  }
-
-  const typename Pair::first_type &operator()(const Pair &p) const {
-    return p.first;
-  }
-};
-}  // namespace ft
 
 namespace {
 template <class key_type, class Compare>
@@ -44,8 +31,7 @@ bool __are_keys_equal(const key_type &key1, const key_type &key2) {
 }
 
 // テスト用の関数. 色の修正や木の回転などを行わない挿入.
-template <class Key, class Value, typename KeyOfValue,
-          typename Compare = std::less<Key> >
+template <class Key, class Value, typename KeyOfValue, typename Compare>
 typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
 insertNodeWithoutFixup(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
@@ -91,8 +77,7 @@ insertNodeWithoutFixup(
   return new_node;
 }
 
-template <class Key, class Value, typename KeyOfValue,
-          typename Compare = std::less<Key> >
+template <class Key, class Value, typename KeyOfValue, typename Compare>
 typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
 insertNodeWithoutFixup(
     typename ft::RedBlackTree<Key, Value, KeyOfValue, Compare>::node_type *
@@ -605,13 +590,17 @@ TEST(insert_unique, UncleIsRedLeft) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(4, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -660,13 +649,17 @@ TEST(insert_unique, UncleIsRedRight) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -721,13 +714,17 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsLeftLeft) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -782,13 +779,17 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsRightRight) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -842,13 +843,17 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsLeftRight) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -902,13 +907,17 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsRightleft) {
 
   tree_type rb_tree;
 
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(1, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 0), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 0), node_type::RED);
 
   // これがおかしいということはテストの入力がおかしいので, プログラムを終了
@@ -1120,25 +1129,35 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
    *                 12B  17B  22B   30B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(17, 17), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
   rb_tree.erase(5);
@@ -1169,17 +1188,23 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
    *           4B      6B        8B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(3, 3), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(4, 4), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::BLACK);
 
   rb_tree.erase(3);
@@ -1221,21 +1246,29 @@ TEST(DeleteLeft,
    *               12B      18B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
 
   rb_tree.erase(5);
@@ -1275,33 +1308,47 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
    *              18R    25R       35R    45R
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(5, 5), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(6, 6), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(8, 8), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(13, 13), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(18, 18), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(45, 45), node_type::RED);
 
   rb_tree.erase(5);
@@ -1342,25 +1389,35 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(15, 15), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(35, 35), node_type::BLACK);
 
   rb_tree.erase(75);
@@ -1393,17 +1450,23 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(75, 75), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(80, 80), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
 
   rb_tree.erase(75);
@@ -1446,21 +1509,29 @@ TEST(DeleteRight,
    *            27B  40B
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(27, 27), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(40, 40), node_type::BLACK);
 
   rb_tree.erase(60);
@@ -1501,33 +1572,47 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
    *
    */
   tree_type rb_tree;
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(50, 50), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(60, 60), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(55, 55), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(52, 52), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(57, 57), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(25, 25), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(30, 30), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(20, 20), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(10, 10), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(22, 22), node_type::BLACK);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(7, 7), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(12, 12), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(21, 21), node_type::RED);
-  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type> >(
+  insertNodeWithoutFixup<key_type, pair_type, ft::Select1st<pair_type>,
+                         std::less<key_type> >(
       &rb_tree.root_, rb_tree.nil_node_, pair_type(23, 23), node_type::RED);
 
   rb_tree.erase(60);

@@ -101,6 +101,21 @@ template <typename T>
 struct is_integral
     : public is_integral_base<typename remove_cv<T>::type>::type {};
 
+/* is_const */
+template <typename T>
+struct is_const : false_type {};
+
+template <typename T>
+struct is_const<const T> : true_type {};
+
+/* is_volatile */
+
+template <class T>
+struct is_volatile : false_type {};
+
+template <class T>
+struct is_volatile<volatile T> : true_type {};
+
 /* enable_if */
 /*
 整数のみしか受け付けないようなベクターは以下のように定義できる

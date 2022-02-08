@@ -7,7 +7,12 @@
 #include <iterator>
 #include <vector>
 
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
+
 #include "utils/debug_utils.hpp"
 
 class VectorTest : public ::testing::Test {

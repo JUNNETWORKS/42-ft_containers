@@ -4,7 +4,11 @@
 
 #include <stdint.h>
 
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
 
 /* std::is_const はC++11 以降 */
 

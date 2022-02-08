@@ -17,7 +17,11 @@
 
 #include "map.hpp"
 #include "pair.hpp"
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
 #include "utils/comparison.hpp"
 
 namespace {

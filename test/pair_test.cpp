@@ -6,7 +6,11 @@
 #include <iostream>
 #include <iterator>
 
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
 
 TEST(Pair, DefaultConstructor) {
   ft::pair<std::string, int> student1;

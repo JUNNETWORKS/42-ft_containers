@@ -1,7 +1,11 @@
 #include <iostream>
 #include <vector>
 
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
 
 test_func_vec_type test_functions;
 testf_func_vec_type testf_functions;

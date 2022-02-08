@@ -13,7 +13,11 @@
 #include <vector>
 
 #include "pair.hpp"
+#if __cplusplus >= 201103L
+#include <gtest/gtest.h>
+#else
 #include "testlib/testlib.hpp"
+#endif
 #include "utils/Student.hpp"
 #include "utils/comparison.hpp"
 #include "utils/hash.hpp"

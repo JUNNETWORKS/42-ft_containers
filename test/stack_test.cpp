@@ -1,7 +1,5 @@
 #include "stack.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
@@ -10,6 +8,7 @@
 #include <stack>
 #include <vector>
 
+#include "testlib/testlib.hpp"
 #include "vector.hpp"
 
 namespace {

@@ -1,7 +1,5 @@
 #include "set.hpp"
 
-#include <gtest/gtest.h>
-
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -13,6 +11,7 @@
 #include <vector>
 
 #include "pair.hpp"
+#include "testlib/testlib.hpp"
 #include "utils/Student.hpp"
 #include "utils/comparison.hpp"
 #include "utils/hash.hpp"

@@ -1,12 +1,12 @@
 #include "pair.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <iterator>
+
+#include "testlib/testlib.hpp"
 
 TEST(Pair, DefaultConstructor) {
   ft::pair<std::string, int> student1;

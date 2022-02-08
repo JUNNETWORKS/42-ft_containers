@@ -1,12 +1,12 @@
 #include "lexicographical_compare.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <iterator>
+
+#include "testlib/testlib.hpp"
 
 namespace {
 

@@ -1,5 +1,5 @@
-#ifndef MAP_H_
-#define MAP_H_
+#ifndef SET_H_
+#define SET_H_
 
 #include <functional>
 #include <memory>

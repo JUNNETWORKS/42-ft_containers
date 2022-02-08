@@ -1,6 +1,6 @@
 #include "map.hpp"
 
-#include <gtest/gtest.h>
+#include <stdint.h>
 
 #include <algorithm>
 #include <cassert>
@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "pair.hpp"
+#include "testlib/testlib.hpp"
 #include "utils/Student.hpp"
 #include "utils/comparison.hpp"
 #include "utils/hash.hpp"
@@ -20,7 +21,7 @@
 #include "utils/string.hpp"
 
 namespace {
-const std::uint64_t kLoopMax = 1000;
+const uint64_t kLoopMax = 1000;
 }
 
 TEST(Map, DefaultConstructor) {
@@ -129,7 +130,7 @@ TEST(Map, GetAllocator_DefaultAllocator) {
 
   map_type m;
   map_type::allocator_type allocator = m.get_allocator();
-  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
+  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != NULL);
 }
 
 TEST(Map, GetAllocator_CustomAllocator) {
@@ -142,7 +143,7 @@ TEST(Map, GetAllocator_CustomAllocator) {
 
   map_type m;
   map_type::allocator_type allocator = m.get_allocator();
-  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != nullptr);
+  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != NULL);
 }
 
 TEST(Map, ElementAccess) {

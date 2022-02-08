@@ -45,7 +45,8 @@ GTESTDIR    :=   ./google_test
 GTEST       :=   $(GTESTDIR)/gtest $(GTESTDIR)/googletest-release-1.11.0
 
 TEST_DIR := ./test
-SRCS_TEST := $(TEST_DIR)/vector_test.cpp  \
+# SRCS_TEST := $(TEST_DIR)/vector_test.cpp 
+SRCS_TEST := \
 	$(TEST_DIR)/type_traits_test.cpp \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
@@ -79,7 +80,14 @@ test: $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS)
 	# Google Test require C++11
 	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
 	-DDEBUG -g -fsanitize=address \
-	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS) -o tester
+	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) -o tester
+	./tester
+
+.PHONY: mytest
+mytest: $(OBJECTS_TEST_UTILS)
+	g++ -Wall -Wextra -Werror -std=c++98 \
+	-DDEBUG -g -fsanitize=address \
+	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(OBJECTS_TEST_UTILS) -o tester
 	./tester
 
 coverage:

@@ -90,6 +90,7 @@ mytest: $(OBJECTS_TEST_UTILS)
 	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(OBJECTS_TEST_UTILS) -o tester
 	./tester
 
+.PHONY: coverage
 coverage:
 	# Google Test require C++11
 	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \

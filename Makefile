@@ -39,14 +39,10 @@ debug: $(OBJECTS)
 	$(CXX) -g -O0 $^ -o debug
 	gdb
 
-# Google Test
-
-GTESTDIR    :=   ./google_test
-GTEST       :=   $(GTESTDIR)/gtest $(GTESTDIR)/googletest-release-1.11.0
+############ Test ############
 
 TEST_DIR := ./test
-# SRCS_TEST := $(TEST_DIR)/vector_test.cpp 
-SRCS_TEST := \
+SRCS_TEST := $(TEST_DIR)/vector_test.cpp \
 	$(TEST_DIR)/type_traits_test.cpp \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
@@ -67,6 +63,18 @@ $(OBJ_DIR)/%.o: %.cpp
 
 -include $(DEPENDENCIES_TEST)
 
+.PHONY: mytest
+mytest: $(OBJECTS_TEST_UTILS)
+	g++ -Wall -Wextra -Werror -std=c++98 \
+	-DDEBUG -g -fsanitize=address \
+	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(OBJECTS_TEST_UTILS) -o tester
+	./tester
+
+############ GooleTest ############
+
+GTESTDIR    :=   ./google_test
+GTEST       :=   $(GTESTDIR)/gtest $(GTESTDIR)/googletest-release-1.11.0
+
 $(GTEST):
 	mkdir -p $(GTESTDIR)
 	curl -OL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz
@@ -81,13 +89,6 @@ test: $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS)
 	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
 	-DDEBUG -g -fsanitize=address \
 	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) -o tester
-	./tester
-
-.PHONY: mytest
-mytest: $(OBJECTS_TEST_UTILS)
-	g++ -Wall -Wextra -Werror -std=c++98 \
-	-DDEBUG -g -fsanitize=address \
-	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(OBJECTS_TEST_UTILS) -o tester
 	./tester
 
 .PHONY: coverage

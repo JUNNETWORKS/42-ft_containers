@@ -20,7 +20,7 @@ class VectorTest : public ::testing::Test {
 
   static const size_t kDefaultSize = 10;
 
-  void SetUp() override {
+  virtual void SetUp() {
     srand(time(NULL));
 
     for (size_t i = 0; i < kDefaultSize; ++i) {

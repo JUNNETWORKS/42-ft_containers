@@ -435,9 +435,6 @@ TEST(RedBlackTree, CopyConstructor) {
     EXPECT_EQ(n1->value_.second, n4->value_.second);
     EXPECT_NE(n1, n4);
 
-    printf("n1: %d, n2, %d, n3: %d, n4: %d\n", n1->value_.first,
-           n2->value_.first, n3->value_.first, n4->value_.first);
-
     n1 = ft::get_next_node(n1);
     n2 = ft::get_next_node(n2);
     n3 = ft::get_next_node(n3);

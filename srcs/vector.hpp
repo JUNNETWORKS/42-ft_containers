@@ -185,6 +185,14 @@ class vector {
     return *tmp;
   }
 
+  pointer data() {
+    return start_;
+  }
+
+  const_pointer data() const {
+    return start_;
+  }
+
   // Modifiers
   template <class InputIterator>
   void assign(InputIterator first, InputIterator last) {

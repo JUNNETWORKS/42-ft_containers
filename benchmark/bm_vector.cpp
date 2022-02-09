@@ -12,8 +12,6 @@ inline void add_nums_into_vector(std::vector<T>& std_vec, ft::vector<T>& ft_vec,
                                  const int default_vec_size) {
   for (int i = 0; i < default_vec_size; ++i) {
     std_vec.push_back(i);
-  }
-  for (int i = 0; i < default_vec_size; ++i) {
     ft_vec.push_back(i);
   }
 }

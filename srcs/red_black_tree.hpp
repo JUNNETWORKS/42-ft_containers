@@ -449,19 +449,22 @@ class RedBlackTree {
       --prev_it;
     }
     iterator next_it = iterator(hint_it);
-    if (hint_it != end() || hint_it != --(end())) {
+    if (hint_it != end() && hint_it != --(end())) {
       ++next_it;
     }
 
-    if (__are_keys_equal(__get_key_of_value(value),
+    if (!hint_it.node_->is_nil_node_ &&
+        __are_keys_equal(__get_key_of_value(value),
                          __get_key_of_value(*hint_it))) {
       // hint_it == value
       return iterator(hint_it);
-    } else if (__are_keys_equal(__get_key_of_value(value),
+    } else if (!prev_it.node_->is_nil_node_ &&
+               __are_keys_equal(__get_key_of_value(value),
                                 __get_key_of_value(*prev_it))) {
       // --hint_it == value
       return iterator(prev_it);
-    } else if (__are_keys_equal(__get_key_of_value(value),
+    } else if (!next_it.node_->is_nil_node_ &&
+               __are_keys_equal(__get_key_of_value(value),
                                 __get_key_of_value(*next_it))) {
       // ++hint_it == value
       return iterator(next_it);

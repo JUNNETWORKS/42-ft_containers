@@ -103,6 +103,10 @@ class map {
 
   /********** Element access **********/
 
+  void print_tree_2D() {
+    rbtree_.print_tree_2D();
+  }
+
   mapped_type& operator[](const key_type& key) {
     iterator it = lower_bound(key);
     if (it == end() || key_comp()(key, (*it).first)) {

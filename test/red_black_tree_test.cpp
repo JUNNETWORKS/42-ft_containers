@@ -2935,3 +2935,26 @@ TEST(OperatorLexicographicalCompare, ValueAreDifferent) {
   EXPECT_FALSE(rb_tree1 > rb_tree2);
   EXPECT_FALSE(rb_tree1 >= rb_tree2);
 }
+
+TEST(RedBlackTree, InsertManyElements) {
+  typedef int key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  const int max_size = 1000000;
+
+  for (int i = 0; i < max_size; ++i) {
+    rb_tree.insert_unique(pair_type(i, i));
+  }
+
+  for (int i = 0; i < max_size; ++i) {
+    tree_iterator it = rb_tree.lower_bound(i);
+    EXPECT_EQ((*it).first, i);
+    EXPECT_EQ((*it).second, i);
+  }
+}

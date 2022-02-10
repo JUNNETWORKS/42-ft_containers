@@ -1,6 +1,7 @@
 #include "hash.hpp"
 
-#include <cstdint>
+#include <stdint.h>
+
 #include <string>
 
 namespace {

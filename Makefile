@@ -59,12 +59,12 @@ TEST_UTIL_DEPENDENCIES \
 
 $(TEST_UTIL_OBJ_DIR)/%.o: $(TEST_UTIL_DIR)/%.cpp
 	@mkdir -p $(@D)
-	g++ -g -Wall -Wextra -Werror -DDEBUG --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) -I$(TEST_DIR) \
+	clang++ -g -Wall -Wextra -Werror -DDEBUG --std=c++98 -I$(SRC_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
 .PHONY: mytest
 mytest: $(TEST_UTIL_OBJECTS)
-	g++ -Wall -Wextra -Werror -std=c++98 \
+	clang++ -Wall -Wextra -Werror -std=c++98 \
 	-DDEBUG -g -fsanitize=address \
 	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
 	$(TESTER_NAME)

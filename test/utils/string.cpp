@@ -1,5 +1,6 @@
 #include "string.hpp"
 
+#include <cstdlib>
 #include <string>
 
 namespace ft {

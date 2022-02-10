@@ -255,11 +255,12 @@ inline bool operator>=(const set<Key, Compare, Alloc>& lhs,
 
 }  // namespace ft
 
-// specializes the std::swap algorithm
+namespace std {  // specializes the std::swap algorithm
 template <typename Key, typename Compare, typename Alloc>
-inline void std::swap(const ft::set<Key, Compare, Alloc>& lhs,
-                      const ft::set<Key, Compare, Alloc>& rhs) {
+inline void swap(const ft::set<Key, Compare, Alloc>& lhs,
+                 const ft::set<Key, Compare, Alloc>& rhs) {
   lhs.swap(rhs);
 }
+}  // namespace std
 
 #endif

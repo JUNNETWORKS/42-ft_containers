@@ -477,4 +477,12 @@ bool operator>=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
 
 }  // namespace ft
 
+namespace std {
+template <typename T, typename Alloc>
+inline void swap(const ft::vector<T, Alloc> &lhs,
+                 const ft::vector<T, Alloc> &rhs) {
+  lhs.swap(rhs);
+}
+}  // namespace std
+
 #endif

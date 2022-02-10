@@ -300,10 +300,12 @@ inline bool operator>=(const map<Key, Value, Compare, Alloc>& lhs,
 }  // namespace ft
 
 // specializes the std::swap algorithm
+namespace std {
 template <typename Key, typename Value, typename Compare, typename Alloc>
-inline void std::swap(const ft::map<Key, Value, Compare, Alloc>& lhs,
-                      const ft::map<Key, Value, Compare, Alloc>& rhs) {
+inline void swap(const ft::map<Key, Value, Compare, Alloc>& lhs,
+                 const ft::map<Key, Value, Compare, Alloc>& rhs) {
   lhs.swap(rhs);
 }
+}  // namespace std
 
 #endif

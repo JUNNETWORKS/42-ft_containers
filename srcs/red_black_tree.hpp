@@ -200,7 +200,7 @@ struct RBTNode {
  private:
   // Assignment operator is forbidden.
   // Because node may have const type in value_ as key.
-  RBTNode &operator=(const RBTNode &rhs) {}
+  RBTNode &operator=(const RBTNode &);
 };
 
 template <class Value>

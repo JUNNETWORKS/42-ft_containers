@@ -10,6 +10,8 @@
 test_func_vec_type test_functions;
 testf_func_vec_type testf_functions;
 
+/***** Include all the files that use GoogleTest to test *****/
+
 #include "lexicographical_compare_test.cpp"
 #include "map_test.cpp"
 #include "pair_test.cpp"
@@ -64,4 +66,6 @@ int main() {
     test_obj->Run();
     std::cout << "SUCCESS: " << test_func_name << "\n" << std::endl;
   }
+
+  std::cout << "All tests succeeded." << std::endl;
 }

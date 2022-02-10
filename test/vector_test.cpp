@@ -604,7 +604,8 @@ TEST_F(VectorTest, EraseWithTwoIteratorBetweenMiddleAndLast) {
                                       ft_vector.end());
   EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
             std::distance(ft_vector.begin(), ft_it));
-  EXPECT_EQ(*stl_it, *ft_it);
+  EXPECT_EQ(stl_it, stl_vector.end());
+  EXPECT_EQ(ft_it, ft_vector.end());
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
@@ -615,7 +616,8 @@ TEST_F(VectorTest, EraseWithTwoIteratorBetweenBeginAndLast) {
                                       ft_vector.end());
   EXPECT_EQ(std::distance(stl_vector.begin(), stl_it),
             std::distance(ft_vector.begin(), ft_it));
-  EXPECT_EQ(*stl_it, *ft_it);
+  EXPECT_EQ(stl_it, stl_vector.end());
+  EXPECT_EQ(ft_it, ft_vector.end());
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
 

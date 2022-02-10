@@ -1,30 +1,33 @@
 CXX      := clang++
 CXXFLAGS := -Wall -Wextra -Werror
-CXXFLAGS += -std=c++98 -g -fsanitize=address
-OBJ_DIR  := objs
-NAME     := ft_containers
-
+CXXFLAGS += -std=c++98
 SRC_DIR  := srcs
-SRCS     := $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS  := $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
+CXXFLAGS += -I$(SRC_DIR)
+OBJ_DIR  := objs
+NAME     := ft_containers_benchmark     
+
+BM_DIR      := benchmark
+BM_SRCS     := $(wildcard $(BM_DIR)/*.cpp)
+BM_OBJ_DIR  := $(OBJ_DIR)/$(BM_DIR)
+BM_OBJECTS  := $(BM_SRCS:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
-         := $(OBJECTS:.o=.d)
+         := $(BM_OBJECTS:.o=.d)
 
 .PHONY: all
 all: $(NAME)
 
-$(OBJ_DIR)/%.o: %.cpp
+$(BM_OBJ_DIR)/%.o: $(BM_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -MMD -o $@
 
 -include $(DEPENDENCIES)
 
-$(NAME): $(OBJECTS)
+$(NAME): $(BM_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(NAME) $^
 
 .PHONY: clean
 clean:
-	$(RM) $(OBJECTS) $(DEPENDENCIES)
+	$(RM) $(BM_OBJECTS) $(DEPENDENCIES)
 	$(RM) -r $(OBJ_DIR)
 
 .PHONY: fclean

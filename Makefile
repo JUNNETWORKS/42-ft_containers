@@ -1,30 +1,53 @@
+
+$(info MAKECMDGOALS: $(strip $(MAKECMDGOALS)))
+ifneq ($(filter $(strip $(MAKECMDGOALS)),googletest coverage),)
+# GoogleTest, coverage の時は g++ を使う
+CXX      := g++
+else
 CXX      := clang++
+endif
+$(info compiler: $(CXX))
+
 CXXFLAGS := -Wall -Wextra -Werror
-CXXFLAGS += -std=c++98 -g -fsanitize=address
-OBJ_DIR  := objs
-NAME     := ft_containers
+
+ifneq ($(filter $(strip $(MAKECMDGOALS)),googletest coverage test),)
+CXXFLAGS += -DDEBUG -g -fsanitize=address
+endif
+
+ifneq ($(filter $(strip $(MAKECMDGOALS)),googletest coverage),)
+CXXFLAGS += -std=c++11
+CXXFLAGS += -ftest-coverage -fprofile-arcs -lgcov
+else
+CXXFLAGS += -std=c++98
+endif
 
 SRC_DIR  := srcs
-SRCS     := $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS  := $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
+CXXFLAGS += -I$(SRC_DIR)
+OBJ_DIR  := objs
+NAME     := ft_containers_benchmark     
+
+BM_DIR      := benchmark
+BM_SRCS     := $(wildcard $(BM_DIR)/*.cpp)
+BM_OBJ_DIR  := $(OBJ_DIR)/$(BM_DIR)
+BM_OBJECTS  := $(BM_SRCS:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
-         := $(OBJECTS:.o=.d)
+         := $(BM_OBJECTS:.o=.d)
 
 .PHONY: all
 all: $(NAME)
 
-$(OBJ_DIR)/%.o: %.cpp
+$(BM_OBJ_DIR)/%.o: $(BM_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -MMD -o $@
 
 -include $(DEPENDENCIES)
 
-$(NAME): $(OBJECTS)
+$(NAME): $(BM_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(NAME) $^
 
 .PHONY: clean
 clean:
-	$(RM) $(OBJECTS) $(DEPENDENCIES)
+	$(RM) $(BM_OBJECTS) $(DEPENDENCIES)
 	$(RM) -r $(OBJ_DIR)
 
 .PHONY: fclean
@@ -42,10 +65,36 @@ debug: $(OBJECTS)
 
 ############ Test ############
 
-TEST_DIR := ./test
 TESTER_NAME := ./tester
 
-SRCS_TEST := $(TEST_DIR)/vector_test.cpp \
+TEST_DIR := test
+TEST_UTIL_DIR := $(TEST_DIR)/utils
+TEST_UTIL_OBJ_DIR := $(OBJ_DIR)/$(TEST_UTIL_DIR)
+TEST_UTIL_SRCS := $(wildcard $(TEST_UTIL_DIR)/*.cpp)
+TEST_UTIL_OBJECTS  := $(TEST_UTIL_SRCS:%.cpp=$(OBJ_DIR)/%.o)
+TEST_UTIL_DEPENDENCIES \
+         := $(TEST_UTIL_OBJECTS:.o=.d)
+
+-include $(TEST_UTIL_DEPENDENCIES)
+
+$(TEST_UTIL_OBJ_DIR)/%.o: $(TEST_UTIL_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) -g -Wall -Wextra -Werror -DDEBUG --std=c++98 -I$(SRC_DIR) -I$(TEST_DIR) \
+	-c $< -MMD -o $@
+
+.PHONY: test
+test: $(TEST_UTIL_OBJECTS)
+	$(CXX) $(CXXFLAGS) -I$(SRC_DIR) -I$(TEST_DIR) test/testlib/testlib_main.cpp $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
+	$(TESTER_NAME)
+
+############ GooleTest ############
+
+GTEST_DIR   :=   ./google_test
+GTEST       :=   $(GTEST_DIR)/gtest $(GTEST_DIR)/googletest-release-1.11.0
+GTEST_MAIN  := $(GTEST_DIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc
+GTEST_ALL   := $(GTEST_DIR)/gtest/gtest-all.cc
+
+TEST_SRCS := $(TEST_DIR)/vector_test.cpp \
 	$(TEST_DIR)/type_traits_test.cpp \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
@@ -53,59 +102,39 @@ SRCS_TEST := $(TEST_DIR)/vector_test.cpp \
 	$(TEST_DIR)/red_black_tree_test.cpp \
 	$(TEST_DIR)/map_test.cpp \
 	$(TEST_DIR)/set_test.cpp
+TEST_OBJ_DIR := $(OBJ_DIR)/$(TEST_DIR)
+TEST_OBJECTS  := $(TEST_SRCS:%.cpp=$(OBJ_DIR)/%.o)
+TEST_DEPENDENCIES \
+         := $(TEST_OBJECTS:%.o=%.d)
 
-OBJECTS_TEST  := $(SRCS_TEST:%.cpp=$(OBJ_DIR)/%.o)
+-include $(TEST_DEPENDENCIES)
 
-SRCS_TEST_UTILS := $(wildcard $(TEST_DIR)/utils/*.cpp)
-
-OBJECTS_TEST_UTILS  := $(SRCS_TEST_UTILS:%.cpp=$(OBJ_DIR)/%.o)
-
-DEPENDENCIES_TEST \
-         := $(OBJECTS_TEST:.o=.d) $(OBJECTS_TEST_UTILS:.o=.d)
-
-$(OBJ_DIR)/%.o: %.cpp
+$(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
 	@mkdir -p $(@D)
-	g++ -g -Wall -Wextra -Werror -DDEBUG --std=c++11 -I$(GTESTDIR) -I$(SRC_DIR) -I$(TEST_DIR) \
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -I$(SRC_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
--include $(DEPENDENCIES_TEST)
-
-.PHONY: mytest
-mytest: $(OBJECTS_TEST_UTILS)
-	g++ -Wall -Wextra -Werror -std=c++98 \
-	-DDEBUG -g -fsanitize=address \
-	-I$(SRC_DIR) -I$(TEST_DIR) -lpthread test/testlib/testlib_main.cpp $(OBJECTS_TEST_UTILS) -o $(TESTER_NAME)
-	$(TESTER_NAME)
-
-############ GooleTest ############
-
-GTESTDIR    :=   ./google_test
-GTEST       :=   $(GTESTDIR)/gtest $(GTESTDIR)/googletest-release-1.11.0
-
 $(GTEST):
-	mkdir -p $(GTESTDIR)
+	mkdir -p $(GTEST_DIR)
 	curl -OL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz
 	tar -xvzf release-1.11.0.tar.gz googletest-release-1.11.0
 	rm -rf release-1.11.0.tar.gz
-	python googletest-release-1.11.0/googletest/scripts/fuse_gtest_files.py $(GTESTDIR)
-	mv googletest-release-1.11.0 $(GTESTDIR)
+	python googletest-release-1.11.0/googletest/scripts/fuse_gtest_files.py $(GTEST_DIR)
+	mv googletest-release-1.11.0 $(GTEST_DIR)
 
-.PHONY: test
-test: $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS)
+.PHONY: googletest
+googletest: $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS)
 	# Google Test require C++11
-	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
-	-DDEBUG -g -fsanitize=address \
-	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(OBJECTS_TEST) $(OBJECTS_TEST_UTILS) -o $(TESTER_NAME)
+	$(CXX) $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
+	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
 	$(TESTER_NAME)
 
 .PHONY: coverage
 coverage:
 	# Google Test require C++11
-	g++ -Wall -Wextra -Werror -std=c++11 $(GTESTDIR)/googletest-release-1.11.0/googletest/src/gtest_main.cc $(GTESTDIR)/gtest/gtest-all.cc \
-	-DDEBUG -g -fsanitize=address \
-	-ftest-coverage -fprofile-arcs -lgcov \
-	-I$(GTESTDIR) -I$(SRC_DIR) -lpthread $(SRCS_TEST) $(SRCS_TEST_UTILS) -o tester
-	./tester
+	g++ $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
+	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_SRCS) $(TEST_UTIL_SRCS) -o $(TESTER_NAME)
+	$(TESTER_NAME)
 	# coverage
 	lcov -c -b . -d . -o cov_test.info --gcov-tool /usr/bin/gcov-8
 	lcov -r cov_test.info "*/google_test/*" "*/c++/*" -o coverageFiltered.info --gcov-tool /usr/bin/gcov-8

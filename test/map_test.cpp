@@ -694,3 +694,20 @@ TEST(MapFeatures, MyOriginalClassStudent) {
   EXPECT_EQ(students.size(), students_map_type::size_type(2));
   EXPECT_EQ(student_id_table.size(), student_id_table_type::size_type(2));
 }
+
+TEST(Map, InsertManyElements) {
+  typedef ft::map<int, int> map_type;
+
+  const int map_size = 1000000;
+
+  map_type m;
+
+  for (int i = 0; i < map_size; ++i) {
+    m[i] = i;
+  }
+
+  for (int i = 0; i < map_size; ++i) {
+    EXPECT_EQ(m.at(i), i);
+    EXPECT_EQ(m[i], i);
+  }
+}

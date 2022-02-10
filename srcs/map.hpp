@@ -102,7 +102,6 @@ class map {
   }
 
   /********** Element access **********/
-
   mapped_type& operator[](const key_type& key) {
     iterator it = lower_bound(key);
     if (it == end() || key_comp()(key, (*it).first)) {
@@ -301,10 +300,12 @@ inline bool operator>=(const map<Key, Value, Compare, Alloc>& lhs,
 }  // namespace ft
 
 // specializes the std::swap algorithm
+namespace std {
 template <typename Key, typename Value, typename Compare, typename Alloc>
-inline void std::swap(const ft::map<Key, Value, Compare, Alloc>& lhs,
-                      const ft::map<Key, Value, Compare, Alloc>& rhs) {
+inline void swap(const ft::map<Key, Value, Compare, Alloc>& lhs,
+                 const ft::map<Key, Value, Compare, Alloc>& rhs) {
   lhs.swap(rhs);
 }
+}  // namespace std
 
 #endif

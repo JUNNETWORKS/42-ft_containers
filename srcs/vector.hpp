@@ -59,22 +59,11 @@ class vector {
     operator=(x);
   }
 
-  const vector<T, Allocator> &operator=(const vector<T, Allocator> &x) {
-    if (this != &x) {
+  const vector<T, Allocator> &operator=(const vector<T, Allocator> &rhs) {
+    if (this != &rhs) {
       // 自分の配列を捨てる
-      for (size_type i = 0; size(); i++) {
-        allocator.destroy(start_ + i);
-      }
-      allocator.deallocate(start_, cap_);
-
-      // 新たに配列を作成し, データをxからコピー
-      cap_ = x.cap_;
-      start_ = allocator.allocate(cap_);
-      for (size_type i = 0; i < x.size(); i++) {
-        allocator.construct(start_ + i, x[i]);
-      }
-      finish_ = start_ + x.size();
-      end_of_storage_ = start_ + cap_;
+      erase(begin(), end());
+      assign(rhs.begin(), rhs.end());
     }
     return *this;
   }
@@ -183,6 +172,14 @@ class vector {
     const_iterator tmp = end();
     --tmp;
     return *tmp;
+  }
+
+  pointer data() {
+    return start_;
+  }
+
+  const_pointer data() const {
+    return start_;
   }
 
   // Modifiers
@@ -479,5 +476,13 @@ bool operator>=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
 }
 
 }  // namespace ft
+
+namespace std {
+template <typename T, typename Alloc>
+inline void swap(const ft::vector<T, Alloc> &lhs,
+                 const ft::vector<T, Alloc> &rhs) {
+  lhs.swap(rhs);
+}
+}  // namespace std
 
 #endif

@@ -20,8 +20,8 @@ class VectorTest : public ::testing::Test {
   typedef int value_type;
   typedef std::vector<value_type> stl_container;
   typedef ft::vector<value_type> ft_container;
-  typedef typename stl_container::iterator stl_iterator;
-  typedef typename ft_container::iterator ft_iterator;
+  typedef stl_container::iterator stl_iterator;
+  typedef ft_container::iterator ft_iterator;
 
   static const size_t kDefaultSize = 10;
 

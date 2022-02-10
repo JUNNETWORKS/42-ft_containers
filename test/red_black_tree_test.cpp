@@ -262,7 +262,7 @@ TEST(get_next_node, Random1000) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
   typedef std::set<int> set_type;
 
   const int loop_num = 1000;
@@ -295,7 +295,7 @@ TEST(get_next_node, DeleteNodeDuringIteration) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -323,7 +323,7 @@ TEST(get_prev_node, Random1000) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
   typedef std::set<int> set_type;
   const int loop_num = 1000;
 
@@ -355,7 +355,7 @@ TEST(get_prev_node, DeleteNodeDuringIteration) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -434,9 +434,6 @@ TEST(RedBlackTree, CopyConstructor) {
     EXPECT_EQ(n1->value_.first, n4->value_.first);
     EXPECT_EQ(n1->value_.second, n4->value_.second);
     EXPECT_NE(n1, n4);
-
-    printf("n1: %d, n2, %d, n3: %d, n4: %d\n", n1->value_.first,
-           n2->value_.first, n3->value_.first, n4->value_.first);
 
     n1 = ft::get_next_node(n1);
     n2 = ft::get_next_node(n2);
@@ -586,7 +583,7 @@ TEST(insert_unique, UncleIsRedLeft) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -645,7 +642,7 @@ TEST(insert_unique, UncleIsRedRight) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -710,7 +707,7 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsLeftLeft) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -775,7 +772,7 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsRightRight) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -839,7 +836,7 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsLeftRight) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -903,7 +900,7 @@ TEST(insert_unique, UncleIsBlackAndNewNodeIsRightleft) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   tree_type rb_tree;
 
@@ -1118,7 +1115,7 @@ TEST(DeleteLeft, TargetNodesBrotherIsRed) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*               10B
    *          /             \
@@ -1179,7 +1176,7 @@ TEST(DeleteLeft, TargetNodeAndBrotherAreBlack) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*               5B
    *          /             \
@@ -1235,7 +1232,7 @@ TEST(DeleteLeft,
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*               10B
    *          /             \
@@ -1294,7 +1291,7 @@ TEST(DeleteLeft, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*
    *         10B
@@ -1376,7 +1373,7 @@ TEST(DeleteRight, TargetNodesBrotherIsRed) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*
    *                50B
@@ -1439,7 +1436,7 @@ TEST(DeleteRight, TargetNodeAndBrotherAreBlack) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*
    *               50B
@@ -1497,7 +1494,7 @@ TEST(DeleteRight,
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*
    *               50B
@@ -1557,7 +1554,7 @@ TEST(DeleteRight, TargetNodesdBrotherIsBlackAndBrothersRightChildIsRed) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::node_type node_type;
+  typedef tree_type::node_type node_type;
 
   /*
    *                        50B
@@ -1671,7 +1668,7 @@ TEST(ForwardIterator, Normal) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
+  typedef tree_type::iterator tree_iterator;
 
   tree_type rb_tree;
 
@@ -1701,7 +1698,7 @@ TEST(ForwardIterator, IteratorCanIncrementAndDecrement) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
+  typedef tree_type::iterator tree_iterator;
 
   tree_type rb_tree;
 
@@ -1743,7 +1740,7 @@ TEST(ForwardIterator, DeleteNodeDuringIteration) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
+  typedef tree_type::iterator tree_iterator;
 
   tree_type rb_tree;
 
@@ -1785,7 +1782,7 @@ TEST(ReverseIterator, Normal) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::reverse_iterator tree_reverse_iterator;
+  typedef tree_type::reverse_iterator tree_reverse_iterator;
 
   tree_type rb_tree;
 
@@ -1815,7 +1812,7 @@ TEST(ReverseIterator, IteratorCanIncrementAndDecrement) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::reverse_iterator tree_reverse_iterator;
+  typedef tree_type::reverse_iterator tree_reverse_iterator;
 
   tree_type rb_tree;
 
@@ -1857,7 +1854,7 @@ TEST(ReverseIterator, DeleteNodeDuringIteration) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::reverse_iterator tree_reverse_iterator;
+  typedef tree_type::reverse_iterator tree_reverse_iterator;
 
   tree_type rb_tree;
 
@@ -2536,7 +2533,7 @@ TEST(Swap, SwapAndDeleteTheOtherOne) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
+  typedef tree_type::iterator tree_iterator;
 
   tree_type *rb_tree1 = new tree_type();
 
@@ -2600,7 +2597,7 @@ TEST(Swap, OneTreeHasElementsAndOneTreeHasNoElement) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
+  typedef tree_type::iterator tree_iterator;
 
   tree_type rb_tree1;
 
@@ -2652,8 +2649,8 @@ TEST(Find, Normal) {
   typedef ft::pair<const key_type, mapped_type> pair_type;
   typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
       tree_type;
-  typedef typename tree_type::iterator tree_iterator;
-  typedef typename tree_type::const_iterator tree_const_iterator;
+  typedef tree_type::iterator tree_iterator;
+  typedef tree_type::const_iterator tree_const_iterator;
 
   tree_type rb_tree1;
 
@@ -2937,4 +2934,27 @@ TEST(OperatorLexicographicalCompare, ValueAreDifferent) {
   EXPECT_TRUE(rb_tree1 <= rb_tree2);
   EXPECT_FALSE(rb_tree1 > rb_tree2);
   EXPECT_FALSE(rb_tree1 >= rb_tree2);
+}
+
+TEST(RedBlackTree, InsertManyElements) {
+  typedef int key_type;
+  typedef int mapped_type;
+  typedef ft::pair<const key_type, mapped_type> pair_type;
+  typedef ft::RedBlackTree<key_type, pair_type, ft::Select1st<pair_type> >
+      tree_type;
+  typedef tree_type::iterator tree_iterator;
+
+  tree_type rb_tree;
+
+  const int max_size = 1000000;
+
+  for (int i = 0; i < max_size; ++i) {
+    rb_tree.insert_unique(pair_type(i, i));
+  }
+
+  for (int i = 0; i < max_size; ++i) {
+    tree_iterator it = rb_tree.lower_bound(i);
+    EXPECT_EQ((*it).first, i);
+    EXPECT_EQ((*it).second, i);
+  }
 }

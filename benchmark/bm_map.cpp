@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <map>
 
+#include "benchmarks.hpp"
 #include "map.hpp"
 #include "timer.hpp"
 

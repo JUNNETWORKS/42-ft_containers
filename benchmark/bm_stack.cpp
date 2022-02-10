@@ -2,6 +2,7 @@
 
 #include <stack>
 
+#include "benchmarks.hpp"
 #include "stack.hpp"
 #include "timer.hpp"
 
@@ -185,4 +186,4 @@ void measure_stack_modifiers() {
     }
   }
 }
-}
+}  // namespace

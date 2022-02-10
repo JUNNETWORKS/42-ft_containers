@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <set>
 
+#include "benchmarks.hpp"
 #include "set.hpp"
 #include "timer.hpp"
 

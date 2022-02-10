@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "benchmarks.hpp"
 #include "timer.hpp"
 #include "vector.hpp"
 

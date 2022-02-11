@@ -32,10 +32,10 @@ class vector {
 
   vector(size_type n = 0, const value_type &val = value_type(),
          allocator_type alloc = allocator_type())
-      : cap_(n) {
-    start_ = alloc.allocate(cap_);
+      : allocator_(alloc), cap_(n) {
+    start_ = allocator_.allocate(cap_);
     for (size_type i = 0; i < cap_; i++) {
-      alloc.construct(start_ + i, val);
+      allocator_.construct(start_ + i, val);
     }
     finish_ = start_ + n;
     end_of_storage_ = start_ + cap_;
@@ -44,18 +44,24 @@ class vector {
   template <class InputIterator>
   vector(InputIterator first, InputIterator last,
          allocator_type alloc = allocator_type(),
-         typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
+         typename disable_if<is_integral<InputIterator>::value>::type * = 0)
+      : allocator_(alloc) {
     int n = std::distance(first, last);
     cap_ = n;
-    start_ = alloc.allocate(cap_);
+    start_ = allocator_.allocate(cap_);
     for (size_type i = 0; first != last; first++, i++) {
-      alloc.construct(start_ + i, *first);
+      allocator_.construct(start_ + i, *first);
     }
     finish_ = start_ + n;
     end_of_storage_ = start_ + cap_;
   }
 
-  vector(const vector &x) : cap_(), start_(), finish_(), end_of_storage_() {
+  vector(const vector &x)
+      : allocator_(x.allocator_),
+        cap_(),
+        start_(),
+        finish_(),
+        end_of_storage_() {
     operator=(x);
   }
 
@@ -69,8 +75,7 @@ class vector {
   }
 
   ~vector() {
-    allocator_type alloc = allocator_type();
-    alloc.deallocate(start_, cap_);
+    allocator_.deallocate(start_, cap_);
   }
 
   // Iterators
@@ -125,10 +130,10 @@ class vector {
   }
 
   void reserve(size_type n) {
-    if (n > allocator.max_size())
+    if (n > allocator_.max_size())
       throw std::length_error("vector::reserve");
     if (capacity() < n) {
-      expand_and_copy_storage(n);
+      __expand_and_copy_storage(n);
     }
   }
 
@@ -194,18 +199,18 @@ class vector {
       swap(tmp);
     } else if (n > size()) {
       for (size_type i = 0; first != last; ++first, ++i) {
-        allocator.construct(start_ + i, *first);
+        allocator_.construct(start_ + i, *first);
       }
       finish_ = start_ + n;
     } else {
       // 現在の領域に上書きする形でvalのコピーをn個作成
       size_type i = 0;
       for (; first != last; ++first, ++i) {
-        allocator.construct(start_ + i, *first);
+        allocator_.construct(start_ + i, *first);
       }
       // storage_[n] 以降の領域のデータは不要なので破棄する
       for (; i < size(); ++i) {
-        allocator.destroy(start_ + i);
+        allocator_.destroy(start_ + i);
       }
       finish_ = start_ + n;
     }
@@ -224,7 +229,7 @@ class vector {
       // size()を超えた分は明示的にコンストラクタを呼ぶ必要がある
       size_type remain = n - size();
       for (size_type i = 0; i < remain; ++i) {
-        allocator.construct(finish_ + i, val);
+        allocator_.construct(finish_ + i, val);
       }
       finish_ = start_ + n;
     } else {
@@ -233,7 +238,7 @@ class vector {
       // storage_[n] 以降の領域のデータは不要なので破棄する
       size_type remain = size() - n;
       for (size_type i = 0; i < remain; ++i) {
-        allocator.destroy(start_ + n + i);
+        allocator_.destroy(start_ + n + i);
       }
       finish_ = start_ + n;
     }
@@ -241,9 +246,9 @@ class vector {
 
   void push_back(const value_type &val) {
     if (size() == capacity()) {
-      expand_and_copy_storage(calc_new_capacity(capacity()));
+      __expand_and_copy_storage(__calc_new_capacity(capacity()));
     }
-    allocator.construct(finish_, val);
+    allocator_.construct(finish_, val);
     ++finish_;
   }
 
@@ -252,7 +257,7 @@ class vector {
       return;
     }
     --finish_;
-    allocator.destroy(finish_);
+    allocator_.destroy(finish_);
   }
 
   void resize(size_type n, T value = T()) {
@@ -266,16 +271,16 @@ class vector {
   }
 
   iterator insert(iterator position, const value_type &val) {
-    return insert_n_val(position, 1, val);
+    return __insert_n_val(position, 1, val);
   }
 
   void insert(iterator position, size_type n, const value_type &val) {
-    insert_n_val(position, n, val);
+    __insert_n_val(position, n, val);
   }
 
   template <class InputIterator>
   void insert(iterator position, InputIterator first, InputIterator last) {
-    insert_range(position, first, last);
+    __insert_range(position, first, last);
   }
 
   iterator erase(iterator position) {
@@ -290,7 +295,7 @@ class vector {
 
     size_type new_end_idx = end_idx - 1;
     // 移動後に残った末尾のデータのデストラクタを呼ぶ
-    allocator.destroy(start_ + new_end_idx);
+    allocator_.destroy(start_ + new_end_idx);
     finish_ = start_ + new_end_idx;
 
     return iterator(start_ + pos_idx);
@@ -309,7 +314,7 @@ class vector {
 
     // 余ったやつはデストラクタ呼ぶ
     for (; idx < end_idx; ++idx) {
-      allocator.destroy(start_ + idx);
+      allocator_.destroy(start_ + idx);
     }
     finish_ = start_ + new_end_idx;
     return iterator(start_ + first_idx);
@@ -330,27 +335,25 @@ class vector {
 
   // Allocator
   allocator_type get_allocator() const {
-    return allocator_type();
+    return allocator_type(allocator_);
   }
 
  private:
-  void expand_and_copy_storage(size_type new_cap) {
-    // std::cout << "expand_and_copy_storage is called!!" << std::endl;
-
+  void __expand_and_copy_storage(size_type new_cap) {
     // 新しい領域の確保と先頭を記録.
-    pointer new_start = allocator.allocate(new_cap);
+    pointer new_start = allocator_.allocate(new_cap);
 
     size_type len = finish_ - start_;
 
     // 新しい領域にデータをコピーする
     for (size_type i = 0; i < len; i++) {
-      allocator.construct(new_start + i, *(start_ + i));
+      allocator_.construct(new_start + i, *(start_ + i));
 
       /* 古い領域のデータは不要なのでデストラクタを呼び出す */
-      allocator.destroy(start_ + i);
+      allocator_.destroy(start_ + i);
     }
     /* 古い領域を破棄 */
-    allocator.deallocate(start_, cap_);
+    allocator_.deallocate(start_, cap_);
 
     /* 各種メンバー変数を更新 */
     cap_ = new_cap;
@@ -359,14 +362,15 @@ class vector {
     end_of_storage_ = start_ + cap_;
   }
 
-  inline size_type calc_new_capacity(size_type current_capacity) {
+  inline size_type __calc_new_capacity(size_type current_capacity) {
     if (current_capacity == 0) {
       return 1;
     }
     return current_capacity * 2;
   }
 
-  iterator insert_n_val(iterator position, size_type n, const value_type &val) {
+  iterator __insert_n_val(iterator position, size_type n,
+                          const value_type &val) {
     size_type new_size = size() + n;
     if (new_size >= capacity()) {
       vector<T> new_vec;
@@ -398,8 +402,8 @@ class vector {
   }
 
   template <class InputIterator>
-  iterator insert_range(iterator position, InputIterator first,
-                        InputIterator last) {
+  iterator __insert_range(iterator position, InputIterator first,
+                          InputIterator last) {
     size_type n = std::distance(first, last);
     size_type new_size = size() + n;
     if (new_size >= capacity()) {
@@ -432,16 +436,12 @@ class vector {
     }
   }
 
-  static allocator_type allocator;
+  allocator_type allocator_;
   size_type cap_;
   pointer start_;
   pointer finish_;
   pointer end_of_storage_;
 };
-
-template <typename T, typename Allocator>
-typename vector<T, Allocator>::allocator_type vector<T, Allocator>::allocator =
-    vector<T, Allocator>::allocator_type();
 
 template <class T, class Alloc>
 bool operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {

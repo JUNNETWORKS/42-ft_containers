@@ -345,26 +345,20 @@ class vector {
 
  private:
   void __expand_and_copy_storage(size_type new_cap) {
-    // 新しい領域の確保と先頭を記録.
-    pointer new_start = allocator_.allocate(new_cap);
-
-    size_type len = finish_ - start_;
-
-    // 新しい領域にデータをコピーする
-    for (size_type i = 0; i < len; i++) {
-      allocator_.construct(new_start + i, *(start_ + i));
-
-      /* 古い領域のデータは不要なのでデストラクタを呼び出す */
-      allocator_.destroy(start_ + i);
+    if (size() == 0) {
+      // 要素がない場合は新しい領域を確保するだけ
+      allocator_.deallocate(start_, cap_);
+      cap_ = new_cap;
+      start_ = allocator_.allocate(cap_);
+      finish_ = start_;
+      end_of_storage_ = start_ + cap_;
+      return;
+    } else {
+      vector<T> tmp;
+      tmp.reserve(new_cap);
+      tmp = *this;
+      swap(tmp);
     }
-    /* 古い領域を破棄 */
-    allocator_.deallocate(start_, cap_);
-
-    /* 各種メンバー変数を更新 */
-    cap_ = new_cap;
-    start_ = new_start;
-    finish_ = start_ + len;
-    end_of_storage_ = start_ + cap_;
   }
 
   inline size_type __calc_new_capacity(size_type current_capacity) {

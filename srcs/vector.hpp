@@ -30,6 +30,14 @@ class vector {
   typedef ft::reverse_iterator<iterator> reverse_iterator;
   typedef std::size_t size_type;
 
+ private:
+  allocator_type allocator_;
+  size_type cap_;
+  pointer start_;
+  pointer finish_;
+  pointer end_of_storage_;
+
+ public:
   vector(size_type n = 0, const value_type &val = value_type(),
          allocator_type alloc = allocator_type())
       : allocator_(alloc), cap_(n) {
@@ -435,12 +443,6 @@ class vector {
       return position;
     }
   }
-
-  allocator_type allocator_;
-  size_type cap_;
-  pointer start_;
-  pointer finish_;
-  pointer end_of_storage_;
 };
 
 template <class T, class Alloc>

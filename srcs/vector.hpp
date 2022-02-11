@@ -199,9 +199,7 @@ class vector {
   template <class InputIterator>
   void assign(InputIterator first, InputIterator last) {
     size_type n = std::distance(first, last);
-    // *this の要素を全てn個のvalのコピーに置き換える
     if (n > capacity()) {
-      // 新しく領域を確保し, そこにn個のvalのコピーを作成する
       // 古い領域は破棄
       vector<T> tmp(first, last);
       swap(tmp);
@@ -211,7 +209,6 @@ class vector {
       }
       finish_ = start_ + n;
     } else {
-      // 現在の領域に上書きする形でvalのコピーをn個作成
       size_type i = 0;
       for (; first != last; ++first, ++i) {
         allocator_.construct(start_ + i, *first);

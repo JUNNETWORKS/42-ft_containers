@@ -83,6 +83,9 @@ class vector {
   }
 
   ~vector() {
+    for (size_type i = 0; i < size(); ++i) {
+      allocator_.destroy(start_ + i);
+    }
     allocator_.deallocate(start_, cap_);
   }
 

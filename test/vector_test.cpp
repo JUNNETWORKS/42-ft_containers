@@ -772,3 +772,25 @@ TEST(VectorOperator, GreaterThanOrEqual) {
   str_vec2.push_back("b");
   EXPECT_FALSE(str_vec1 >= str_vec2);
 }
+
+TEST(Vector2D, TestVectorWith2Dimensions) {
+  typedef ft::vector<int> vector1d_type;
+  typedef ft::vector<vector1d_type> vector2d_type;
+
+  vector2d_type vec2d;
+
+  for (int i = 0; i < 10; ++i) {
+    vec2d.push_back(ft::vector<int>(i, i));
+  }
+
+  int i = 0;
+  for (vector2d_type::iterator it2d = vec2d.begin(); it2d != vec2d.end();
+       ++it2d, ++i) {
+    EXPECT_EQ((*it2d).size(), vector2d_type::size_type(i));
+    for (vector1d_type::iterator it1d = (*it2d).begin(); it1d != (*it2d).end();
+         ++it1d) {
+      EXPECT_EQ(*it1d, i);
+    }
+    std::cout << std::endl;
+  }
+}

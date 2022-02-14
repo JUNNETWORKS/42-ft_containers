@@ -711,3 +711,32 @@ TEST(Map, InsertManyElements) {
     EXPECT_EQ(m[i], i);
   }
 }
+
+TEST(Map, MapOfMap) {
+  typedef ft::map<std::string, int> map_type;
+  typedef ft::map<std::string, map_type> map_map_type;
+
+  map_map_type mm;
+  mm["first"] = map_type();
+  mm["first"]["one"] = 1;
+  mm["first"]["two"] = 2;
+  mm["first"]["one hundred"] = 100;
+  mm["second"] = map_type();
+  mm["second"]["one"] = 1;
+  mm["second"]["two"] = 2;
+  mm["second"]["one hundred"] = 100;
+  mm["third"] = map_type();
+  mm["third"]["one"] = 1;
+  mm["third"]["two"] = 2;
+  mm["third"]["one hundred"] = 100;
+
+  EXPECT_EQ(mm["first"]["one"], 1);
+  EXPECT_EQ(mm["first"]["two"], 2);
+  EXPECT_EQ(mm["first"]["one hundred"], 100);
+  EXPECT_EQ(mm["second"]["one"], 1);
+  EXPECT_EQ(mm["second"]["two"], 2);
+  EXPECT_EQ(mm["second"]["one hundred"], 100);
+  EXPECT_EQ(mm["third"]["one"], 1);
+  EXPECT_EQ(mm["third"]["two"], 2);
+  EXPECT_EQ(mm["third"]["one hundred"], 100);
+}

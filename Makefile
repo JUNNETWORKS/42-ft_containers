@@ -119,7 +119,7 @@ $(GTEST):
 	mv googletest-release-1.11.0 $(GTEST_DIR)
 
 .PHONY: googletest
-googletest: $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) $(GTEST)
+googletest: $(GTEST) $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS)
 	# Google Test require C++11
 	$(CXX) $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
 	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)

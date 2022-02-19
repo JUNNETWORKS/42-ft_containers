@@ -721,11 +721,9 @@ TEST(Map, MapOfMap) {
   mm["first"]["one"] = 1;
   mm["first"]["two"] = 2;
   mm["first"]["one hundred"] = 100;
-  mm["second"] = map_type();
   mm["second"]["one"] = 1;
   mm["second"]["two"] = 2;
   mm["second"]["one hundred"] = 100;
-  mm["third"] = map_type();
   mm["third"]["one"] = 1;
   mm["third"]["two"] = 2;
   mm["third"]["one hundred"] = 100;

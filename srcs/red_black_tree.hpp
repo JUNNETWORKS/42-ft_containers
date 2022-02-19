@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iostream>
 
+#include "equal.hpp"
 #include "iterator_traits.hpp"
 #include "lexicographical_compare.hpp"
 #include "pair.hpp"
@@ -798,7 +799,7 @@ bool operator==(
     const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &lhs,
     const RedBlackTree<Key, Value, KeyOfValue, Compare, Alloc> &rhs) {
   return lhs.size() == rhs.size() &&
-         std::equal(lhs.begin(), lhs.end(), rhs.begin());
+         ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>

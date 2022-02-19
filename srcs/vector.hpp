@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
+#include "equal.hpp"
 #include "lexicographical_compare.hpp"
 #include "normal_iterator.hpp"
 #include "reverse_iterator.hpp"
@@ -442,7 +443,7 @@ class vector {
 template <class T, class Alloc>
 bool operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs) {
   return lhs.size() == rhs.size() &&
-         std::equal(lhs.begin(), lhs.end(), rhs.begin());
+         ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 template <class T, class Alloc>

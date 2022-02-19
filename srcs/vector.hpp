@@ -10,14 +10,8 @@
 #include "reverse_iterator.hpp"
 
 namespace ft {
-
-template <typename>
-class vector_iterator;
-
 template <typename T, typename Allocator = std::allocator<T> >
 class vector {
-  friend class vector_iterator<T>;
-
  public:
   typedef T value_type;
   typedef Allocator allocator_type;

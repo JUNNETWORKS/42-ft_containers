@@ -97,6 +97,7 @@ GTEST_ALL   := $(GTEST_DIR)/gtest/gtest-all.cc
 TEST_SRCS := $(TEST_DIR)/vector_test.cpp \
 	$(TEST_DIR)/type_traits_test.cpp \
 	$(TEST_DIR)/lexicographical_compare_test.cpp \
+	$(TEST_DIR)/equal_test.cpp \
 	$(TEST_DIR)/stack_test.cpp \
 	$(TEST_DIR)/pair_test.cpp \
 	$(TEST_DIR)/red_black_tree_test.cpp \

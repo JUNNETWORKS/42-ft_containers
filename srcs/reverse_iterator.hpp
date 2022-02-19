@@ -56,6 +56,13 @@ class reverse_iterator {
    */
   reverse_iterator(const reverse_iterator& it) : current_(it.current_) {}
 
+  reference operator=(const reference rhs) {
+    if (this != &rhs) {
+      current_ = rhs.current_;
+    }
+    return *this;
+  }
+
   /**
    *  A %reverse_iterator across other types can be copied if the
    *  underlying %iterator can be converted to the type of @c current.

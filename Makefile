@@ -58,11 +58,6 @@ fclean: clean
 .PHONY: re
 re: fclean all
 
-.PHONY: debug
-debug: $(OBJECTS)
-	$(CXX) -g -O0 $^ -o debug
-	gdb
-
 ############ Test ############
 
 TESTER_NAME := ./tester
@@ -124,14 +119,14 @@ $(GTEST):
 	mv googletest-release-1.11.0 $(GTEST_DIR)
 
 .PHONY: googletest
-googletest: $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS)
+googletest: $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) $(GTEST)
 	# Google Test require C++11
 	$(CXX) $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
 	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
 	$(TESTER_NAME)
 
 .PHONY: coverage
-coverage:
+coverage: $(GTEST)
 	# Google Test require C++11
 	g++ $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
 	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_SRCS) $(TEST_UTIL_SRCS) -o $(TESTER_NAME)

@@ -44,6 +44,13 @@ class normal_iterator {
                              Container>::type>& it)
       : current_(it.base()) {}
 
+  reference operator=(const reference rhs) {
+    if (this != &rhs) {
+      current_ = rhs.current_;
+    }
+    return *this;
+  }
+
   // Forward iterator requirements
   reference operator*() const {
     return *current_;

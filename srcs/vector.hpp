@@ -282,7 +282,9 @@ class vector {
   }
 
   template <class InputIterator>
-  void insert(iterator position, InputIterator first, InputIterator last) {
+  void insert(
+      iterator position, InputIterator first, InputIterator last,
+      typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
     __insert_range(position, first, last);
   }
 
@@ -368,69 +370,39 @@ class vector {
 
   iterator __insert_n_val(iterator position, size_type n,
                           const value_type &val) {
+    vector<T> tmp_vec;
     size_type new_size = size() + n;
-    if (new_size >= capacity()) {
-      vector<T> new_vec;
-      new_vec.reserve(new_size);
-      iterator new_it = new_vec.begin();
-      // positionの前までコピーする
-      new_it = std::copy(begin(), position, new_it);
-      // positionにvalをコピー
-      std::fill_n(new_it, n, val);
-      new_it += n;
-      iterator val_it = new_it;
-      // positionの後に元の配列のpositionの後ろの部分をコピー
-      std::copy(position, end(), new_it);
-
-      // 古い配列を破棄(new_vecのデストラクタで自動的に破棄される)
-      swap(new_vec);
-      return val_it;
-    } else {
-      // positionの直後まで後ろから1つ後ろにずらしてコピーする
-      reverse_iterator position_rit = reverse_iterator(position);
-      for (reverse_iterator rit = rbegin(); rit != position_rit; ++rit) {
-        *rit = *(rit + 1);
-      }
-      // positionにvalをコピー
-      *position = val;
-      // positionのより前はそのまま
-      return position;
-    }
+    tmp_vec.reserve(new_size);
+    iterator tmp_vec_it = tmp_vec.begin();
+    tmp_vec_it = std::copy(begin(), position, tmp_vec_it);
+    tmp_vec.finish_ += std::distance(begin(), position);
+    iterator first_inserted_element_it = tmp_vec_it;
+    std::fill_n(tmp_vec_it, n, val);
+    tmp_vec_it += n;
+    tmp_vec.finish_ += n;
+    std::copy(position, end(), tmp_vec_it);
+    tmp_vec.finish_ += std::distance(position, end());
+    swap(tmp_vec);
+    return first_inserted_element_it;
   }
 
   template <class InputIterator>
   iterator __insert_range(iterator position, InputIterator first,
                           InputIterator last) {
+    vector<T> tmp_vec;
     size_type n = std::distance(first, last);
     size_type new_size = size() + n;
-    if (new_size >= capacity()) {
-      vector<T> new_vec;
-      new_vec.reserve(new_size);
-      iterator new_it = new_vec.begin();
-      // positionの前までコピーする
-      new_it = std::copy(begin(), position, new_it);
-      iterator val_it = new_it;
-      // new_itの後ろにfirst~last-1をコピー
-      new_it = std::copy(first, last, new_it);
-      // positionの後に元の配列のpositionの後ろの部分をコピー
-      new_it = std::copy(position, end(), new_it);
-      new_vec.finish_ = new_vec.start_ + new_size;
-      // 古い配列を破棄(new_vecのデストラクタで自動的に破棄される)
-      swap(new_vec);
-      return val_it;
-    } else {
-      // position+nまで後ろからnつ後ろにずらしてコピーする
-      reverse_iterator position_rit = reverse_iterator(position);
-      for (reverse_iterator rit = rbegin() - n; rit != position_rit - n;
-           ++rit) {
-        *rit = *(rit + n);
-      }
-      // positionにfirst~last-1をコピー
-      std::copy(first, last, position);
-      finish_ = start_ + new_size;
-      // positionのより前はそのまま
-      return position;
-    }
+    tmp_vec.reserve(new_size);
+    iterator tmp_vec_it = tmp_vec.begin();
+    tmp_vec_it = std::copy(begin(), position, tmp_vec_it);
+    tmp_vec.finish_ += std::distance(begin(), position);
+    iterator first_inserted_element_it = tmp_vec_it;
+    tmp_vec_it = std::copy(first, last, tmp_vec_it);
+    tmp_vec.finish_ += n;
+    std::copy(position, end(), tmp_vec_it);
+    tmp_vec.finish_ += std::distance(position, end());
+    swap(tmp_vec);
+    return first_inserted_element_it;
   }
 };
 

@@ -94,13 +94,17 @@ TEST_F(VectorTest, AssignmentOperator) {
   ft_vector2.push_back(2);
   EXPECT_EQ(ft_vector.back(), 1);
   EXPECT_EQ(ft_vector2.back(), 2);
+  // TODO: vector.front() のテストをする
 }
+
+// TODO: swap のテストをする
 
 TEST_F(VectorTest, NormalIterator) {
   /* begin() can return iterator and const_iterator */
   stl_container::iterator stl_it = stl_vector.begin();
   ft_container::iterator ft_it = ft_vector.begin();
   ASSERT_EQ(*stl_it, *ft_it);
+  // TODO: const_iteratorのテストがちゃんと行えていない
   stl_container::const_iterator const_stl_it = stl_vector.begin();
   ft_container::const_iterator const_ft_it = ft_vector.begin();
   ASSERT_EQ(*const_stl_it, *const_ft_it);
@@ -288,8 +292,8 @@ TEST_F(VectorTest, ResizeLessThanSize) {
 
 TEST_F(VectorTest, InsertOverCapacityAtFirst) {
   // 最初に挿入
-  stl_vector.insert(stl_vector.begin(), stl_vector.capacity(), 10);
-  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
+  stl_vector.insert(stl_vector.begin(), 10, 10);
+  ft_vector.insert(ft_vector.begin(), 10, 10);
   stl_vector.insert(stl_vector.begin(), 10);
   ft_vector.insert(ft_vector.begin(), 10);
 }
@@ -440,24 +444,26 @@ TEST_F(VectorTest, InsertWithIteratorNotOverCapacityAtLast) {
 
 TEST_F(VectorTest, InsertOverCapacity) {
   // 最初に挿入
-  stl_vector.insert(stl_vector.begin(), stl_vector.capacity(), 10);
-  ft_vector.insert(ft_vector.begin(), ft_vector.capacity(), 10);
-  stl_vector.insert(stl_vector.begin(), 10);
-  ft_vector.insert(ft_vector.begin(), 10);
+  stl_vector.insert(stl_vector.begin(), 5, 10);
+  ft_vector.insert(ft_vector.begin(), 5, 10);
+  EXPECT_EQ(*(stl_vector.insert(stl_vector.begin(), 10)), 10);
+  EXPECT_EQ(*(ft_vector.insert(ft_vector.begin(), 10)), 10);
 
   // 途中に挿入
-  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2,
-                    stl_vector.capacity(), 10);
-  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2,
-                   ft_vector.capacity(), 10);
-  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10);
-  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10);
+  stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 5, 10);
+  ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 5, 10);
+  EXPECT_EQ(
+      *(stl_vector.insert(stl_vector.begin() + stl_vector.size() / 2, 10)), 10);
+  EXPECT_EQ(*(ft_vector.insert(ft_vector.begin() + ft_vector.size() / 2, 10)),
+            10);
 
   // 最後に挿入
-  stl_vector.insert(stl_vector.end(), stl_vector.capacity(), 10);
-  ft_vector.insert(ft_vector.end(), ft_vector.capacity(), 10);
-  stl_vector.insert(stl_vector.begin(), 10);
-  ft_vector.insert(ft_vector.begin(), 10);
+  stl_vector.insert(stl_vector.end(), 5, 10);
+  ft_vector.insert(ft_vector.end(), 5, 10);
+  EXPECT_EQ(*(stl_vector.insert(stl_vector.end(), 10)), 10);
+  EXPECT_EQ(*(ft_vector.insert(ft_vector.end(), 10)), 10);
+
+  expect_same_data_in_vector(stl_vector, ft_vector);
 }
 
 TEST_F(VectorTest, InsertNotOverCapacity) {

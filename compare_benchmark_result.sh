@@ -11,6 +11,7 @@ BEGIN {
   title = $0;
   sub(/^std::/, "", title);
   getline;
+  getline;
   if(std == -1){
     where = match($0, /[0-9]+/)
     end = index($0, "[ns]")
@@ -18,6 +19,7 @@ BEGIN {
   }
 }
 /^ft::/{
+  getline;
   getline;
   if(ft == -1){
     where = match($0, /[0-9]+/)

@@ -285,17 +285,15 @@ class vector {
   }
 
   iterator erase(iterator first, iterator last) {
-    size_type range = std::distance(first, last);
-    size_type first_idx = std::distance(begin(), first);
-    size_type end_idx = size();
-
-    size_type idx;
-    for (idx = first_idx; idx + range < end_idx; ++idx) {
-      start_[idx] = start_[idx + range];
+    if (first != last) {
+      if (last != end()) {
+        std::copy(last, end(), first);
+      }
+      pointer new_finish = first.base() + (end() - last);
+      __destroy(new_finish, finish_);
+      finish_ = new_finish;
     }
-    __destroy(start_ + idx, finish_);
-    finish_ = start_ + idx;
-    return iterator(start_ + first_idx);
+    return first;
   }
 
   void swap(vector<T> &x) {

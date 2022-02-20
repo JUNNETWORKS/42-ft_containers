@@ -194,29 +194,14 @@ class vector {
   }
 
   // Modifiers
+  // TODO: assginが激遅！！
   template <class InputIterator>
-  void assign(InputIterator first, InputIterator last) {
-    size_type n = std::distance(first, last);
-    if (n > capacity()) {
-      // 古い領域は破棄
-      vector<T> tmp(first, last);
-      swap(tmp);
-    } else if (n > size()) {
-      for (size_type i = 0; first != last; ++first, ++i) {
-        allocator_.construct(start_ + i, *first);
-      }
-      finish_ = start_ + n;
-    } else {
-      size_type i = 0;
-      for (; first != last; ++first, ++i) {
-        allocator_.construct(start_ + i, *first);
-      }
-      // storage_[n] 以降の領域のデータは不要なので破棄する
-      for (; i < size(); ++i) {
-        allocator_.destroy(start_ + i);
-      }
-      finish_ = start_ + n;
-    }
+  void assign(
+      InputIterator first, InputIterator last,
+      typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
+    __assign_range(
+        first, last,
+        typename iterator_traits<InputIterator>::iterator_category());
   }
 
   void assign(size_type n, const value_type &val) {
@@ -380,6 +365,26 @@ class vector {
       throw;
     }
   }
+
+  template <class InputIterator>
+  void __range_initialize(InputIterator first, InputIterator last,
+                          std::input_iterator_tag) {
+    for (; first != last; ++first) {
+      push_back(*first);
+    }
+  }
+
+  template <class ForwardIterator>
+  void __range_initialize(ForwardIterator first, ForwardIterator last,
+                          std::forward_iterator_tag) {
+    const size_type len = std::distance(first, last);
+    cap_ = len;
+    start_ = allocator_.allocate(cap_);
+    end_of_storage_ = start_ + len;
+    __uninitialized_copy(first, last, start_);
+    finish_ = start_ + len;
+  }
+
   void __expand_and_copy_storage(size_type new_cap) {
     if (size() == 0) {
       // 要素がない場合は新しい領域を確保するだけ
@@ -388,7 +393,6 @@ class vector {
       start_ = allocator_.allocate(cap_);
       finish_ = start_;
       end_of_storage_ = start_ + cap_;
-      return;
     } else {
       vector<T> tmp;
       tmp.reserve(new_cap);
@@ -402,6 +406,37 @@ class vector {
       return 1;
     }
     return current_capacity * 2;
+  }
+
+  template <class InputIterator>
+  void __assign_range(InputIterator first, InputIterator last,
+                      std::input_iterator_tag) {
+    iterator current = begin();
+    for (; first != last && current != end(); ++current, ++first) {
+      *current = *first;
+    }
+    if (first == last) {
+      erase(current, end());
+    } else {
+      insert(end(), first, last);
+    }
+  }
+
+  template <class ForwardIterator>
+  void __assign_range(ForwardIterator first, ForwardIterator last,
+                      std::forward_iterator_tag) {
+    size_type len = std::distance(first, last);
+    if (len > capacity()) {
+      vector tmp_vec(first, last);
+      swap(tmp_vec);
+    } else if (len <= size()) {
+      erase(std::copy(first, last, begin()), end());
+    } else {
+      ForwardIterator mid = first;
+      std::advance(mid, size());
+      std::copy(first, mid, start_);
+      finish_ = __uninitialized_copy(mid, last, finish_);
+    }
   }
 
   iterator __insert_n_val(iterator position, size_type n,

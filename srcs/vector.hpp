@@ -52,13 +52,13 @@ class vector {
         typename iterator_traits<InputIterator>::iterator_category());
   }
 
-  vector(const vector &x)
-      : allocator_(x.allocator_),
+  vector(const vector &other)
+      : allocator_(other.allocator_),
         cap_(),
         start_(),
         finish_(),
         end_of_storage_() {
-    operator=(x);
+    operator=(other);
   }
 
   const vector<T, Allocator> &operator=(const vector<T, Allocator> &rhs) {

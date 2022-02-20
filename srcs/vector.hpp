@@ -37,11 +37,9 @@ class vector {
          allocator_type alloc = allocator_type())
       : allocator_(alloc), cap_(n) {
     start_ = allocator_.allocate(cap_);
-    for (size_type i = 0; i < cap_; i++) {
-      allocator_.construct(start_ + i, val);
-    }
-    finish_ = start_ + n;
     end_of_storage_ = start_ + cap_;
+    __uninitialized_fill_n(start_, n, val);
+    finish_ = start_ + n;
   }
 
   template <class InputIterator>
@@ -49,14 +47,9 @@ class vector {
          allocator_type alloc = allocator_type(),
          typename disable_if<is_integral<InputIterator>::value>::type * = 0)
       : allocator_(alloc) {
-    int n = std::distance(first, last);
-    cap_ = n;
-    start_ = allocator_.allocate(cap_);
-    for (size_type i = 0; first != last; first++, i++) {
-      allocator_.construct(start_ + i, *first);
-    }
-    finish_ = start_ + n;
-    end_of_storage_ = start_ + cap_;
+    __range_initialize(
+        first, last,
+        typename iterator_traits<InputIterator>::iterator_category());
   }
 
   vector(const vector &x)

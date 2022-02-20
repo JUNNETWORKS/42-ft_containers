@@ -267,21 +267,11 @@ class vector {
   }
 
   iterator erase(iterator position) {
-    size_type pos_idx = std::distance(begin(), position);
-    size_type end_idx = size();
-
-    // positionとそれ以降の要素を1つずつ前にずらす
-    size_type idx;
-    for (idx = pos_idx; idx + 1 < end_idx; ++idx) {
-      start_[idx] = start_[idx + 1];
-    }
-
-    size_type new_end_idx = end_idx - 1;
-    // 移動後に残った末尾のデータのデストラクタを呼ぶ
-    allocator_.destroy(start_ + new_end_idx);
-    finish_ = start_ + new_end_idx;
-
-    return iterator(start_ + pos_idx);
+    if (position + 1 != end())
+      std::copy(position + 1, end(), position);
+    --finish_;
+    allocator_.destroy(finish_);
+    return position;
   }
 
   iterator erase(iterator first, iterator last) {
@@ -370,8 +360,11 @@ class vector {
   void __range_initialize(ForwardIterator first, ForwardIterator last,
                           std::forward_iterator_tag) {
     const size_type len = std::distance(first, last);
+    if (len > max_size())
+      throw std::length_error(
+          "cannot create std::vector larger than max_size()");
     cap_ = len;
-    start_ = allocator_.allocate(cap_);
+    start_ = allocator_.allocate(len);
     end_of_storage_ = start_ + len;
     __uninitialized_copy(first, last, start_);
     finish_ = start_ + len;

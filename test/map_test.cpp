@@ -24,10 +24,6 @@
 #include "utils/my_allocator.hpp"
 #include "utils/string.hpp"
 
-namespace {
-const uint64_t kLoopMax = 1000;
-}
-
 TEST(Map, DefaultConstructor) {
   typedef std::string key_type;
   typedef int mapped_type;

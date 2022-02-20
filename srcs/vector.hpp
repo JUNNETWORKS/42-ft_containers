@@ -344,6 +344,42 @@ class vector {
   }
 
  private:
+  template <class ForwardIterator, class Size, class _T>
+  void __uninitialized_fill_n(ForwardIterator first, Size count,
+                              const _T &value) {
+    typedef typename iterator_traits<ForwardIterator>::value_type V;
+
+    ForwardIterator current = first;
+    try {
+      for (size_type i = 0; i < count; ++i, ++current) {
+        allocator_.construct(current, value);
+      }
+    } catch (...) {
+      for (; first != current; ++first) {
+        first->~V();
+      }
+      throw;
+    }
+  }
+
+  template <class InputIt, class ForwardIterator>
+  ForwardIterator __uninitialized_copy(InputIt first, InputIt last,
+                                       ForwardIterator d_first) {
+    typedef typename iterator_traits<ForwardIterator>::value_type V;
+
+    ForwardIterator current = d_first;
+    try {
+      for (; first != last; ++first, ++current) {
+        allocator_.construct(current, *first);
+      }
+      return current;
+    } catch (...) {
+      for (; d_first != current; ++d_first) {
+        d_first->~V();
+      }
+      throw;
+    }
+  }
   void __expand_and_copy_storage(size_type new_cap) {
     if (size() == 0) {
       // 要素がない場合は新しい領域を確保するだけ

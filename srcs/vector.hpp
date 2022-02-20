@@ -210,29 +210,17 @@ class vector {
   }
 
   void assign(size_type n, const value_type &val) {
-    // *this の要素を全てn個のvalのコピーに置き換える
     if (n > capacity()) {
-      // 新しく領域を確保し, そこにn個のvalのコピーを作成する
-      // 古い領域は破棄
       vector<T> tmp(n, val);
       swap(tmp);
     } else if (n > size()) {
-      // 現在の領域に上書きする形でvalのコピーを現在のsize()個分作成
       std::fill(begin(), end(), val);
-      // size()を超えた分は明示的にコンストラクタを呼ぶ必要がある
       size_type remain = n - size();
-      for (size_type i = 0; i < remain; ++i) {
-        allocator_.construct(finish_ + i, val);
-      }
+      __uninitialized_fill_n(finish_, remain, val);
       finish_ = start_ + n;
     } else {
-      // 現在の領域に上書きする形でvalのコピーをn個作成
       std::fill_n(start_, n, val);
-      // storage_[n] 以降の領域のデータは不要なので破棄する
-      size_type remain = size() - n;
-      for (size_type i = 0; i < remain; ++i) {
-        allocator_.destroy(start_ + n + i);
-      }
+      erase(begin() + n, end());
       finish_ = start_ + n;
     }
   }
@@ -305,13 +293,8 @@ class vector {
     for (idx = first_idx; idx + range < end_idx; ++idx) {
       start_[idx] = start_[idx + range];
     }
-    size_type new_end_idx = idx;
-
-    // 余ったやつはデストラクタ呼ぶ
-    for (; idx < end_idx; ++idx) {
-      allocator_.destroy(start_ + idx);
-    }
-    finish_ = start_ + new_end_idx;
+    __destroy(start_ + idx, finish_);
+    finish_ = start_ + idx;
     return iterator(start_ + first_idx);
   }
 

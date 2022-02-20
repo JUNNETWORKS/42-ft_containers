@@ -1,4 +1,4 @@
-cat bm_result.txt | awk '
+awk '
 BEGIN {
   std = -1;
   ft = -1;

@@ -63,17 +63,29 @@ class vector {
 
   const vector<T, Allocator> &operator=(const vector<T, Allocator> &rhs) {
     if (this != &rhs) {
-      // 自分の配列を捨てる
-      erase(begin(), end());
-      assign(rhs.begin(), rhs.end());
+      size_type rhs_len = rhs.size();
+      if (rhs_len > capacity()) {
+        pointer tmp = allocator_.allocate(rhs_len);
+        __uninitialized_copy(rhs.begin(), rhs.end(), tmp);
+        __destroy(start_, finish_);
+        allocator_.deallocate(start_, cap_);
+        cap_ = rhs_len;
+        start_ = tmp;
+        finish_ = start_ + rhs_len;
+        end_of_storage_ = start_ + rhs_len;
+      } else if (rhs_len <= size()) {
+        erase(std::copy(rhs.begin(), rhs.end(), begin()), end());
+      } else {
+        std::copy(rhs.start_, rhs.start_ + size(), start_);
+        __uninitialized_copy(rhs.start_ + size(), rhs.finish_, finish_);
+      }
+      finish_ = start_ + rhs_len;
     }
     return *this;
   }
 
   ~vector() {
-    for (size_type i = 0; i < size(); ++i) {
-      allocator_.destroy(start_ + i);
-    }
+    __destroy(start_, finish_);
     allocator_.deallocate(start_, cap_);
   }
 
@@ -322,6 +334,12 @@ class vector {
   }
 
  private:
+  void __destroy(pointer first, pointer last) {
+    for (; first != last; ++first) {
+      allocator_.destroy(first);
+    }
+  }
+
   template <class ForwardIterator, class Size, class _T>
   void __uninitialized_fill_n(ForwardIterator first, Size count,
                               const _T &value) {

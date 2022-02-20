@@ -98,6 +98,7 @@ void measure_vector_assignation() {
 
   add_nums_into_vector(std_vec_for_copy, ft_vec_for_copy, default_vec_size);
 
+  // TODO: operator=() と assign() が激遅
   {
     TIMER("std::vector.operator=", loop_num);
     for (int i = 0; i < loop_num; ++i) {
@@ -133,47 +134,71 @@ void measure_vector_modifiers() {
   const int default_vec_size = 1000000;
   const int loop_num = default_vec_size;
 
-  std_vector_type std_vec;
-  ft_vector_type ft_vec;
+  {
+    std_vector_type std_vec;
+    ft_vector_type ft_vec;
 
-  add_nums_into_vector(std_vec, ft_vec, default_vec_size);
+    add_nums_into_vector(std_vec, ft_vec, default_vec_size);
+
+    {
+      TIMER("std::vector.clear", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        std_vec.clear();
+      }
+    }
+    {
+      TIMER("ft::vector.clear", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        ft_vec.clear();
+      }
+    }
+
+    {
+      TIMER("std::vector.push_back", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        std_vec.push_back(i);
+      }
+    }
+    {
+      TIMER("ft::vector.push_back", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        ft_vec.push_back(i);
+      }
+    }
+
+    {
+      TIMER("std::vector.pop_back", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        std_vec.pop_back();
+      }
+    }
+    {
+      TIMER("ft::vector.pop_back", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        ft_vec.pop_back();
+      }
+    }
+  }
 
   {
-    TIMER("std::vector.clear", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_vec.clear();
-    }
-  }
-  {
-    TIMER("ft::vector.clear", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_vec.clear();
-    }
-  }
+    const int loop_num = 10;
 
-  {
-    TIMER("std::vector.push_back", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_vec.push_back(i);
-    }
-  }
-  {
-    TIMER("ft::vector.push_back", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_vec.push_back(i);
-    }
-  }
+    std_vector_type std_vec;
+    ft_vector_type ft_vec;
 
-  {
-    TIMER("std::vector.pop_back", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_vec.pop_back();
+    add_nums_into_vector(std_vec, ft_vec, default_vec_size);
+
+    {
+      TIMER("std::vector.erase(it, it)", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        std_vec.erase(std_vec.begin() + std_vec.size() / 2, std_vec.end());
+      }
     }
-  }
-  {
-    TIMER("ft::vector.pop_back", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_vec.pop_back();
+    {
+      TIMER("ft::vector.erase(it, it)", loop_num);
+      for (int i = 0; i < loop_num; ++i) {
+        ft_vec.erase(ft_vec.begin() + ft_vec.size() / 2, ft_vec.end());
+      }
     }
   }
 }

@@ -390,6 +390,23 @@ TEST(Vector, ForwardIterator) {
   stl_it += 2;
   ft_it += 2;
   EXPECT_EQ(stl_it[2], ft_it[2]);
+
+  // iterator and const_iterator are comparable
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+
+  stl_vec_type::const_iterator const_stl_it2 = stl_vec.begin();
+  ft_vec_type::const_iterator const_ft_it2 = ft_vec.begin();
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
+  const_stl_it2++;
+  const_ft_it2++;
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
+  ++stl_it;
+  ++ft_it;
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
 }
 
 TEST(Vector, ReverseIterator) {
@@ -537,6 +554,23 @@ TEST(Vector, ReverseIterator) {
   stl_it += 2;
   ft_it += 2;
   EXPECT_EQ(stl_it[2], ft_it[2]);
+
+  // reverse_iterator and const_reverse_iterator are comparable
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+
+  stl_vec_type::const_reverse_iterator const_stl_it2 = stl_vec.rbegin();
+  ft_vec_type::const_reverse_iterator const_ft_it2 = ft_vec.rbegin();
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
+  const_stl_it2++;
+  const_ft_it2++;
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
+  ++stl_it;
+  ++ft_it;
+  EXPECT_EQ(stl_it == const_stl_it2, ft_it == const_ft_it2);
+  EXPECT_EQ(stl_it != const_stl_it2, ft_it != const_ft_it2);
 }
 
 TEST(Vector, Capacity) {

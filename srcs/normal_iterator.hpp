@@ -189,6 +189,13 @@ inline bool operator>=(const normal_iterator<Iterator, Container>& lhs,
   return lhs.base() >= rhs.base();
 }
 
+template <typename Iterator, typename Container>
+inline normal_iterator<Iterator, Container> operator+(
+    const typename normal_iterator<Iterator, Container>::difference_type n,
+    const normal_iterator<Iterator, Container>& it) {
+  return it + n;
+}
+
 template <typename IteratorL, typename IteratorR, typename Container>
 inline typename normal_iterator<IteratorL, Container>::difference_type
 operator-(const normal_iterator<IteratorL, Container>& lhs,

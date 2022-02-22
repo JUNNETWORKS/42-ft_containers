@@ -239,6 +239,20 @@ inline bool operator>=(const reverse_iterator<IteratorL>& lhs,
   return !(lhs < rhs);
 }
 
+template <typename Iterator, typename Container>
+inline reverse_iterator<Iterator> operator+(
+    const typename reverse_iterator<Iterator>::difference_type n,
+    const reverse_iterator<Iterator>& it) {
+  return it + n;
+}
+
+template <typename IteratorL, typename IteratorR, typename Container>
+inline typename reverse_iterator<IteratorL>::difference_type operator-(
+    const reverse_iterator<IteratorL>& lhs,
+    const reverse_iterator<IteratorR>& rhs) {
+  return lhs.base() - rhs.base();
+}
+
 }  // namespace ft
 
 #endif

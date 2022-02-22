@@ -539,29 +539,204 @@ TEST(Vector, ReverseIterator) {
   EXPECT_EQ(stl_it[2], ft_it[2]);
 }
 
-// TEST(Vector, Capacity) {
-//   typedef int value_type;
-//   typedef std::vector<value_type> stl_vec_type;
-//   typedef ft::vector<value_type> ft_vec_type;
-// }
+TEST(Vector, Capacity) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
 
-// TEST(Vector, Modifiers) {
-//   typedef int value_type;
-//   typedef std::vector<value_type> stl_vec_type;
-//   typedef ft::vector<value_type> ft_vec_type;
-// }
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
 
-// TEST(Vector, NonMemberFunctions) {
-//   typedef int value_type;
-//   typedef std::vector<value_type> stl_vec_type;
-//   typedef ft::vector<value_type> ft_vec_type;
-// }
+  EXPECT_EQ(stl_vec.empty(), ft_vec.empty());
+  EXPECT_EQ(stl_vec.size(), ft_vec.size());
+  // max_size() は実装や環境により異なるので
+  // STLと同じ値になることを重要視していない
+  EXPECT_TRUE(stl_vec.max_size());
+  EXPECT_TRUE(ft_vec.max_size());
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
 
-// TEST(Vector, swap) {
-//   typedef int value_type;
-//   typedef std::vector<value_type> stl_vec_type;
-//   typedef ft::vector<value_type> ft_vec_type;
-// }
+  stl_vec.reserve(10);
+  ft_vec.reserve(10);
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
+
+  for (int i = 0; i < 100; ++i) {
+    stl_vec.push_back(i);
+    ft_vec.push_back(i);
+  }
+  EXPECT_EQ(stl_vec.empty(), ft_vec.empty());
+  EXPECT_EQ(stl_vec.size(), ft_vec.size());
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
+}
+
+TEST(Vector, Modifiers) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec_for_copy;
+  for (int i = 0; i < 10; ++i) {
+    stl_vec_for_copy.push_back(i);
+  }
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+
+  // push_back
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.push_back(i);
+    ft_vec.push_back(i);
+  }
+  expect_same_data_in_vector(stl_vec, ft_vec);
+  // pop_back
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.pop_back();
+    ft_vec.pop_back();
+  }
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // clear
+  add_nums_into_vector(stl_vec, ft_vec);
+  stl_vec.clear();
+  ft_vec.clear();
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // insert
+  stl_vec_type::iterator stl_it = stl_vec.begin();
+  ft_vec_type::iterator ft_it = ft_vec.begin();
+  stl_it = stl_vec.insert(stl_it, 0);
+  ft_it = ft_vec.insert(ft_it, 0);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.end();
+  ft_it = ft_vec.end();
+  stl_it = stl_vec.insert(stl_it, 1);
+  ft_it = ft_vec.insert(ft_it, 1);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.begin(), 10, 10);
+  ft_vec.insert(ft_vec.begin(), 10, 10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.begin(), stl_vec_for_copy.begin(),
+                 stl_vec_for_copy.end());
+  ft_vec.insert(ft_vec.begin(), stl_vec_for_copy.begin(),
+                stl_vec_for_copy.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.end(), stl_vec_for_copy.begin(),
+                 stl_vec_for_copy.end());
+  ft_vec.insert(ft_vec.end(), stl_vec_for_copy.begin(), stl_vec_for_copy.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // erase
+  stl_it = stl_vec.erase(stl_vec.begin());
+  ft_it = ft_vec.erase(ft_vec.begin());
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.end() - 1);
+  ft_it = ft_vec.erase(ft_vec.end() - 1);
+  EXPECT_EQ(stl_it, stl_vec.end());
+  EXPECT_EQ(ft_it, ft_vec.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.begin(), stl_vec.begin() + stl_vec.size() / 2);
+  ft_it = ft_vec.erase(ft_vec.begin(), ft_vec.begin() + ft_vec.size() / 2);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.begin() + stl_vec.size() / 2, stl_vec.end());
+  ft_it = ft_vec.erase(ft_vec.begin() + ft_vec.size() / 2, ft_vec.end());
+  EXPECT_EQ(stl_it, stl_vec.end());
+  EXPECT_EQ(ft_it, ft_vec.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // resize
+  stl_vec.clear();
+  ft_vec.clear();
+  add_nums_into_vector(stl_vec, ft_vec, 10);
+
+  stl_vec.resize(5);
+  ft_vec.resize(5);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.resize(10);
+  ft_vec.resize(10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.resize(100, 100);
+  ft_vec.resize(100, 100);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+}
+
+TEST(Vector, NonMemberFunctions) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec1;
+  stl_vec_type stl_vec2;
+  ft_vec_type ft_vec1;
+  ft_vec_type ft_vec2;
+
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec1.push_back(1);
+  ft_vec1.push_back(1);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec2.push_back(1);
+  ft_vec2.push_back(1);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec1.push_back(2);
+  ft_vec1.push_back(2);
+  stl_vec2.push_back(3);
+  ft_vec2.push_back(3);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+}
+
+TEST(Vector, swap) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec1(10, 10);
+  stl_vec_type stl_vec2(2, 2);
+  stl_vec1.swap(stl_vec2);
+  ft_vec_type ft_vec1(10, 10);
+  ft_vec_type ft_vec2(2, 2);
+  ft_vec1.swap(ft_vec2);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+
+  std::swap(stl_vec1, stl_vec2);
+  std::swap(ft_vec1, ft_vec2);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+}
 
 class VectorTest : public ::testing::Test {
  protected:
@@ -642,17 +817,13 @@ TEST_F(VectorTest, AssignmentOperator) {
   ft_vector2.push_back(2);
   EXPECT_EQ(ft_vector.back(), 1);
   EXPECT_EQ(ft_vector2.back(), 2);
-  // TODO: vector.front() のテストをする
 }
-
-// TODO: swap のテストをする
 
 TEST_F(VectorTest, NormalIterator) {
   /* begin() can return iterator and const_iterator */
   stl_container::iterator stl_it = stl_vector.begin();
   ft_container::iterator ft_it = ft_vector.begin();
   ASSERT_EQ(*stl_it, *ft_it);
-  // TODO: const_iteratorのテストがちゃんと行えていない
   stl_container::const_iterator const_stl_it = stl_vector.begin();
   ft_container::const_iterator const_ft_it = ft_vector.begin();
   ASSERT_EQ(*const_stl_it, *const_ft_it);

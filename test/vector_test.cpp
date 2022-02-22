@@ -14,6 +14,729 @@
 #endif
 
 #include "utils/debug_utils.hpp"
+#include "utils/my_allocator.hpp"
+
+namespace {
+
+template <typename T>
+void expect_same_data_in_vector(std::vector<T>& stl_vector,
+                                ft::vector<T>& ft_vector) {
+  typename std::vector<T>::iterator stl_it = stl_vector.begin();
+  typename ft::vector<T>::iterator ft_it = ft_vector.begin();
+
+  EXPECT_EQ(stl_vector.size(), ft_vector.size());
+  EXPECT_EQ(stl_vector.max_size(), ft_vector.max_size());
+  // capacityの初期値や増加ルールなどの厳密な値は仕様で定められていない
+  // EXPECT_EQ(stl_vector.capacity(), ft_vector.capacity());
+  EXPECT_EQ(stl_vector.empty(), ft_vector.empty());
+
+  while (stl_it != stl_vector.end()) {
+    EXPECT_EQ(*stl_it++, *ft_it++);
+  }
+  EXPECT_TRUE(ft_it == ft_vector.end());
+}
+
+void add_nums_into_vector(std::vector<int>& stl_vec, ft::vector<int>& ft_vec,
+                          size_t n = 100) {
+  for (size_t i = 0; i < n; ++i) {
+    stl_vec.push_back(i);
+    ft_vec.push_back(i);
+  }
+}
+
+}  // namespace
+
+TEST(Vector, DefaultConstructor) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+  expect_same_data_in_vector(stl_vec, ft_vec);
+}
+
+TEST(Vector, ConstructorWithValue) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec(10, 10);
+  ft_vec_type ft_vec(10, 10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+}
+
+TEST(Vector, ConstructorWithIterator) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  stl_vec_type stl_vec_for_copy;
+  ft_vec_type ft_vec_for_copy;
+  add_nums_into_vector(stl_vec_for_copy, ft_vec_for_copy);
+
+  stl_vec_type stl_vec1(stl_vec_for_copy.begin(), stl_vec_for_copy.begin());
+  ft_vec_type ft_vec1(ft_vec_for_copy.begin(), ft_vec_for_copy.begin());
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+
+  stl_vec_type stl_vec2(ft_vec_for_copy.begin(), ft_vec_for_copy.begin());
+  ft_vec_type ft_vec2(stl_vec_for_copy.begin(), stl_vec_for_copy.begin());
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+
+  stl_vec_type stl_vec3(stl_empty_vec.begin(), stl_empty_vec.end());
+  ft_vec_type ft_vec3(ft_empty_vec.begin(), ft_empty_vec.end());
+  expect_same_data_in_vector(stl_vec3, ft_vec3);
+}
+
+TEST(Vector, CopyConstructor) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  stl_vec_type stl_vec_for_copy;
+  ft_vec_type ft_vec_for_copy;
+  add_nums_into_vector(stl_vec_for_copy, ft_vec_for_copy);
+
+  stl_vec_type stl_vec1(stl_vec_for_copy);
+  ft_vec_type ft_vec1(ft_vec_for_copy);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+
+  stl_vec_type stl_vec2(stl_empty_vec);
+  ft_vec_type ft_vec2(ft_empty_vec);
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+}
+
+TEST(Vector, Destructor) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_1d_vec_type;
+  typedef ft::vector<value_type> ft_1d_vec_type;
+  typedef std::vector<stl_1d_vec_type> stl_2d_vec_type;
+  typedef ft::vector<ft_1d_vec_type> ft_2d_vec_type;
+
+  stl_2d_vec_type stl_2d_vec;
+  ft_2d_vec_type ft_2d_vec;
+
+  for (int i = 0; i < 10; ++i) {
+    stl_1d_vec_type stl_tmp_vec;
+    ft_1d_vec_type ft_tmp_vec;
+    add_nums_into_vector(stl_tmp_vec, ft_tmp_vec, 10);
+
+    stl_2d_vec.push_back(stl_tmp_vec);
+    ft_2d_vec.push_back(ft_tmp_vec);
+  }
+
+  stl_2d_vec_type::iterator stl_2d_it = stl_2d_vec.begin();
+  ft_2d_vec_type::iterator ft_2d_it = ft_2d_vec.begin();
+  for (; stl_2d_it != stl_2d_vec.end() && ft_2d_it != ft_2d_vec.end();
+       ++stl_2d_it, ++ft_2d_it) {
+    stl_1d_vec_type::iterator stl_1d_it = (*stl_2d_it).begin();
+    ft_1d_vec_type::iterator ft_1d_it = (*ft_2d_it).begin();
+    for (; stl_1d_it != (*stl_2d_it).end() && ft_1d_it != (*ft_2d_it).end();
+         ++stl_1d_it, ++ft_1d_it) {
+      EXPECT_EQ(*stl_1d_it, *ft_1d_it);
+    }
+  }
+
+  // デストラクタが正しく内部データを破棄していない場合はメモリリークが発生する
+}
+
+TEST(Vector, AssignmentOperator) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  stl_vec_type stl_vec_for_copy;
+  ft_vec_type ft_vec_for_copy;
+  add_nums_into_vector(stl_vec_for_copy, ft_vec_for_copy);
+
+  stl_vec_type stl_vec1;
+  ft_vec_type ft_vec1;
+  stl_vec1 = stl_vec_for_copy;
+  ft_vec1 = ft_vec_for_copy;
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+
+  stl_vec_type stl_vec2;
+  ft_vec_type ft_vec2;
+  stl_vec2 = stl_empty_vec;
+  ft_vec2 = ft_empty_vec;
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+}
+
+TEST(Vector, assign) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  stl_vec_type stl_vec_for_copy;
+  ft_vec_type ft_vec_for_copy;
+  add_nums_into_vector(stl_vec_for_copy, ft_vec_for_copy);
+
+  stl_vec_type stl_vec1(0, 100);
+  ft_vec_type ft_vec1(0, 100);
+  stl_vec1.assign(100, 100);
+  ft_vec1.assign(100, 100);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+
+  stl_vec_type stl_vec2(0, 100);
+  ft_vec_type ft_vec2(0, 100);
+  stl_vec2.assign(stl_vec_for_copy.begin(), stl_vec_for_copy.end());
+  ft_vec2.assign(ft_vec_for_copy.begin(), ft_vec_for_copy.end());
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+
+  stl_vec_type stl_vec3(0, 100);
+  ft_vec_type ft_vec3(0, 100);
+  stl_vec3.assign(stl_empty_vec.begin(), stl_empty_vec.end());
+  ft_vec3.assign(ft_empty_vec.begin(), ft_empty_vec.end());
+  expect_same_data_in_vector(stl_vec3, ft_vec3);
+}
+
+TEST(Vector, get_allocator) {
+  typedef int value_type;
+  typedef ft::test::MyAllocator<value_type> allocator_type;
+  typedef ft::vector<value_type, allocator_type> ft_vec_type;
+
+  ft_vec_type ft_vec1;
+  ft_vec_type::allocator_type allocator = ft_vec1.get_allocator();
+  EXPECT_TRUE(dynamic_cast<allocator_type*>(&allocator) != NULL);
+}
+
+TEST(Vector, ElementAccess) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+  add_nums_into_vector(stl_vec, ft_vec, 10);
+
+  // at
+  EXPECT_EQ(stl_vec.at(0), ft_vec.at(0));
+  EXPECT_EQ(stl_vec.at(1), ft_vec.at(1));
+  EXPECT_EQ(stl_vec.at(9), ft_vec.at(9));
+  EXPECT_THROW(stl_vec.at(100), std::out_of_range);
+  EXPECT_THROW(ft_vec.at(100), std::out_of_range);
+  EXPECT_THROW(stl_empty_vec.at(0), std::out_of_range);
+  EXPECT_THROW(ft_empty_vec.at(0), std::out_of_range);
+
+  // operator[]
+  EXPECT_EQ(stl_vec[0], ft_vec[0]);
+  EXPECT_EQ(stl_vec[1], ft_vec[1]);
+  EXPECT_EQ(stl_vec[9], ft_vec[9]);
+
+  // front
+  EXPECT_EQ(stl_vec.front(), ft_vec.front());
+
+  // back
+  EXPECT_EQ(stl_vec.back(), ft_vec.back());
+
+  // data
+  EXPECT_EQ(stl_vec.data()[0], ft_vec.data()[0]);
+  EXPECT_EQ(stl_vec.data()[1], ft_vec.data()[1]);
+  EXPECT_EQ(stl_vec.data()[9], ft_vec.data()[9]);
+}
+
+TEST(Vector, ForwardIterator) {
+  typedef std::string value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  EXPECT_EQ(stl_empty_vec.begin(), stl_empty_vec.end());
+  EXPECT_EQ(ft_empty_vec.begin(), ft_empty_vec.end());
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.push_back(std::string(10, 'A' + i));
+    ft_vec.push_back(std::string(10, 'A' + i));
+  }
+
+  // iterate forward
+  stl_vec_type::iterator stl_it = stl_vec.begin();
+  ft_vec_type::iterator ft_it = ft_vec.begin();
+  for (; stl_it != stl_vec.begin() && ft_it != ft_vec.end();
+       ++stl_it, ++ft_it) {
+    EXPECT_EQ(*stl_it, *ft_it);
+  }
+
+  // iterator operations
+
+  // copy constructive
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  EXPECT_EQ(*(stl_vec_type::iterator(stl_it)), *stl_it);
+  EXPECT_EQ(*(ft_vec_type::iterator(ft_it)), *ft_it);
+
+  // can be incremented
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  ++stl_it;
+  ++ft_it;
+  stl_it++;
+  ft_it++;
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // Supports equality/inequality comparisons
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+
+  stl_vec_type::iterator stl_it2 = stl_vec.begin();
+  ft_vec_type::iterator ft_it2 = ft_vec.begin();
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+  stl_it2++;
+  ft_it2++;
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+  ++stl_it;
+  ++ft_it;
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+
+  // Can be dereferenced as an rvalue
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  value_type stl_val = *stl_it;
+  value_type ft_val = *ft_it;
+  EXPECT_EQ(stl_val, ft_val);
+  char stl_char = stl_it->at(0);
+  char ft_char = ft_it->at(0);
+  EXPECT_EQ(stl_char, ft_char);
+
+  // Can be dereferenced as an lvalue
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  *stl_it = "HOGE";
+  *ft_it = "HOGE";
+  EXPECT_EQ(*stl_it, *ft_it);
+  *stl_it++ = "FUGA";
+  *ft_it++ = "FUGA";
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // default-constructible
+  stl_it2 = stl_vec.begin();
+  ft_it2 = ft_vec.begin();
+  EXPECT_EQ(*stl_it2, *ft_it2);
+
+  // Multi-pass
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it2 = stl_it;
+  ft_it2 = ft_it;
+  EXPECT_EQ(*stl_it++, *ft_it++);
+  EXPECT_EQ(*stl_it2, *ft_it2);
+
+  // Can be decremented
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it++;
+  ft_it++;
+  stl_it++;
+  ft_it++;
+  EXPECT_EQ(*stl_it--, *ft_it--);
+  EXPECT_EQ(*--stl_it, *--ft_it);
+
+  // Supports arithmetic operators + and -
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it2 = stl_it + 5;
+  ft_it2 = ft_it + 5;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  stl_it2 = 1 + stl_it2;
+  ft_it2 = 1 + ft_it2;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  stl_it2 = stl_it2 - 1;
+  ft_it2 = ft_it2 - 1;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  EXPECT_EQ(stl_it2 - stl_it, ft_it2 - ft_it);
+
+  // Supports inequality comparisons between iterators
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it2 = stl_vec.begin();
+  ft_it2 = ft_vec.begin();
+  EXPECT_EQ(stl_it > stl_it2, ft_it > ft_it2);
+  EXPECT_EQ(stl_it < stl_it2, ft_it < ft_it2);
+  EXPECT_EQ(stl_it >= stl_it2, ft_it >= ft_it2);
+  EXPECT_EQ(stl_it <= stl_it2, ft_it <= ft_it2);
+  stl_it2++;
+  ft_it2++;
+  EXPECT_EQ(stl_it > stl_it2, ft_it > ft_it2);
+  EXPECT_EQ(stl_it < stl_it2, ft_it < ft_it2);
+  EXPECT_EQ(stl_it >= stl_it2, ft_it >= ft_it2);
+  EXPECT_EQ(stl_it <= stl_it2, ft_it <= ft_it2);
+
+  // Supports compound assignment operations += and -=
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it += 2;
+  ft_it += 2;
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // Supports offset dereference operator ([])
+  stl_it = stl_vec.begin();
+  ft_it = ft_vec.begin();
+  stl_it += 2;
+  ft_it += 2;
+  EXPECT_EQ(stl_it[2], ft_it[2]);
+}
+
+TEST(Vector, ReverseIterator) {
+  typedef std::string value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_empty_vec;
+  ft_vec_type ft_empty_vec;
+  EXPECT_EQ(stl_empty_vec.rbegin(), stl_empty_vec.rend());
+  EXPECT_EQ(ft_empty_vec.rbegin(), ft_empty_vec.rend());
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.push_back(std::string(10, 'A' + i));
+    ft_vec.push_back(std::string(10, 'A' + i));
+  }
+
+  // iterate forward
+  stl_vec_type::reverse_iterator stl_it = stl_vec.rbegin();
+  ft_vec_type::reverse_iterator ft_it = ft_vec.rbegin();
+  for (; stl_it != stl_vec.rbegin() && ft_it != ft_vec.rend();
+       ++stl_it, ++ft_it) {
+    EXPECT_EQ(*stl_it, *ft_it);
+  }
+
+  // iterator operations
+
+  // copy constructive
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  EXPECT_EQ(*(stl_vec_type::reverse_iterator(stl_it)), *stl_it);
+  EXPECT_EQ(*(ft_vec_type::reverse_iterator(ft_it)), *ft_it);
+
+  // can be incremented
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  ++stl_it;
+  ++ft_it;
+  stl_it++;
+  ft_it++;
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // Supports equality/inequality comparisons
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+
+  stl_vec_type::reverse_iterator stl_it2 = stl_vec.rbegin();
+  ft_vec_type::reverse_iterator ft_it2 = ft_vec.rbegin();
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+  stl_it2++;
+  ft_it2++;
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+  ++stl_it;
+  ++ft_it;
+  EXPECT_EQ(stl_it == stl_it2, ft_it == ft_it2);
+  EXPECT_EQ(stl_it != stl_it2, ft_it != ft_it2);
+
+  // Can be dereferenced as an rvalue
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  value_type stl_val = *stl_it;
+  value_type ft_val = *ft_it;
+  EXPECT_EQ(stl_val, ft_val);
+  char stl_char = stl_it->at(0);
+  char ft_char = ft_it->at(0);
+  EXPECT_EQ(stl_char, ft_char);
+
+  // Can be dereferenced as an lvalue
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  *stl_it = "HOGE";
+  *ft_it = "HOGE";
+  EXPECT_EQ(*stl_it, *ft_it);
+  *stl_it++ = "FUGA";
+  *ft_it++ = "FUGA";
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // default-constructible
+  stl_it2 = stl_vec.rbegin();
+  ft_it2 = ft_vec.rbegin();
+  EXPECT_EQ(*stl_it2, *ft_it2);
+
+  // Multi-pass
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it2 = stl_it;
+  ft_it2 = ft_it;
+  EXPECT_EQ(*stl_it++, *ft_it++);
+  EXPECT_EQ(*stl_it2, *ft_it2);
+
+  // Can be decremented
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it++;
+  ft_it++;
+  stl_it++;
+  ft_it++;
+  EXPECT_EQ(*stl_it--, *ft_it--);
+  EXPECT_EQ(*--stl_it, *--ft_it);
+
+  // Supports arithmetic operators + and -
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it2 = stl_it + 5;
+  ft_it2 = ft_it + 5;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  stl_it2 = 1 + stl_it2;
+  ft_it2 = 1 + ft_it2;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  stl_it2 = stl_it2 - 1;
+  ft_it2 = ft_it2 - 1;
+  EXPECT_EQ(*stl_it2, *ft_it2);
+  EXPECT_EQ(stl_it2 - stl_it, ft_it2 - ft_it);
+
+  // Supports inequality comparisons between iterators
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it2 = stl_vec.rbegin();
+  ft_it2 = ft_vec.rbegin();
+  EXPECT_EQ(stl_it > stl_it2, ft_it > ft_it2);
+  EXPECT_EQ(stl_it < stl_it2, ft_it < ft_it2);
+  EXPECT_EQ(stl_it >= stl_it2, ft_it >= ft_it2);
+  EXPECT_EQ(stl_it <= stl_it2, ft_it <= ft_it2);
+  stl_it2++;
+  ft_it2++;
+  EXPECT_EQ(stl_it > stl_it2, ft_it > ft_it2);
+  EXPECT_EQ(stl_it < stl_it2, ft_it < ft_it2);
+  EXPECT_EQ(stl_it >= stl_it2, ft_it >= ft_it2);
+  EXPECT_EQ(stl_it <= stl_it2, ft_it <= ft_it2);
+
+  // Supports compound assignment operations += and -=
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it += 2;
+  ft_it += 2;
+  EXPECT_EQ(*stl_it, *ft_it);
+
+  // Supports offset dereference operator ([])
+  stl_it = stl_vec.rbegin();
+  ft_it = ft_vec.rbegin();
+  stl_it += 2;
+  ft_it += 2;
+  EXPECT_EQ(stl_it[2], ft_it[2]);
+}
+
+TEST(Vector, Capacity) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+
+  EXPECT_EQ(stl_vec.empty(), ft_vec.empty());
+  EXPECT_EQ(stl_vec.size(), ft_vec.size());
+  // max_size() は実装や環境により異なるので
+  // STLと同じ値になることを重要視していない
+  EXPECT_TRUE(stl_vec.max_size());
+  EXPECT_TRUE(ft_vec.max_size());
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
+
+  stl_vec.reserve(10);
+  ft_vec.reserve(10);
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
+
+  for (int i = 0; i < 100; ++i) {
+    stl_vec.push_back(i);
+    ft_vec.push_back(i);
+  }
+  EXPECT_EQ(stl_vec.empty(), ft_vec.empty());
+  EXPECT_EQ(stl_vec.size(), ft_vec.size());
+  EXPECT_EQ(stl_vec.capacity(), ft_vec.capacity());
+}
+
+TEST(Vector, Modifiers) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec_for_copy;
+  for (int i = 0; i < 10; ++i) {
+    stl_vec_for_copy.push_back(i);
+  }
+
+  stl_vec_type stl_vec;
+  ft_vec_type ft_vec;
+
+  // push_back
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.push_back(i);
+    ft_vec.push_back(i);
+  }
+  expect_same_data_in_vector(stl_vec, ft_vec);
+  // pop_back
+  for (int i = 0; i < 10; ++i) {
+    stl_vec.pop_back();
+    ft_vec.pop_back();
+  }
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // clear
+  add_nums_into_vector(stl_vec, ft_vec);
+  stl_vec.clear();
+  ft_vec.clear();
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // insert
+  stl_vec_type::iterator stl_it = stl_vec.begin();
+  ft_vec_type::iterator ft_it = ft_vec.begin();
+  stl_it = stl_vec.insert(stl_it, 0);
+  ft_it = ft_vec.insert(ft_it, 0);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.end();
+  ft_it = ft_vec.end();
+  stl_it = stl_vec.insert(stl_it, 1);
+  ft_it = ft_vec.insert(ft_it, 1);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.begin(), 10, 10);
+  ft_vec.insert(ft_vec.begin(), 10, 10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.begin(), stl_vec_for_copy.begin(),
+                 stl_vec_for_copy.end());
+  ft_vec.insert(ft_vec.begin(), stl_vec_for_copy.begin(),
+                stl_vec_for_copy.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.insert(stl_vec.end(), stl_vec_for_copy.begin(),
+                 stl_vec_for_copy.end());
+  ft_vec.insert(ft_vec.end(), stl_vec_for_copy.begin(), stl_vec_for_copy.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // erase
+  stl_it = stl_vec.erase(stl_vec.begin());
+  ft_it = ft_vec.erase(ft_vec.begin());
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.end() - 1);
+  ft_it = ft_vec.erase(ft_vec.end() - 1);
+  EXPECT_EQ(stl_it, stl_vec.end());
+  EXPECT_EQ(ft_it, ft_vec.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.begin(), stl_vec.begin() + stl_vec.size() / 2);
+  ft_it = ft_vec.erase(ft_vec.begin(), ft_vec.begin() + ft_vec.size() / 2);
+  EXPECT_EQ(*stl_it, *ft_it);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_it = stl_vec.erase(stl_vec.begin() + stl_vec.size() / 2, stl_vec.end());
+  ft_it = ft_vec.erase(ft_vec.begin() + ft_vec.size() / 2, ft_vec.end());
+  EXPECT_EQ(stl_it, stl_vec.end());
+  EXPECT_EQ(ft_it, ft_vec.end());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  // resize
+  stl_vec.clear();
+  ft_vec.clear();
+  add_nums_into_vector(stl_vec, ft_vec, 10);
+
+  stl_vec.resize(5);
+  ft_vec.resize(5);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.resize(10);
+  ft_vec.resize(10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
+  stl_vec.resize(100, 100);
+  ft_vec.resize(100, 100);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+}
+
+TEST(Vector, NonMemberFunctions) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec1;
+  stl_vec_type stl_vec2;
+  ft_vec_type ft_vec1;
+  ft_vec_type ft_vec2;
+
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec1.push_back(1);
+  ft_vec1.push_back(1);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec2.push_back(1);
+  ft_vec2.push_back(1);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+
+  stl_vec1.push_back(2);
+  ft_vec1.push_back(2);
+  stl_vec2.push_back(3);
+  ft_vec2.push_back(3);
+  EXPECT_EQ(stl_vec1 == stl_vec2, ft_vec1 == ft_vec2);
+  EXPECT_EQ(stl_vec1 != stl_vec2, ft_vec1 != ft_vec2);
+  EXPECT_EQ(stl_vec1 < stl_vec2, ft_vec1 < ft_vec2);
+  EXPECT_EQ(stl_vec1 <= stl_vec2, ft_vec1 <= ft_vec2);
+  EXPECT_EQ(stl_vec1 >= stl_vec2, ft_vec1 >= ft_vec2);
+  EXPECT_EQ(stl_vec1 > stl_vec2, ft_vec1 > ft_vec2);
+}
+
+TEST(Vector, swap) {
+  typedef int value_type;
+  typedef std::vector<value_type> stl_vec_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  stl_vec_type stl_vec1(10, 10);
+  stl_vec_type stl_vec2(2, 2);
+  stl_vec1.swap(stl_vec2);
+  ft_vec_type ft_vec1(10, 10);
+  ft_vec_type ft_vec2(2, 2);
+  ft_vec1.swap(ft_vec2);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+
+  std::swap(stl_vec1, stl_vec2);
+  std::swap(ft_vec1, ft_vec2);
+  expect_same_data_in_vector(stl_vec1, ft_vec1);
+  expect_same_data_in_vector(stl_vec2, ft_vec2);
+}
 
 class VectorTest : public ::testing::Test {
  protected:
@@ -94,17 +817,13 @@ TEST_F(VectorTest, AssignmentOperator) {
   ft_vector2.push_back(2);
   EXPECT_EQ(ft_vector.back(), 1);
   EXPECT_EQ(ft_vector2.back(), 2);
-  // TODO: vector.front() のテストをする
 }
-
-// TODO: swap のテストをする
 
 TEST_F(VectorTest, NormalIterator) {
   /* begin() can return iterator and const_iterator */
   stl_container::iterator stl_it = stl_vector.begin();
   ft_container::iterator ft_it = ft_vector.begin();
   ASSERT_EQ(*stl_it, *ft_it);
-  // TODO: const_iteratorのテストがちゃんと行えていない
   stl_container::const_iterator const_stl_it = stl_vector.begin();
   ft_container::const_iterator const_ft_it = ft_vector.begin();
   ASSERT_EQ(*const_stl_it, *const_ft_it);

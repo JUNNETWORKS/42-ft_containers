@@ -986,7 +986,7 @@ TEST(erase, TargetNodeHasOnlyRightChild) {
   EXPECT_EQ(rb_tree[5].second, 5);
   EXPECT_EQ(rb_tree[7].second, 7);
   EXPECT_EQ(rb_tree[11].second, 11);
-  // TODO: ノードが削除されたかテストする
+  EXPECT_EQ(rb_tree.find(9), rb_tree.end());
 }
 
 TEST(erase, TargetNodeHasOnlyLeftChild) {

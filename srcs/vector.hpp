@@ -74,7 +74,7 @@ class vector {
         finish_ = start_ + rhs_len;
         end_of_storage_ = start_ + rhs_len;
       } else if (rhs_len <= size()) {
-        erase(std::copy(rhs.begin(), rhs.end(), begin()), end());
+        __erase_at_end(std::copy(rhs.begin(), rhs.end(), start_));
       } else {
         std::copy(rhs.start_, rhs.start_ + size(), start_);
         __uninitialized_copy(rhs.start_ + size(), rhs.finish_, finish_);
@@ -220,7 +220,7 @@ class vector {
       finish_ = start_ + n;
     } else {
       std::fill_n(start_, n, val);
-      erase(begin() + n, end());
+      __erase_at_end(start_ + n);
       finish_ = start_ + n;
     }
   }
@@ -243,7 +243,7 @@ class vector {
 
   void resize(size_type n, T value = T()) {
     if (n < size()) {
-      erase(begin() + n, end());
+      __erase_at_end(start_ + n);
     } else {
       for (size_type i = size(); i < n; ++i) {
         push_back(value);
@@ -281,9 +281,7 @@ class vector {
       if (last != end()) {
         std::copy(last, end(), first);
       }
-      pointer new_finish = first.base() + (end() - last);
-      __destroy(new_finish, finish_);
-      finish_ = new_finish;
+      __erase_at_end(first.base() + (end() - last));
     }
     return first;
   }
@@ -311,6 +309,11 @@ class vector {
     for (; first != last; ++first) {
       allocator_.destroy(first);
     }
+  }
+
+  void __erase_at_end(pointer new_finish) {
+    __destroy(new_finish, finish_);
+    finish_ = new_finish;
   }
 
   template <class ForwardIterator, class Size, class _T>
@@ -405,7 +408,7 @@ class vector {
       *current = *first;
     }
     if (first == last) {
-      erase(current, end());
+      __erase_at_end(current.base());
     } else {
       insert(end(), first, last);
     }
@@ -414,12 +417,12 @@ class vector {
   template <class ForwardIterator>
   void __assign_range(ForwardIterator first, ForwardIterator last,
                       std::forward_iterator_tag) {
-    size_type len = std::distance(first, last);
-    if (len > capacity()) {
+    size_type new_size = std::distance(first, last);
+    if (new_size > capacity()) {
       vector tmp_vec(first, last);
       swap(tmp_vec);
-    } else if (len <= size()) {
-      erase(std::copy(first, last, begin()), end());
+    } else if (new_size <= size()) {
+      __erase_at_end(std::copy(first, last, start_));
     } else {
       ForwardIterator mid = first;
       std::advance(mid, size());

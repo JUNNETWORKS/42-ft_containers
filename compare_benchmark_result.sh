@@ -38,15 +38,16 @@ BEGIN {
     has_read_ft = 0
     if (ft <= 0 || std <= 0) {
       printf("速すぎて測れません\n")
-    }
-    times_slower = ft / std;
-    printf("%s: ft: %d, std: %d, ratio: %f\n", title, ft, std, times_slower);
-    std=-1;
-    ft=-1;
-    if (times_slower >= 10) {
-      printf("%s%f倍遅い！\n%s", RED, times_slower, RESET)
-      slow_funcs[slow_func_idx] = title
-      slow_func_idx += 1
+    } else {
+      times_slower = ft / std;
+      printf("%s: ft: %d, std: %d, ratio: %f\n", title, ft, std, times_slower);
+      std=-1;
+      ft=-1;
+      if (times_slower >= 10) {
+        printf("%s%f倍遅い！\n%s", RED, times_slower, RESET)
+        slow_funcs[slow_func_idx] = title
+        slow_func_idx += 1
+      }
     }
   }
 }

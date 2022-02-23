@@ -392,7 +392,7 @@ class vector {
     if (current_capacity == 0) {
       return 1;
     }
-    return current_capacity * 2;
+    return std::min(current_capacity * 2, max_size());
   }
 
   template <class InputIterator>

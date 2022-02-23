@@ -46,7 +46,7 @@ class vector {
   vector(InputIterator first, InputIterator last,
          allocator_type alloc = allocator_type(),
          typename disable_if<is_integral<InputIterator>::value>::type * = 0)
-      : allocator_(alloc) {
+      : allocator_(alloc), cap_(), start_(), finish_(), end_of_storage_() {
     __range_initialize(
         first, last,
         typename iterator_traits<InputIterator>::iterator_category());
@@ -263,7 +263,9 @@ class vector {
   void insert(
       iterator position, InputIterator first, InputIterator last,
       typename disable_if<is_integral<InputIterator>::value>::type * = 0) {
-    __insert_range(position, first, last);
+    __insert_range(
+        position, first, last,
+        typename iterator_traits<InputIterator>::iterator_category());
   }
 
   iterator erase(iterator position) {
@@ -443,8 +445,21 @@ class vector {
   }
 
   template <class InputIterator>
-  iterator __insert_range(iterator position, InputIterator first,
-                          InputIterator last) {
+  void __insert_range(iterator position, InputIterator first,
+                      InputIterator last, std::input_iterator_tag) {
+    if (position == end()) {
+      for (; first != last; ++first) {
+        insert(end(), *first);
+      }
+    } else if (first != last) {
+      vector tmp_vec(first, last, get_allocator());
+      insert(position, tmp_vec.begin(), tmp_vec.end());
+    }
+  }
+
+  template <class InputIterator>
+  void __insert_range(iterator position, InputIterator first,
+                      InputIterator last, std::forward_iterator_tag) {
     vector<T> tmp_vec;
     size_type n = std::distance(first, last);
     size_type new_size = size() + n;
@@ -452,13 +467,11 @@ class vector {
     iterator tmp_vec_it = tmp_vec.begin();
     tmp_vec_it = std::copy(begin(), position, tmp_vec_it);
     tmp_vec.finish_ += std::distance(begin(), position);
-    iterator first_inserted_element_it = tmp_vec_it;
     tmp_vec_it = std::copy(first, last, tmp_vec_it);
     tmp_vec.finish_ += n;
     std::copy(position, end(), tmp_vec_it);
     tmp_vec.finish_ += std::distance(position, end());
     swap(tmp_vec);
-    return first_inserted_element_it;
   }
 };
 

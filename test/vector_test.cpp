@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iostream>
 #include <iterator>
+#include <sstream>
 #include <vector>
 
 #if __cplusplus >= 201103L
@@ -88,6 +89,15 @@ TEST(Vector, ConstructorWithIterator) {
   stl_vec_type stl_vec3(stl_empty_vec.begin(), stl_empty_vec.end());
   ft_vec_type ft_vec3(ft_empty_vec.begin(), ft_empty_vec.end());
   expect_same_data_in_vector(stl_vec3, ft_vec3);
+
+  // input_iterator_tag
+  std::istringstream iss1("1 2 3 4 5 6 7 8 9 10");
+  std::istringstream iss2("1 2 3 4 5 6 7 8 9 10");
+  std::istream_iterator<value_type> iss_it1(iss1);
+  std::istream_iterator<value_type> iss_it2(iss2);
+  stl_vec_type stl_vec4(iss_it1, std::istream_iterator<value_type>());
+  ft_vec_type ft_vec4(iss_it2, std::istream_iterator<value_type>());
+  expect_same_data_in_vector(stl_vec4, ft_vec4);
 }
 
 TEST(Vector, CopyConstructor) {
@@ -196,6 +206,18 @@ TEST(Vector, assign) {
   stl_vec3.assign(stl_empty_vec.begin(), stl_empty_vec.end());
   ft_vec3.assign(ft_empty_vec.begin(), ft_empty_vec.end());
   expect_same_data_in_vector(stl_vec3, ft_vec3);
+
+  // input_iterator_tag
+  std::cout << "assgin input_iterator_tag" << std::endl;
+  std::istringstream iss1("1 2 3 4 5 6 7 8 9 10");
+  std::istringstream iss2("1 2 3 4 5 6 7 8 9 10");
+  std::istream_iterator<value_type> iss_it1(iss1);
+  std::istream_iterator<value_type> iss_it2(iss2);
+  stl_vec_type stl_vec4;
+  stl_vec4.assign(iss_it1, std::istream_iterator<value_type>());
+  ft_vec_type ft_vec4;
+  ft_vec4.assign(iss_it2, std::istream_iterator<value_type>());
+  expect_same_data_in_vector(stl_vec4, ft_vec4);
 }
 
 TEST(Vector, get_allocator) {
@@ -664,6 +686,16 @@ TEST(Vector, Modifiers) {
   ft_vec.insert(ft_vec.end(), stl_vec_for_copy.begin(), stl_vec_for_copy.end());
   expect_same_data_in_vector(stl_vec, ft_vec);
 
+  // input_iterator_tag
+  std::cout << "insert input_iterator_tag" << std::endl;
+  std::istringstream iss1("1 2 3 4 5 6 7 8 9 10");
+  std::istringstream iss2("1 2 3 4 5 6 7 8 9 10");
+  std::istream_iterator<value_type> iss_it1(iss1);
+  std::istream_iterator<value_type> iss_it2(iss2);
+  stl_vec.insert(stl_vec.end(), iss_it1, std::istream_iterator<value_type>());
+  ft_vec.insert(ft_vec.end(), iss_it2, std::istream_iterator<value_type>());
+  expect_same_data_in_vector(stl_vec, ft_vec);
+
   // erase
   stl_it = stl_vec.erase(stl_vec.begin());
   ft_it = ft_vec.erase(ft_vec.begin());
@@ -998,10 +1030,6 @@ TEST_F(VectorTest, AssignOverCapacity) {
 
   expect_same_data_in_vector(stl_vector, ft_vector);
 }
-
-// TODO: Iteratorを受け取る関数のテストに
-// RandomAccessIterator以外のイテレータのテストを追加する.
-// InputIteratorが動けば他のiteratorは動くはずなのでInputIteratorのテストを追加する.
 
 TEST_F(VectorTest, AssignOverSize) {
   // capacityは超えないけどsizeを超える時

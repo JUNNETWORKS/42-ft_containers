@@ -241,15 +241,11 @@ void measure_map_modifiers() {
 
   {
     TIMER("std::map clear");
-    for (int j = 0; j < max_size; ++j) {
-      std_map.clear();
-    }
+    std_map.clear();
   }
   {
     TIMER("ft::map clear");
-    for (int j = 0; j < max_size; ++j) {
-      ft_map.clear();
-    }
+    ft_map.clear();
   }
 
   add_nums_to_map(std_map, ft_map, max_size);

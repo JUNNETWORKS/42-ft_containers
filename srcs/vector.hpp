@@ -63,23 +63,7 @@ class vector {
 
   const vector<T, Allocator> &operator=(const vector<T, Allocator> &rhs) {
     if (this != &rhs) {
-      size_type rhs_len = rhs.size();
-      if (rhs_len > capacity()) {
-        pointer tmp = allocator_.allocate(rhs_len);
-        __uninitialized_copy(rhs.begin(), rhs.end(), tmp);
-        __destroy(start_, finish_);
-        allocator_.deallocate(start_, cap_);
-        cap_ = rhs_len;
-        start_ = tmp;
-        finish_ = start_ + rhs_len;
-        end_of_storage_ = start_ + rhs_len;
-      } else if (rhs_len <= size()) {
-        __erase_at_end(std::copy(rhs.begin(), rhs.end(), start_));
-      } else {
-        std::copy(rhs.start_, rhs.start_ + size(), start_);
-        __uninitialized_copy(rhs.start_ + size(), rhs.finish_, finish_);
-      }
-      finish_ = start_ + rhs_len;
+      assign(rhs.begin(), rhs.end());
     }
     return *this;
   }

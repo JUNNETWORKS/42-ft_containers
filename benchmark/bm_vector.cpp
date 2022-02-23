@@ -89,18 +89,6 @@ void measure_vector_assignation() {
   {
     std_vector_type std_vec;
 
-    TIMER("std::vector.operator=");
-    std_vec = std_vec_for_copy;
-  }
-  {
-    ft_vector_type ft_vec;
-
-    TIMER("ft::vector.operator=");
-    ft_vec = ft_vec_for_copy;
-  }
-  {
-    std_vector_type std_vec;
-
     TIMER("std::vector.assign");
     std_vec.assign(std_vec_for_copy.begin(), std_vec_for_copy.end());
   }

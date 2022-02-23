@@ -36,7 +36,6 @@ void measure_stack_constructor_and_assignation() {
   typedef ft::stack<int> ft_stack_type;
 
   const int default_stack_size = 1000000;
-  const int loop_num = 10;
 
   std_stack_type std_stack;
   std_stack_type std_stack_for_copy;
@@ -47,42 +46,30 @@ void measure_stack_constructor_and_assignation() {
                       default_stack_size);
 
   {
-    TIMER("std::stack constructor", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack_type tmp;
-    }
+    TIMER("std::stack constructor");
+    std_stack_type tmp;
   }
   {
-    TIMER("ft::stack constructor", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack_type tmp;
-    }
+    TIMER("ft::stack constructor");
+    ft_stack_type tmp;
   }
 
   {
-    TIMER("std::stack copy constructor", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack_type tmp = std_stack_for_copy;
-    }
+    TIMER("std::stack copy constructor");
+    std_stack_type tmp = std_stack_for_copy;
   }
   {
-    TIMER("ft::stack copy constructor", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack_type tmp = ft_stack_for_copy;
-    }
+    TIMER("ft::stack copy constructor");
+    ft_stack_type tmp = ft_stack_for_copy;
   }
 
   {
-    TIMER("std::stack assignation operator", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack = std_stack_for_copy;
-    }
+    TIMER("std::stack assignation operator");
+    std_stack = std_stack_for_copy;
   }
   {
-    TIMER("ft::stack assignation operator", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack = ft_stack_for_copy;
-    }
+    TIMER("ft::stack assignation operator");
+    ft_stack = ft_stack_for_copy;
   }
 }
 
@@ -93,7 +80,6 @@ void measure_stack_element_access_and_capacity() {
   typedef ft::stack<int> ft_stack_type;
 
   const int default_stack_size = 1000000;
-  const int loop_num = 1000;
 
   std_stack_type std_stack;
   ft_stack_type ft_stack;
@@ -101,42 +87,30 @@ void measure_stack_element_access_and_capacity() {
   add_nums_into_stack(std_stack, ft_stack, default_stack_size);
 
   {
-    TIMER("std::stack top", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack.top();
-    }
+    TIMER("std::stack top");
+    std_stack.top();
   }
   {
-    TIMER("ft::stack top", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack.top();
-    }
+    TIMER("ft::stack top");
+    ft_stack.top();
   }
 
   {
-    TIMER("std::stack empty", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack.empty();
-    }
+    TIMER("std::stack empty");
+    std_stack.empty();
   }
   {
-    TIMER("ft::stack empty", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack.empty();
-    }
+    TIMER("ft::stack empty");
+    ft_stack.empty();
   }
 
   {
-    TIMER("std::stack size", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      std_stack.size();
-    }
+    TIMER("std::stack size");
+    std_stack.size();
   }
   {
-    TIMER("ft::stack size", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      ft_stack.size();
-    }
+    TIMER("ft::stack size");
+    ft_stack.size();
   }
 }
 
@@ -147,42 +121,33 @@ void measure_stack_modifiers() {
   typedef ft::stack<int> ft_stack_type;
 
   const int default_stack_size = 1000000;
-  const int loop_num = 10;
 
   std_stack_type std_stack;
   ft_stack_type ft_stack;
 
   {
-    TIMER("std::stack push", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      for (int j = 0; j < default_stack_size; ++j) {
-        std_stack.push(j);
-      }
+    TIMER("std::stack push");
+    for (int j = 0; j < default_stack_size; ++j) {
+      std_stack.push(j);
     }
   }
   {
-    TIMER("ft::stack push", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      for (int j = 0; j < default_stack_size; ++j) {
-        ft_stack.push(j);
-      }
+    TIMER("ft::stack push");
+    for (int j = 0; j < default_stack_size; ++j) {
+      ft_stack.push(j);
     }
   }
 
   {
-    TIMER("std::stack pop", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      for (int j = 0; j < default_stack_size; ++j) {
-        std_stack.pop();
-      }
+    TIMER("std::stack pop");
+    for (int j = 0; j < default_stack_size; ++j) {
+      std_stack.pop();
     }
   }
   {
-    TIMER("ft::stack pop", loop_num);
-    for (int i = 0; i < loop_num; ++i) {
-      for (int j = 0; j < default_stack_size; ++j) {
-        ft_stack.pop();
-      }
+    TIMER("ft::stack pop");
+    for (int j = 0; j < default_stack_size; ++j) {
+      ft_stack.pop();
     }
   }
 }

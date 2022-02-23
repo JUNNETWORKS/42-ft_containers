@@ -36,8 +36,7 @@ class vector {
   vector(size_type n = 0, const value_type &val = value_type(),
          allocator_type alloc = allocator_type())
       : allocator_(alloc), cap_(n) {
-    start_ = allocator_.allocate(cap_);
-    end_of_storage_ = start_ + cap_;
+    __allocate(cap_);
     __uninitialized_fill_n(start_, n, val);
     finish_ = start_ + n;
   }
@@ -63,30 +62,14 @@ class vector {
 
   const vector<T, Allocator> &operator=(const vector<T, Allocator> &rhs) {
     if (this != &rhs) {
-      size_type rhs_len = rhs.size();
-      if (rhs_len > capacity()) {
-        pointer tmp = allocator_.allocate(rhs_len);
-        __uninitialized_copy(rhs.begin(), rhs.end(), tmp);
-        __destroy(start_, finish_);
-        allocator_.deallocate(start_, cap_);
-        cap_ = rhs_len;
-        start_ = tmp;
-        finish_ = start_ + rhs_len;
-        end_of_storage_ = start_ + rhs_len;
-      } else if (rhs_len <= size()) {
-        erase(std::copy(rhs.begin(), rhs.end(), begin()), end());
-      } else {
-        std::copy(rhs.start_, rhs.start_ + size(), start_);
-        __uninitialized_copy(rhs.start_ + size(), rhs.finish_, finish_);
-      }
-      finish_ = start_ + rhs_len;
+      assign(rhs.begin(), rhs.end());
     }
     return *this;
   }
 
   ~vector() {
     __destroy(start_, finish_);
-    allocator_.deallocate(start_, cap_);
+    __deallocate();
   }
 
   // Iterators
@@ -220,7 +203,7 @@ class vector {
       finish_ = start_ + n;
     } else {
       std::fill_n(start_, n, val);
-      erase(begin() + n, end());
+      __erase_at_end(start_ + n);
       finish_ = start_ + n;
     }
   }
@@ -243,7 +226,7 @@ class vector {
 
   void resize(size_type n, T value = T()) {
     if (n < size()) {
-      erase(begin() + n, end());
+      __erase_at_end(start_ + n);
     } else {
       for (size_type i = size(); i < n; ++i) {
         push_back(value);
@@ -281,9 +264,7 @@ class vector {
       if (last != end()) {
         std::copy(last, end(), first);
       }
-      pointer new_finish = first.base() + (end() - last);
-      __destroy(new_finish, finish_);
-      finish_ = new_finish;
+      __erase_at_end(first.base() + (end() - last));
     }
     return first;
   }
@@ -296,9 +277,7 @@ class vector {
   }
 
   void clear() {
-    while (size()) {
-      pop_back();
-    }
+    __erase_at_end(start_);
   }
 
   // Allocator
@@ -307,10 +286,30 @@ class vector {
   }
 
  private:
+  void __allocate(size_type cap) {
+    start_ = allocator_.allocate(cap);
+    finish_ = start_;
+    cap_ = cap;
+    end_of_storage_ = start_ + cap_;
+  }
+
   void __destroy(pointer first, pointer last) {
     for (; first != last; ++first) {
       allocator_.destroy(first);
     }
+  }
+
+  void __deallocate() {
+    allocator_.deallocate(start_, cap_);
+    start_ = NULL;
+    finish_ = NULL;
+    cap_ = 0;
+    end_of_storage_ = NULL;
+  }
+
+  void __erase_at_end(pointer new_finish) {
+    __destroy(new_finish, finish_);
+    finish_ = new_finish;
   }
 
   template <class ForwardIterator, class Size, class _T>
@@ -365,9 +364,7 @@ class vector {
     if (len > max_size())
       throw std::length_error(
           "cannot create std::vector larger than max_size()");
-    cap_ = len;
-    start_ = allocator_.allocate(len);
-    end_of_storage_ = start_ + len;
+    __allocate(len);
     __uninitialized_copy(first, last, start_);
     finish_ = start_ + len;
   }
@@ -375,11 +372,8 @@ class vector {
   void __expand_and_copy_storage(size_type new_cap) {
     if (size() == 0) {
       // 要素がない場合は新しい領域を確保するだけ
-      allocator_.deallocate(start_, cap_);
-      cap_ = new_cap;
-      start_ = allocator_.allocate(cap_);
-      finish_ = start_;
-      end_of_storage_ = start_ + cap_;
+      __deallocate();
+      __allocate(new_cap);
     } else {
       vector<T> tmp;
       tmp.reserve(new_cap);
@@ -405,7 +399,7 @@ class vector {
       *current = *first;
     }
     if (first == last) {
-      erase(current, end());
+      __erase_at_end(current.base());
     } else {
       insert(end(), first, last);
     }
@@ -414,12 +408,15 @@ class vector {
   template <class ForwardIterator>
   void __assign_range(ForwardIterator first, ForwardIterator last,
                       std::forward_iterator_tag) {
-    size_type len = std::distance(first, last);
-    if (len > capacity()) {
-      vector tmp_vec(first, last);
-      swap(tmp_vec);
-    } else if (len <= size()) {
-      erase(std::copy(first, last, begin()), end());
+    size_type new_size = std::distance(first, last);
+    if (new_size > capacity()) {
+      __destroy(start_, finish_);
+      __deallocate();
+      __allocate(new_size);
+      __uninitialized_copy(first, last, start_);
+      finish_ = start_ + new_size;
+    } else if (new_size <= size()) {
+      __erase_at_end(std::copy(first, last, start_));
     } else {
       ForwardIterator mid = first;
       std::advance(mid, size());

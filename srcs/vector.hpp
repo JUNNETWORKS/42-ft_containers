@@ -36,8 +36,7 @@ class vector {
   vector(size_type n = 0, const value_type &val = value_type(),
          allocator_type alloc = allocator_type())
       : allocator_(alloc), cap_(n) {
-    start_ = allocator_.allocate(cap_);
-    end_of_storage_ = start_ + cap_;
+    __allocate(cap_);
     __uninitialized_fill_n(start_, n, val);
     finish_ = start_ + n;
   }
@@ -70,7 +69,7 @@ class vector {
 
   ~vector() {
     __destroy(start_, finish_);
-    allocator_.deallocate(start_, cap_);
+    __deallocate();
   }
 
   // Iterators
@@ -287,10 +286,25 @@ class vector {
   }
 
  private:
+  void __allocate(size_type cap) {
+    start_ = allocator_.allocate(cap);
+    finish_ = start_;
+    cap_ = cap;
+    end_of_storage_ = start_ + cap_;
+  }
+
   void __destroy(pointer first, pointer last) {
     for (; first != last; ++first) {
       allocator_.destroy(first);
     }
+  }
+
+  void __deallocate() {
+    allocator_.deallocate(start_, cap_);
+    start_ = NULL;
+    finish_ = NULL;
+    cap_ = 0;
+    end_of_storage_ = NULL;
   }
 
   void __erase_at_end(pointer new_finish) {
@@ -350,9 +364,7 @@ class vector {
     if (len > max_size())
       throw std::length_error(
           "cannot create std::vector larger than max_size()");
-    cap_ = len;
-    start_ = allocator_.allocate(len);
-    end_of_storage_ = start_ + len;
+    __allocate(len);
     __uninitialized_copy(first, last, start_);
     finish_ = start_ + len;
   }
@@ -360,11 +372,8 @@ class vector {
   void __expand_and_copy_storage(size_type new_cap) {
     if (size() == 0) {
       // 要素がない場合は新しい領域を確保するだけ
-      allocator_.deallocate(start_, cap_);
-      cap_ = new_cap;
-      start_ = allocator_.allocate(cap_);
-      finish_ = start_;
-      end_of_storage_ = start_ + cap_;
+      __deallocate();
+      __allocate(new_cap);
     } else {
       vector<T> tmp;
       tmp.reserve(new_cap);
@@ -401,8 +410,11 @@ class vector {
                       std::forward_iterator_tag) {
     size_type new_size = std::distance(first, last);
     if (new_size > capacity()) {
-      vector tmp_vec(first, last);
-      swap(tmp_vec);
+      __destroy(start_, finish_);
+      __deallocate();
+      __allocate(new_size);
+      __uninitialized_copy(first, last, start_);
+      finish_ = start_ + new_size;
     } else if (new_size <= size()) {
       __erase_at_end(std::copy(first, last, start_));
     } else {

@@ -1,7 +1,7 @@
 awk '
 BEGIN {
-  std = -1;
-  ft = -1;
+  std = 0;
+  ft = 0;
   has_read_std = 0
   has_read_ft = 0
   RED = "\033[31m";
@@ -36,15 +36,16 @@ BEGIN {
   if(has_read_std && has_read_ft){
     has_read_std = 0
     has_read_ft = 0
+    printf("%s\n", title);
     if (ft <= 0 || std <= 0) {
       printf("速すぎて測れません\n")
     } else {
       times_slower = ft / std;
-      printf("%s: ft: %d, std: %d, ratio: %f\n", title, ft, std, times_slower);
+      printf("\tft: %d, std: %d, ratio: %f\n", ft, std, times_slower)
       std=-1;
       ft=-1;
       if (times_slower >= 10) {
-        printf("%s%f倍遅い！\n%s", RED, times_slower, RESET)
+        printf("\t%s%f倍遅い！%s\n", RED, times_slower, RESET)
         slow_funcs[slow_func_idx] = title
         slow_func_idx += 1
       }

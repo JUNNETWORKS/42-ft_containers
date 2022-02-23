@@ -12,9 +12,9 @@ class Timer;
 #define HEADER(title) \
   std::cout << "==========  " << title << "  ==========" << std::endl;
 
-#define TIMER(title, loop_num) \
-  std::cout << title << "\n";  \
-  Timer t(loop_num);
+#define TIMER(title)          \
+  std::cout << title << "\n"; \
+  Timer t;
 
 class Timer {
  public:

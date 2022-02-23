@@ -81,26 +81,32 @@ void measure_vector_assignation() {
 
   const int default_vec_size = 1000000;
 
-  std_vector_type std_vec;
   std_vector_type std_vec_for_copy;
-  ft_vector_type ft_vec;
   ft_vector_type ft_vec_for_copy;
 
   add_nums_into_vector(std_vec_for_copy, ft_vec_for_copy, default_vec_size);
 
   {
+    std_vector_type std_vec;
+
     TIMER("std::vector.operator=");
     std_vec = std_vec_for_copy;
   }
   {
+    ft_vector_type ft_vec;
+
     TIMER("ft::vector.operator=");
     ft_vec = ft_vec_for_copy;
   }
   {
+    std_vector_type std_vec;
+
     TIMER("std::vector.assign");
     std_vec.assign(std_vec_for_copy.begin(), std_vec_for_copy.end());
   }
   {
+    ft_vector_type ft_vec;
+
     TIMER("ft::vector.assign");
     ft_vec.assign(ft_vec_for_copy.begin(), ft_vec_for_copy.end());
   }

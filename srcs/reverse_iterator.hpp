@@ -63,6 +63,8 @@ class reverse_iterator {
     return *this;
   }
 
+  ~reverse_iterator() {}
+
   /**
    *  A %reverse_iterator across other types can be copied if the
    *  underlying %iterator can be converted to the type of @c current.

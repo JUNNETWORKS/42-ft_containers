@@ -57,6 +57,8 @@ struct rbtree_iterator {
     return *this;
   }
 
+  ~rbtree_iterator() {}
+
   reference operator*() const {
     return node_->value_;
   }
@@ -121,6 +123,8 @@ struct rbtree_const_iterator {
     }
     return *this;
   }
+
+  ~rbtree_const_iterator() {}
 
   iterator cast_nonconst() const {
     return iterator(const_cast<typename iterator::node_pointer>(node_));

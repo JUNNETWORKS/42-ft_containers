@@ -51,6 +51,8 @@ class normal_iterator {
     return *this;
   }
 
+  ~normal_iterator() {}
+
   // Forward iterator requirements
   reference operator*() const {
     return *current_;

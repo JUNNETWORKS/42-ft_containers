@@ -37,11 +37,12 @@ BEGIN {
     has_read_std = 0
     has_read_ft = 0
     printf("%s\n", title);
+    printf("\tft: %d, std: %d, ", ft, std)
     if (ft <= 0 || std <= 0) {
       printf("速すぎて測れません\n")
     } else {
       times_slower = ft / std;
-      printf("\tft: %d, std: %d, ratio: %f\n", ft, std, times_slower)
+      printf("ratio: %f\n", times_slower)
       std=-1;
       ft=-1;
       if (times_slower >= 10) {

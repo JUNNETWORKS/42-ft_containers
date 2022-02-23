@@ -294,9 +294,7 @@ class vector {
   }
 
   void clear() {
-    while (size()) {
-      pop_back();
-    }
+    __erase_at_end(start_);
   }
 
   // Allocator

@@ -391,6 +391,8 @@ class vector {
   inline size_type __calc_new_capacity(size_type current_capacity) {
     if (current_capacity == 0) {
       return 1;
+    } else if (current_capacity >= max_size()) {
+      throw std::length_error("vector::__calc_new_capacity");
     }
     return std::min(current_capacity * 2, max_size());
   }

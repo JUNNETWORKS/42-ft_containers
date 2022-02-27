@@ -19,9 +19,9 @@
 
 namespace {
 
-template <typename T>
-void expect_same_data_in_vector(std::vector<T>& stl_vector,
-                                ft::vector<T>& ft_vector) {
+template <typename T, typename Allocator>
+void expect_same_data_in_vector(std::vector<T, Allocator>& stl_vector,
+                                ft::vector<T, Allocator>& ft_vector) {
   typename std::vector<T>::iterator stl_it = stl_vector.begin();
   typename ft::vector<T>::iterator ft_it = ft_vector.begin();
 
@@ -64,6 +64,20 @@ TEST(Vector, ConstructorWithValue) {
 
   stl_vec_type stl_vec(10, 10);
   ft_vec_type ft_vec(10, 10);
+  expect_same_data_in_vector(stl_vec, ft_vec);
+}
+
+TEST(Vector, ConstructorWithAllocator) {
+  typedef int value_type;
+  typedef ft::test::MyAllocator<value_type> allocator_type;
+  typedef std::vector<value_type, allocator_type> stl_vec_type;
+  typedef ft::vector<value_type, allocator_type> ft_vec_type;
+
+  allocator_type alloc = allocator_type();
+
+  stl_vec_type stl_vec(alloc);
+  ft_vec_type ft_vec(alloc);
+
   expect_same_data_in_vector(stl_vec, ft_vec);
 }
 

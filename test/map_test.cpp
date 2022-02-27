@@ -388,7 +388,7 @@ TEST(Map, Erase) {
   // erase with iterator
   m.erase(m.find("E"));
   EXPECT_EQ(m.size(), map_type::size_type(4));
-  EXPECT_THROW(m.at("C"), std::out_of_range);
+  EXPECT_THROW(m.at("E"), std::out_of_range);
 
   // erase with iterator range
   // remove B,D
@@ -401,7 +401,7 @@ TEST(Map, Erase) {
 
   map_iterator it = m.begin();
   EXPECT_EQ(*it++, pair_type("A", 1));
-  EXPECT_EQ(*it++, pair_type("E", 5));
+  EXPECT_EQ(*it++, pair_type("F", 6));
 }
 
 TEST(Map, Swap) {

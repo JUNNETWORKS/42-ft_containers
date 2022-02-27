@@ -804,6 +804,31 @@ TEST(Vector, swap) {
   expect_same_data_in_vector(stl_vec2, ft_vec2);
 }
 
+TEST(Vector, remainIteratorAreValidAfterErase) {
+  typedef int value_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  ft_vec_type ft_vec(10, 10);
+  ft_vec_type::iterator it = ft_vec.begin();
+  ft_vec.erase(ft_vec.begin() + 1, ft_vec.end());
+  EXPECT_EQ(*it, 10);
+}
+
+TEST(Vector, remainIteratorAreValidAfterSwap) {
+  typedef int value_type;
+  typedef ft::vector<value_type> ft_vec_type;
+
+  ft_vec_type ft_vec1(10, 1);
+  ft_vec_type ft_vec2(10, 2);
+  ft_vec_type::iterator it1 = ft_vec1.begin();
+  ft_vec_type::iterator it2 = ft_vec2.begin();
+  ft_vec1.swap(ft_vec2);
+  EXPECT_EQ(*it1, 1);
+  EXPECT_EQ(*it2, 2);
+  EXPECT_EQ(*(ft_vec1.begin()), 2);
+  EXPECT_EQ(*(ft_vec2.begin()), 1);
+}
+
 class VectorTest : public ::testing::Test {
  protected:
   typedef int value_type;

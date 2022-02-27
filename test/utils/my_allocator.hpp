@@ -55,7 +55,7 @@ struct MyAllocator {
   }
 
   size_type max_size() const {
-    return std::numeric_limits<size_type>::max() / sizeof(value_type);
+    return 10000;
   }
 
   void construct(pointer p, const_reference val) {

@@ -183,13 +183,17 @@ class map {
     return rbtree_.insert_unique(value);
   }
 
-  iterator insert(iterator position, const value_type& value) {
-    return rbtree_.insert_unique(position, value);
+  iterator insert(iterator hint, const value_type& value) {
+    return rbtree_.insert_unique(hint, value);
   }
 
   template <typename InputIterator>
   void insert(InputIterator first, InputIterator last) {
     rbtree_.insert_range_unique(first, last);
+  }
+
+  void erase(iterator pos) {
+    rbtree_.erase(pos);
   }
 
   size_type erase(const key_type& key) {

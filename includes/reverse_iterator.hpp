@@ -56,7 +56,7 @@ class reverse_iterator {
    */
   reverse_iterator(const reverse_iterator& it) : current_(it.current_) {}
 
-  reference operator=(const reference rhs) {
+  reverse_iterator operator=(const reverse_iterator rhs) {
     if (this != &rhs) {
       current_ = rhs.current_;
     }

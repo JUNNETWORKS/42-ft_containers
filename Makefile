@@ -23,8 +23,8 @@ else
 CXXFLAGS += -std=c++98
 endif
 
-SRC_DIR  := srcs
-CXXFLAGS += -I$(SRC_DIR)
+INCLUDES_DIR  := includes
+CXXFLAGS += -I$(INCLUDES_DIR)
 OBJ_DIR  := objs
 NAME     := ft_containers_benchmark     
 
@@ -76,12 +76,12 @@ TEST_UTIL_DEPENDENCIES \
 
 $(TEST_UTIL_OBJ_DIR)/%.o: $(TEST_UTIL_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) -g -Wall -Wextra -Werror -DDEBUG --std=c++98 -I$(SRC_DIR) -I$(TEST_DIR) \
+	$(CXX) -g -Wall -Wextra -Werror -DDEBUG --std=c++98 -I$(INCLUDES_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
 .PHONY: test
 test: $(TEST_UTIL_OBJECTS)
-	$(CXX) $(CXXFLAGS) -I$(SRC_DIR) -I$(TEST_DIR) test/testlib/testlib_main.cpp $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
+	$(CXX) $(CXXFLAGS) -I$(INCLUDES_DIR) -I$(TEST_DIR) test/testlib/testlib_main.cpp $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
 	$(TESTER_NAME)
 
 ############ GooleTest ############
@@ -109,7 +109,7 @@ TEST_DEPENDENCIES \
 
 $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -I$(SRC_DIR) -I$(TEST_DIR) \
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -I$(INCLUDES_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
 $(GTEST):
@@ -124,14 +124,14 @@ $(GTEST):
 googletest: $(GTEST) $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS)
 	# Google Test require C++11
 	$(CXX) $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
-	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
+	-I$(GTEST_DIR) -I$(INCLUDES_DIR) -lpthread $(TEST_OBJECTS) $(TEST_UTIL_OBJECTS) -o $(TESTER_NAME)
 	$(TESTER_NAME)
 
 .PHONY: coverage
 coverage: $(GTEST)
 	# Google Test require C++11
 	g++ $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
-	-I$(GTEST_DIR) -I$(SRC_DIR) -lpthread $(TEST_SRCS) $(TEST_UTIL_SRCS) -o $(TESTER_NAME)
+	-I$(GTEST_DIR) -I$(INCLUDES_DIR) -lpthread $(TEST_SRCS) $(TEST_UTIL_SRCS) -o $(TESTER_NAME)
 	$(TESTER_NAME)
 	# coverage
 	lcov -c -b . -d . -o cov_test.info --gcov-tool /usr/bin/gcov-8

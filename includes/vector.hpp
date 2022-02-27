@@ -42,6 +42,10 @@ class vector {
     finish_ = start_ + n;
   }
 
+  explicit vector(const Allocator &alloc) {
+
+  }
+
   template <class InputIterator>
   vector(InputIterator first, InputIterator last,
          allocator_type alloc = allocator_type(),

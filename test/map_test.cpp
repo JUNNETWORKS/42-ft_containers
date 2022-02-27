@@ -378,13 +378,19 @@ TEST(Map, Erase) {
   m["C"] = 3;
   m["D"] = 4;
   m["E"] = 5;
+  m["F"] = 6;
 
   // erase with key
   m.erase("C");
-  EXPECT_EQ(m.size(), map_type::size_type(4));
+  EXPECT_EQ(m.size(), map_type::size_type(5));
   EXPECT_THROW(m.at("C"), std::out_of_range);
 
   // erase with iterator
+  m.erase(m.find("E"));
+  EXPECT_EQ(m.size(), map_type::size_type(4));
+  EXPECT_THROW(m.at("C"), std::out_of_range);
+
+  // erase with iterator range
   // remove B,D
   map_iterator first = m.lower_bound("B");
   map_iterator last = m.upper_bound("D");

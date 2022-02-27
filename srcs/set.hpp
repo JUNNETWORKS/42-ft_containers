@@ -118,7 +118,7 @@ class set {
 
   /********** Capacity **********/
   bool empty() const {
-    return size() == 0;
+    return rbtree_.empty();
   }
 
   size_type size() const {

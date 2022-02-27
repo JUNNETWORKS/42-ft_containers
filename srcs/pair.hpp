@@ -16,6 +16,8 @@ struct pair {
   template <class U1, class U2>
   pair(const pair<U1, U2>& other) : first(other.first), second(other.second) {}
 
+  ~pair() {}
+
   pair& operator=(const pair& other) {
     if (this != &other) {
       first = other.first;

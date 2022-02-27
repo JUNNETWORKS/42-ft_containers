@@ -22,8 +22,8 @@ namespace {
 template <typename T, typename Allocator>
 void expect_same_data_in_vector(std::vector<T, Allocator>& stl_vector,
                                 ft::vector<T, Allocator>& ft_vector) {
-  typename std::vector<T>::iterator stl_it = stl_vector.begin();
-  typename ft::vector<T>::iterator ft_it = ft_vector.begin();
+  typename std::vector<T, Allocator>::iterator stl_it = stl_vector.begin();
+  typename ft::vector<T, Allocator>::iterator ft_it = ft_vector.begin();
 
   EXPECT_EQ(stl_vector.size(), ft_vector.size());
   EXPECT_EQ(stl_vector.max_size(), ft_vector.max_size());

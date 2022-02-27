@@ -16,6 +16,7 @@ class vector {
   typedef T value_type;
   typedef Allocator allocator_type;
   typedef value_type &reference;
+  typedef ptrdiff_t difference_type;
   typedef const value_type &const_reference;
   typedef value_type *pointer;
   typedef const value_type *const_pointer;

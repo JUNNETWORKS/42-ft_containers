@@ -44,7 +44,7 @@ class normal_iterator {
                              Container>::type>& it)
       : current_(it.base()) {}
 
-  reference operator=(const reference rhs) {
+  normal_iterator& operator=(const normal_iterator& rhs) {
     if (this != &rhs) {
       current_ = rhs.current_;
     }

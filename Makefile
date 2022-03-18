@@ -8,8 +8,6 @@ CXX      := clang++
 endif
 $(info compiler: $(CXX))
 
-CXXFLAGS := -Wall -Wextra -Werror
-
 ifneq ($(filter $(strip $(MAKECMDGOALS)),googletest coverage test),)
 CXXFLAGS += -DDEBUG -g -fsanitize=address
 endif
@@ -17,10 +15,12 @@ endif
 ifneq ($(filter $(strip $(MAKECMDGOALS)),googletest coverage),)
 CXXFLAGS += -std=c++11
 ifeq ($(shell uname -s),Linux)
-CXXFLAGS += -ftest-coverage -fprofile-arcs -lgcov
+	CXXFLAGS += -ftest-coverage -fprofile-arcs -lgcov
 endif
 else
+# GoogleTest などはC++11を用いるため、-Wall などのフラグはつけない(deprecated errorなどが出る)
 CXXFLAGS += -std=c++98
+CXXFLAGS := -Wall -Wextra -Werror
 endif
 
 INCLUDES_DIR  := includes

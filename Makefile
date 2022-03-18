@@ -26,7 +26,7 @@ endif
 INCLUDES_DIR  := includes
 CXXFLAGS += -I$(INCLUDES_DIR)
 OBJ_DIR  := objs
-NAME     := ft_containers_benchmark     
+NAME     := ft_containers_benchmark
 
 BM_DIR      := benchmark
 BM_SRCS     := $(wildcard $(BM_DIR)/*.cpp)

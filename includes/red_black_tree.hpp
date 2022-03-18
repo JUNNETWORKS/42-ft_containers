@@ -89,12 +89,12 @@ struct rbtree_iterator {
     return tmp;
   }
 
-  bool operator==(const self_type &rhs) const {
-    return node_ == rhs.node_;
+  friend bool operator==(const self_type &lhs, const self_type &rhs) {
+    return lhs.node_ == rhs.node_;
   }
 
-  bool operator!=(const self_type &rhs) const {
-    return node_ != rhs.node_;
+  friend bool operator!=(const self_type &lhs, const self_type &rhs) {
+    return lhs.node_ != rhs.node_;
   }
 };
 
@@ -113,9 +113,13 @@ struct rbtree_const_iterator {
   typedef RBTNode<Value> node_type;
   typedef const node_type *node_pointer;
 
+  node_pointer node_;
+
   rbtree_const_iterator() : node_() {}
 
   explicit rbtree_const_iterator(node_pointer ptr) : node_(ptr) {}
+
+  rbtree_const_iterator(const iterator &it) : node_(it.node_) {}
 
   self_type &operator=(const self_type &other) {
     if (this != &other) {
@@ -160,15 +164,13 @@ struct rbtree_const_iterator {
     return tmp;
   }
 
-  bool operator==(const self_type &rhs) const {
-    return node_ == rhs.node_;
+  friend bool operator==(const self_type &lhs, const self_type &rhs) {
+    return lhs.node_ == rhs.node_;
   }
 
-  bool operator!=(const self_type &rhs) const {
-    return node_ != rhs.node_;
-  }
-
-  node_pointer node_;
+  friend bool operator!=(const self_type &lhs, const self_type &rhs) {
+    return lhs.node_ != rhs.node_;
+  };
 };
 
 template <class Value>

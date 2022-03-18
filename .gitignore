@@ -23,3 +23,6 @@ peda-session-*.txt
 *.gcda
 *.gcno
 cov_test_html/
+
+# tester
+containers_test/

@@ -598,6 +598,9 @@ class RedBlackTree {
 
   void erase(iterator pos) {
     __delete_node_from_tree(pos.get_node_ptr());
+    root_->parent_ = end_node_;
+    end_node_->left_ = root_;
+    end_node_->right_ = root_;
   }
 
   void erase(iterator first, iterator last) {
@@ -1170,6 +1173,9 @@ void RedBlackTree<Key, Value, KeyOfValue, Compare,
     y->left_ = z->left_;
     y->left_->parent_ = y;
     y->color_ = z->color_;
+  }
+  if (z == begin_node_) {
+    begin_node_ = get_next_node<Value>(z);
   }
   __delete_node(z);
 

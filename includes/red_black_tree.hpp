@@ -46,10 +46,6 @@ struct rbtree_iterator {
 
   explicit rbtree_iterator(node_pointer ptr) : node_(ptr) {}
 
-  node_type *get_node_ptr() {
-    return node_;
-  }
-
   self_type &operator=(const self_type &other) {
     if (this != &other) {
       node_ = other.node_;
@@ -450,7 +446,10 @@ class RedBlackTree {
     return ft::pair<iterator, bool>(iterator(new_node), true);
   }
 
-  iterator insert_unique(iterator hint_it, const Value &value) {
+  // Note: const_hint_it のノード情報は書き換えるが value
+  //       は書き換えないのでconstで受け取っている。
+  iterator insert_unique(const_iterator const_hint_it, const Value &value) {
+    iterator hint_it = const_hint_it.cast_nonconst();
     iterator prev_it = iterator(hint_it);
     if (hint_it != begin()) {
       --prev_it;
@@ -596,17 +595,17 @@ class RedBlackTree {
     node_count_ = 0;
   }
 
-  void erase(iterator pos) {
-    __delete_node_from_tree(pos.get_node_ptr());
+  void erase(const_iterator pos) {
+    __delete_node_from_tree(const_cast<node_type *>(pos.node_));
     root_->parent_ = end_node_;
     end_node_->left_ = root_;
     end_node_->right_ = root_;
   }
 
-  void erase(iterator first, iterator last) {
-    iterator it = first;
+  void erase(const_iterator first, const_iterator last) {
+    const_iterator it = first;
     for (; it != last;) {
-      iterator next_it = it;
+      const_iterator next_it = it;
       ++next_it;
       erase(it);
       it = next_it;

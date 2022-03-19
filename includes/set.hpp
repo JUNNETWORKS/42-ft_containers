@@ -51,9 +51,9 @@ class set {
   typedef typename key_alloc_type::const_pointer const_pointer;
   typedef typename RepType::size_type size_type;
   typedef typename RepType::difference_type difference_type;
-  typedef typename RepType::iterator iterator;
+  typedef typename RepType::const_iterator iterator;
   typedef typename RepType::const_iterator const_iterator;
-  typedef typename RepType::reverse_iterator reverse_iterator;
+  typedef typename RepType::const_reverse_iterator reverse_iterator;
   typedef typename RepType::const_reverse_iterator const_reverse_iterator;
 
   /********** Constructor, Assignation and Destructor **********/
@@ -84,35 +84,19 @@ class set {
   }
 
   /********** Iterators **********/
-  iterator begin() {
+  iterator begin() const {
     return rbtree_.begin();
   }
 
-  const_iterator begin() const {
-    return rbtree_.begin();
-  }
-
-  iterator end() {
+  iterator end() const {
     return rbtree_.end();
   }
 
-  const_iterator end() const {
-    return rbtree_.end();
-  }
-
-  reverse_iterator rbegin() {
+  reverse_iterator rbegin() const {
     return rbtree_.rbegin();
   }
 
-  const_reverse_iterator rbegin() const {
-    return rbtree_.rbegin();
-  }
-
-  reverse_iterator rend() {
-    return rbtree_.rend();
-  }
-
-  const_reverse_iterator rend() const {
+  reverse_iterator rend() const {
     return rbtree_.rend();
   }
 

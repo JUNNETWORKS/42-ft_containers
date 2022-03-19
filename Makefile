@@ -22,7 +22,7 @@ endif
 else
 # GoogleTest などはC++11を用いるため、-Wall などのフラグはつけない(deprecated errorなどが出る)
 CXXFLAGS += -std=c++98
-CXXFLAGS := -Wall -Wextra -Werror
+CXXFLAGS += -Wall -Wextra -Werror
 endif
 
 INCLUDES_DIR  := includes
@@ -78,7 +78,7 @@ TEST_UTIL_DEPENDENCIES \
 
 $(TEST_UTIL_OBJ_DIR)/%.o: $(TEST_UTIL_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) -g -Wall -Wextra -Werror -DDEBUG --std=c++98 -I$(INCLUDES_DIR) -I$(TEST_DIR) \
+	$(CXX) $(CXXFLAGS) -I$(INCLUDES_DIR) -I$(TEST_DIR) \
 	-c $< -MMD -o $@
 
 .PHONY: test

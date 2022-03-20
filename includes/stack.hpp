@@ -57,15 +57,15 @@ class stack {
     return c.size();
   }
 
-  value_type& top() {
+  reference top() {
     return c.back();
   }
 
-  const value_type& top() const {
+  const_reference top() const {
     return c.back();
   }
 
-  void push(const value_type& val) {
+  void push(const_reference val) {
     c.push_back(val);
   }
 

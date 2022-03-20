@@ -39,14 +39,14 @@ BEGIN {
     printf("%s\n", title);
     printf("\tft: %d, std: %d, ratio: ", ft, std)
     if (ft <= 0 || std <= 0) {
-      printf("速すぎて測れません\n")
+      printf("Can not measure because it is too fast.\n")
     } else {
       times_slower = ft / std;
       printf("%f\n", times_slower)
       std=-1;
       ft=-1;
       if (times_slower >= 10) {
-        printf("\t%s%f倍遅い！%s\n", RED, times_slower, RESET)
+        printf("\tft %s is %f times slower than std.%s\n", RED, times_slower, RESET)
         slow_funcs[slow_func_idx] = title
         slow_func_idx += 1
       }
@@ -55,7 +55,7 @@ BEGIN {
 }
 
 END {
-  printf("%s以下の関数が10倍以上遅かった\n%s", RED, RESET)
+  printf("%sft methods that is listed below are over 10 times slower than the std method.\n%s", RED, RESET)
   for (i = 0; i < length(slow_funcs); i++) {
     printf("%d. %s\n", i, slow_funcs[i]);
   }

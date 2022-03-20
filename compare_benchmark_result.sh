@@ -39,7 +39,7 @@ BEGIN {
     printf("%s\n", title);
     printf("\tft: %d, std: %d, ratio: ", ft, std)
     if (ft <= 0 || std <= 0) {
-      printf("Can not measure because it is too fast.\n")
+      printf("Can not measure ratio because it is too fast.\n")
     } else {
       times_slower = ft / std;
       printf("%f\n", times_slower)
